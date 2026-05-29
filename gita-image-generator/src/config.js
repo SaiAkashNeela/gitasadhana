@@ -15,7 +15,7 @@ const config = {
   imageGenerationEnabled: true,
   uploadToR2Enabled: true,
   logLevel: 'info',
-  gitaDataPath: '../../src/app/gita-english.json',
+  gitaDataPath: './gita-english.json',
   promptsOutputPath: './data/prompts.json',
   metadataOutputPath: './data/metadata.json',
   imagesLocalPath: './images',
