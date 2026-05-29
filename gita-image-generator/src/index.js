@@ -3,7 +3,6 @@ import config from './config.js';
 import { generateAllPrompts } from './generatePrompts.js';
 import { generateImages } from './generateImages.js';
 import { validatePrompts } from './validatePrompts.js';
-import { uploadToR2 } from './uploadToR2.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -63,21 +62,21 @@ async function orchestratePipeline() {
       logger.info('Set IMAGE_GENERATION_ENABLED=true to enable\n');
     }
 
-    // Step 4: Upload to R2 (if enabled)
+    // Step 4: Upload to R2 (already done during Step 3)
     if (config.uploadToR2Enabled && generatedImages.length > 0) {
-      logger.info('[STEP 4/4] Uploading to Cloudflare R2');
+      logger.info('[STEP 4/4] R2 Upload');
       logger.info('─────────────────────────────────────');
-      await uploadToR2();
-      logger.info(`✓ Upload complete\n`);
+      logger.info(`✓ All ${generatedImages.length} images uploaded to R2 during generation`);
+      logger.info('Streaming upload active - images safe in R2\n');
     } else {
       logger.info('[STEP 4/4] Skipping R2 Upload');
       logger.info('─────────────────────────────────────');
       if (!config.uploadToR2Enabled) {
         logger.info('Upload disabled in config');
       } else if (generatedImages.length === 0) {
-        logger.info('No images to upload');
+        logger.info('No images were generated');
       }
-      logger.info('Run: bun run src/uploadToR2.js\n');
+      logger.info('');
     }
 
     // Summary

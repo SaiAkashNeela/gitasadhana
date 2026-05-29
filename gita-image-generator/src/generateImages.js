@@ -32,10 +32,11 @@ async function generateImages(startIndex = 0, limit = null) {
 
     // Initialize Imagen client
     const imagenClient = new ImagenClient();
+    const r2Client = new R2Client();
 
     // Process in batches
     const batchSize = config.batchSize;
-    const generatedImages = [];
+    const generatedResults = [];
 
     for (let i = 0; i < promptsToProcess.length; i += batchSize) {
       const batch = promptsToProcess.slice(i, Math.min(i + batchSize, promptsToProcess.length));
@@ -51,25 +52,38 @@ async function generateImages(startIndex = 0, limit = null) {
             prompt.verseKey || `image_${prompt.chapterNumber || 'unknown'}`
           );
 
-          const imageData = {
-            ...prompt,
-            imageBase64: result.imageBase64,
-            mimeType: result.mimeType,
-            generatedAt: result.generatedAt,
+          // Build R2 path
+          const chapter = prompt.chapterNumber || 'unknown';
+          const verse = prompt.verseNumber || 'unknown';
+          const r2Path = `gita/chapters/${chapter}/verses/${verse}/image.jpg`;
+
+          // Upload to R2 immediately (no local storage)
+          const uploadResult = await r2Client.uploadObject(
+            r2Path,
+            Buffer.from(result.imageBase64, 'base64'),
+            'image/jpeg'
+          );
+
+          // Store metadata with R2 path
+          const resultMetadata = {
+            verseKey: prompt.verseKey || `Chapter ${prompt.chapterNumber}`,
+            chapterNumber: prompt.chapterNumber,
+            verseNumber: prompt.verseNumber,
             success: true,
+            generatedAt: result.generatedAt,
+            r2Path: r2Path,
+            r2Uploaded: true,
+            r2UploadedAt: new Date().toISOString(),
           };
 
-          generatedImages.push(imageData);
+          generatedResults.push(resultMetadata);
 
-          logger.info(`✓ Generated: ${prompt.verseKey || `Chapter ${prompt.chapterNumber}`}`);
-
-          // Save locally
-          await saveImageLocally(imageData);
+          logger.info(`✓ Generated & Uploaded to R2: ${prompt.verseKey || `Chapter ${prompt.chapterNumber}`}`);
 
         } catch (error) {
           logger.error(`Failed to generate image: ${error.message}`);
-          generatedImages.push({
-            ...prompt,
+          generatedResults.push({
+            verseKey: prompt.verseKey || `Chapter ${prompt.chapterNumber}`,
             success: false,
             error: error.message,
           });
@@ -80,14 +94,14 @@ async function generateImages(startIndex = 0, limit = null) {
       }
     }
 
-    // Save generation results
+    // Save generation results (metadata only, no base64)
     const resultsPath = path.join(__dirname, '..', 'data', 'generation-results.json');
-    await fs.writeFile(resultsPath, JSON.stringify(generatedImages, null, 2));
+    await fs.writeFile(resultsPath, JSON.stringify(generatedResults, null, 2));
 
-    const successCount = generatedImages.filter(img => img.success).length;
-    logger.info(`\n✓ Generation complete: ${successCount}/${generatedImages.length} successful`);
+    const successCount = generatedResults.filter(img => img.success).length;
+    logger.info(`\n✓ Generation complete: ${successCount}/${generatedResults.length} successful`);
 
-    return generatedImages;
+    return generatedResults;
 
   } catch (error) {
     logger.error('Error during image generation:', error);
@@ -95,24 +109,10 @@ async function generateImages(startIndex = 0, limit = null) {
   }
 }
 
-async function saveImageLocally(imageData) {
-  try {
-    const imagesDir = path.join(__dirname, '..', config.imagesLocalPath);
-    await fs.mkdir(imagesDir, { recursive: true });
 
-    let filename = imageData.verseKey || `image_${imageData.chapterNumber || 'unknown'}`;
-    filename = filename.replace(/\//g, '_');
-    const filepath = path.join(imagesDir, `${filename}.jpg`);
 
-    const buffer = Buffer.from(imageData.imageBase64, 'base64');
-    await fs.writeFile(filepath, buffer);
-
-    logger.debug(`Saved locally: ${filename}.jpg`);
-
-  } catch (error) {
-    logger.warn(`Could not save image locally: ${error.message}`);
-  }
-}
+// Images are uploaded directly to R2 during generation
+// No local storage needed
 
 // CLI support
 if (import.meta.url === `file://${process.argv[1]}`) {

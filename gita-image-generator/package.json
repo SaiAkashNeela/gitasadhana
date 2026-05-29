@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node --max-old-space-size=4096 src/index.js",
     "dev": "node src/index.js --mode=dev",
     "generate-prompts": "node src/generatePrompts.js",
     "generate-images": "node src/generateImages.js",
