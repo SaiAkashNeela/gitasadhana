@@ -154,8 +154,7 @@ async function generateAllPrompts() {
     logger.info('Starting prompt generation...');
 
     // Read Gita data
-    const gitaPath = path.join(__dirname, config.gitaDataPath);
-    const gitaData = JSON.parse(await fs.readFile(gitaPath, 'utf-8'));
+    const gitaData = JSON.parse(await fs.readFile(config.gitaDataPath, 'utf-8'));
 
     const allPrompts = [];
     const allMetadata = [];
