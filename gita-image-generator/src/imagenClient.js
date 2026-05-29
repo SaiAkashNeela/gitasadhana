@@ -1,4 +1,5 @@
-import { ImageGenerationServiceClient } from '@google-cloud/aiplatform';
+import pkg from '@google-cloud/aiplatform';
+const { ImageGenerationServiceClient } = pkg;
 import logger from './logger.js';
 import config from './config.js';
 
