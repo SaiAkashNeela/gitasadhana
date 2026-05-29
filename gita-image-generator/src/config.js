@@ -1,7 +1,13 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const projectRoot = path.dirname(__dirname);
+
 const config = {
-  googleProjectId: 'REPLACE_ME_GCP_PROJECT_ID',
+  googleProjectId: 'project-7f37abfa-24e2-4383-824',
   googleRegion: 'us-central1',
-  googleCredentialsPath: '../gita-credentials.json',
+  googleCredentialsPath: path.join(projectRoot, 'gita-credentials.json'),
   imagenModel: 'imagen-4.0-ultra-generate-001',
   imagenOutputMimeType: 'image/jpeg',
   r2: {
@@ -15,7 +21,7 @@ const config = {
   imageGenerationEnabled: true,
   uploadToR2Enabled: true,
   logLevel: 'info',
-  gitaDataPath: '../gita-english.json',
+  gitaDataPath: path.join(projectRoot, 'gita-english.json'),
   promptsOutputPath: './data/prompts.json',
   metadataOutputPath: './data/metadata.json',
   imagesLocalPath: './images',

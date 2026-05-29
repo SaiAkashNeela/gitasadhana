@@ -1,11 +1,8 @@
 import axios from 'axios';
 import { readFileSync } from 'fs';
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { JWT } from 'google-auth-library';
 import logger from './logger.js';
 import config from './config.js';
-
-const execAsync = promisify(exec);
 
 class ImagenClient {
   constructor() {
@@ -19,8 +16,16 @@ class ImagenClient {
     try {
       const credsPath = config.googleCredentialsPath;
       const credsData = readFileSync(credsPath, 'utf-8');
-      this.credentials = JSON.parse(credsData);
-      logger.debug('Loaded GCP credentials');
+      const credentials = JSON.parse(credsData);
+      
+      this.jwtClient = new JWT({
+        email: credentials.client_email,
+        key: credentials.private_key,
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      });
+      
+      this.projectId = credentials.project_id;
+      logger.debug('Initialized JWT client from service account credentials');
     } catch (error) {
       logger.error(`Failed to load credentials: ${error.message}`);
       throw error;
@@ -29,11 +34,11 @@ class ImagenClient {
 
   async getAccessToken() {
     try {
-      const { stdout } = await execAsync('gcloud auth application-default print-access-token');
-      return stdout.trim();
+      const { token } = await this.jwtClient.getAccessToken();
+      return token;
     } catch (error) {
-      logger.error('Error getting access token:', error.message);
-      throw new Error('Failed to get access token. Ensure gcloud CLI is authenticated.');
+      logger.error(`Error getting access token: ${error.message}`);
+      throw error;
     }
   }
 
@@ -41,13 +46,7 @@ class ImagenClient {
     try {
       logger.debug(`Generating image: ${imageName}`);
 
-      let accessToken;
-      try {
-        accessToken = await this.getAccessToken();
-      } catch (error) {
-        logger.warn('Skipping image generation (no gcloud auth)');
-        throw error;
-      }
+      const accessToken = await this.getAccessToken();
 
       const request = {
         instances: [{ prompt }],
@@ -63,7 +62,7 @@ class ImagenClient {
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-        timeout: 60000,
+        timeout: 120000,
       });
 
       if (!response.data.predictions?.[0]) {
