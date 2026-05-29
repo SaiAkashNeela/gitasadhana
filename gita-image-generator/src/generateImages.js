@@ -52,10 +52,12 @@ async function generateImages(startIndex = 0, limit = null) {
             prompt.verseKey || `image_${prompt.chapterNumber || 'unknown'}`
           );
 
-          // Build R2 path
-          const chapter = prompt.chapterNumber || 'unknown';
-          const verse = prompt.verseNumber || 'unknown';
-          const r2Path = `gita/chapters/${chapter}/verses/${verse}/image.jpg`;
+          // Parse verseKey (format: "chapter-verse")
+          const [chapter, verse] = prompt.verseKey 
+            ? prompt.verseKey.split('-').map(Number)
+            : ['unknown', 'unknown'];
+          
+          const r2Path = `images/chapters/${chapter}/${chapter}_${verse}.jpg`;
 
           // Upload to R2 immediately (no local storage)
           const uploadResult = await r2Client.uploadImage(
@@ -66,9 +68,9 @@ async function generateImages(startIndex = 0, limit = null) {
 
           // Store metadata with R2 path
           const resultMetadata = {
-            verseKey: prompt.verseKey || `Chapter ${prompt.chapterNumber}`,
-            chapterNumber: prompt.chapterNumber,
-            verseNumber: prompt.verseNumber,
+            verseKey: prompt.verseKey,
+            chapter,
+            verse,
             success: true,
             generatedAt: result.generatedAt,
             r2Path: r2Path,
@@ -78,7 +80,7 @@ async function generateImages(startIndex = 0, limit = null) {
 
           generatedResults.push(resultMetadata);
 
-          logger.info(`✓ Generated & Uploaded to R2: ${prompt.verseKey || `Chapter ${prompt.chapterNumber}`}`);
+          logger.info(`✓ Generated & Uploaded to R2: ${prompt.verseKey}`);
 
         } catch (error) {
           logger.error(`Failed to generate/upload image: ${error.message}`);
