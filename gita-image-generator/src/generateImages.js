@@ -58,9 +58,9 @@ async function generateImages(startIndex = 0, limit = null) {
           const r2Path = `gita/chapters/${chapter}/verses/${verse}/image.jpg`;
 
           // Upload to R2 immediately (no local storage)
-          const uploadResult = await r2Client.uploadObject(
+          const uploadResult = await r2Client.uploadImage(
+            result.imageBase64,
             r2Path,
-            Buffer.from(result.imageBase64, 'base64'),
             'image/jpeg'
           );
 
