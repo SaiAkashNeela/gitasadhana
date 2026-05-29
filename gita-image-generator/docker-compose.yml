@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  gita-image-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gita-image-generator
+    volumes:
+      - gita-data:/app/data
+      - gita-images:/app/images
+      - gita-logs:/app/logs
+      - ./gita-credentials.json:/app/gita-credentials.json:ro
+    environment:
+      - NODE_ENV=production
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/gita-credentials.json
+    restart: "no"
+    networks:
+      - gita-network
+
+volumes:
+  gita-data:
+  gita-images:
+  gita-logs:
+
+networks:
+  gita-network:
+    driver: bridge
