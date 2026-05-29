@@ -47,19 +47,27 @@ async function generateImages(startIndex = 0, limit = null) {
 
       for (const prompt of batch) {
         try {
+          // Handle both chapter banners and verses
+          let r2Path, logKey;
+          
+          if (prompt.type === 'chapter_banner') {
+            // Chapter banner: images/chapters/{chapter}/banner.jpg
+            r2Path = `images/chapters/${prompt.chapterNumber}/banner.jpg`;
+            logKey = `Chapter ${prompt.chapterNumber} Banner`;
+          } else if (prompt.verseKey) {
+            // Verse: parse verseKey (format: "chapter-verse")
+            const [chapter, verse] = prompt.verseKey.split('-').map(Number);
+            r2Path = `images/chapters/${chapter}/${chapter}_${verse}.jpg`;
+            logKey = prompt.verseKey;
+          } else {
+            throw new Error(`Prompt has no verseKey or chapter banner type: ${JSON.stringify(prompt).substring(0, 100)}`);
+          }
+
           const result = await imagenClient.generateImage(
             prompt.imagePrompt,
-            prompt.verseKey || `image_${prompt.chapterNumber || 'unknown'}`
+            logKey
           );
-
-          // Parse verseKey (format: "chapter-verse")
-          const [chapter, verse] = prompt.verseKey 
-            ? prompt.verseKey.split('-').map(Number)
-            : ['unknown', 'unknown'];
           
-          const r2Path = `images/chapters/${chapter}/${chapter}_${verse}.jpg`;
-
-          // Upload to R2 immediately (no local storage)
           const uploadResult = await r2Client.uploadImage(
             result.imageBase64,
             r2Path,
@@ -68,19 +76,17 @@ async function generateImages(startIndex = 0, limit = null) {
 
           // Store metadata with R2 path
           const resultMetadata = {
-            verseKey: prompt.verseKey,
-            chapter,
-            verse,
+            key: logKey,
+            r2Path: r2Path,
             success: true,
             generatedAt: result.generatedAt,
-            r2Path: r2Path,
             r2Uploaded: true,
             r2UploadedAt: new Date().toISOString(),
           };
 
           generatedResults.push(resultMetadata);
 
-          logger.info(`✓ Generated & Uploaded to R2: ${prompt.verseKey}`);
+          logger.info(`✓ Generated & Uploaded to R2: ${logKey}`);
 
         } catch (error) {
           logger.error(`Failed to generate/upload image: ${error.message}`);
