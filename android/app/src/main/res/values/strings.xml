@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Easy Gita</string>
+    <string name="title_activity_main">Easy Gita</string>
+    <string name="package_name">com.gitachapters.app</string>
+    <string name="custom_url_scheme">com.gitachapters.app</string>
+</resources>

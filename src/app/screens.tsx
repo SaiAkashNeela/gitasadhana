@@ -1,46 +1,137 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import {
-  Flower2, Bell, Search, Play, Pause, Bookmark, BookmarkCheck, Heart, Share2,
-  ChevronRight, Sparkles, BookOpen, Headphones, Clock, Download, Settings as SettingsIcon,
-  Flame, Moon, Sun, Languages, ChevronLeft, SkipBack, SkipForward, Plus, Trash2,
-  FileText, History as HistoryIcon, CheckCircle2, Circle, Volume2, LogOut,
+  Flower2,
+  Bell,
+  Search,
+  Play,
+  Pause,
+  Bookmark,
+  BookmarkCheck,
+  Heart,
+  Share2,
+  ChevronRight,
+  Sparkles,
+  BookOpen,
+  Headphones,
+  Clock,
+  Download,
+  Settings as SettingsIcon,
+  Flame,
+  Moon,
+  Sun,
+  Languages,
+  ChevronLeft,
+  SkipBack,
+  SkipForward,
+  Plus,
+  Trash2,
+  FileText,
+  History as HistoryIcon,
+  CheckCircle2,
+  Circle,
+  Volume2,
+  LogOut,
+  Info,
+  Database,
+  RefreshCw,
+  Repeat,
+  Trophy,
+  Calendar,
+  Megaphone,
+  ArrowUp,
 } from "lucide-react";
+import { toast } from "sonner";
+import { Capacitor } from "@capacitor/core";
+import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
+
 import {
-  ScreenWrapper, Header, AppCard, PrimaryButton, GhostButton, IconButton, ProgressBar,
-  ImageBanner, SectionTitle, BottomTabs, ChapterCard, VerseCard, EmptyState, Skeleton,
+  ScreenWrapper,
+  Header,
+  AppCard,
+  PrimaryButton,
+  GhostButton,
+  IconButton,
+  ProgressBar,
+  ImageBanner,
+  SectionTitle,
+  BottomTabs,
+  ChapterCard,
+  VerseCard,
+  EmptyState,
+  Skeleton,
 } from "@/app/components/ui";
+
+import { useUserProgress, UserNote, HistoryItem } from "@/hooks/useUserProgress";
 import {
-  DEMO_IMG, chapters, sampleVerses, wisdomQuotes, wisdomThemes, languages,
-  bookmarks as demoBookmarks, notes as demoNotes, history as demoHistory, downloads as demoDownloads, profile,
-} from "@/app/data";
+  useChapters,
+  useVersesInChapter,
+  useVerseDetail,
+  useQuotes,
+  Verse,
+} from "@/hooks/useGitaData";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { auth, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "@/lib/firebase";
+import { seedGitaDatabase, SeedingProgress } from "@/lib/seeding";
 import { cn } from "@/lib/utils";
+import gitaProcessedData from "@/app/gita-processed.json";
+
+export const DEMO_IMG = "https://static.zingdelights.com/4.png";
+
+const supportedLanguages = [
+  { code: "en", name: "English", native: "English" },
+  { code: "hi", name: "Hindi", native: "हिन्दी" },
+  { code: "sa", name: "Sanskrit", native: "संस्कृतम्" },
+  { code: "te", name: "Telugu", native: "తెలుగు" },
+  { code: "ta", name: "Tamil", native: "தமிழ்" },
+  { code: "kn", name: "Kannada", native: "ಕನ್ನಡ" },
+  { code: "ml", name: "Malayalam", native: "മലയാളം" },
+  { code: "mr", name: "Marathi", native: "मराठी" },
+  { code: "gu", name: "Gujarati", native: "ગુજરાતી" },
+  { code: "bn", name: "Bengali", native: "বাংলা" },
+  { code: "pa", name: "Punjabi", native: "ਪੰਜਾਬੀ" },
+  { code: "ne", name: "Nepali", native: "नेपाली" },
+  { code: "or", name: "Oriya", native: "ଓଡ଼ିଆ" },
+];
 
 /* ───────────────────────── 1. Welcome ───────────────────────── */
 export function Welcome() {
   return (
     <ScreenWrapper className="bg-gradient-dawn">
-      <div className="flex-1 flex flex-col px-6 pt-10">
-        <div className="flex items-center gap-2 text-primary">
-          <Flower2 size={22} />
-          <span className="font-serif text-lg tracking-wide">Easy Gita</span>
+      <div className="flex-1 flex flex-col px-6 pt-8 pb-8 overflow-hidden">
+        {/* Logo */}
+        <div className="flex items-center gap-2 text-primary font-serif text-lg tracking-wide animate-fade-up">
+          <Flower2 size={22} className="animate-spin-slow" />
+          <span>Easy Gita</span>
         </div>
-        <div className="mt-10">
-          <ImageBanner src={DEMO_IMG} alt="Bhagavad Gita" className="aspect-[4/5]">
-            <p className="font-serif text-3xl leading-tight text-balance">The eternal song, made simple.</p>
+
+        {/* Hero image — no scroll, fills available space proportionally */}
+        <div className="mt-6 flex-1 min-h-0 animate-scale-in delay-75">
+          <ImageBanner src="/assets/welcome_journey.png" alt="Bhagavad Gita" className="h-full max-h-[42vh]">
+            <p className="font-serif text-2xl leading-tight text-balance">
+              The eternal song, made simple.
+            </p>
           </ImageBanner>
         </div>
-        <div className="mt-8">
-          <h1 className="font-serif text-4xl leading-tight text-foreground text-balance">
-            Welcome to a quieter way to read the Gita.
+
+        {/* Text block */}
+        <div className="mt-6 animate-fade-up delay-150">
+          <h1 className="font-serif text-3xl leading-tight text-foreground text-balance">
+            Welcome to a quieter<br />way to read the Gita.
           </h1>
-          <p className="mt-3 text-muted-foreground leading-relaxed">
+          <p className="mt-2.5 text-muted-foreground leading-relaxed text-sm">
             Verse by verse. Word by word. A daily practice in your pocket.
           </p>
         </div>
-        <div className="mt-auto pt-8 pb-8 space-y-3">
-          <Link to="/onboarding/2"><PrimaryButton>Begin Journey</PrimaryButton></Link>
-          <Link to="/language" className="block"><GhostButton>Choose Language</GhostButton></Link>
+
+        {/* CTAs */}
+        <div className="mt-6 space-y-3 animate-fade-up delay-250">
+          <Link to="/onboarding/2">
+            <PrimaryButton>Begin Journey</PrimaryButton>
+          </Link>
+          <Link to="/language" className="block">
+            <GhostButton>Choose Language</GhostButton>
+          </Link>
         </div>
       </div>
     </ScreenWrapper>
@@ -49,35 +140,69 @@ export function Welcome() {
 
 /* ───────────── 2 & 3. Onboarding slides ───────────── */
 const slides = [
-  { img: DEMO_IMG, title: "Read with calm focus", body: "Sanskrit, transliteration, translation and commentary — beautifully laid out." },
-  { img: DEMO_IMG, title: "Listen, reflect, return", body: "Audio recitations, personal notes and daily streaks to keep you steady." },
+  {
+    img: "/assets/read_focus.png",
+    title: "Read with calm focus",
+    body: "Sanskrit, transliteration, translation and commentary — beautifully laid out.",
+  },
+  {
+    img: "/assets/listen_return.png",
+    title: "Listen, reflect, return",
+    body: "Audio recitations, personal notes and daily streaks to keep you steady.",
+  },
 ];
+
 export function Onboarding() {
   const { step } = useParams();
-  const i = Math.max(0, Math.min(slides.length - 1, parseInt(step ?? "1") - 2));
+  const i = Math.max(0, Math.min(slides.length - 1, parseInt(step ?? "2") - 2));
   const s = slides[i];
   const next = i === slides.length - 1 ? "/language" : `/onboarding/${i + 3}`;
+
   return (
     <ScreenWrapper className="bg-gradient-dawn">
-      <div className="flex-1 flex flex-col px-6 pt-6">
-        <div className="flex justify-between items-center">
-          <Link to="/" className="text-sm text-muted-foreground">Back</Link>
-          <Link to="/language" className="text-sm text-primary font-medium">Skip</Link>
+      <div className="flex-1 flex flex-col px-6 pt-6 pb-8 overflow-hidden">
+        {/* Nav row */}
+        <div className="flex justify-between items-center animate-fade-up">
+          <Link to="/" className="text-sm text-muted-foreground active:opacity-60 transition-opacity">
+            Back
+          </Link>
+          <Link to="/language" className="text-sm text-primary font-medium active:opacity-60 transition-opacity">
+            Skip
+          </Link>
         </div>
-        <div className="mt-8">
-          <ImageBanner src={s.img} alt={s.title} className="aspect-square" />
+
+        {/* Slide image — keyed so it re-animates on each step */}
+        <div
+          key={`img-${i}`}
+          className="mt-5 flex-1 min-h-0 animate-scale-in"
+        >
+          <ImageBanner src={s.img} alt={s.title} className="h-full max-h-[42vh]" />
         </div>
-        <div className="mt-8">
-          <h2 className="font-serif text-3xl text-foreground text-balance">{s.title}</h2>
-          <p className="mt-3 text-muted-foreground leading-relaxed">{s.body}</p>
-        </div>
-        <div className="mt-6 flex justify-center gap-2">
+
+        {/* Dot indicators */}
+        <div className="mt-5 flex justify-center gap-2 animate-fade-up delay-75">
           {slides.map((_, idx) => (
-            <span key={idx} className={cn("h-1.5 rounded-full transition-all", idx === i ? "w-6 bg-primary" : "w-1.5 bg-border")} />
+            <span
+              key={idx}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-300",
+                idx === i ? "w-6 bg-primary" : "w-1.5 bg-border",
+              )}
+            />
           ))}
         </div>
-        <div className="mt-auto pt-8 pb-8">
-          <Link to={next}><PrimaryButton>{i === slides.length - 1 ? "Continue" : "Next"}</PrimaryButton></Link>
+
+        {/* Text — keyed so it re-animates */}
+        <div key={`text-${i}`} className="mt-5 animate-fade-up delay-150">
+          <h2 className="font-serif text-3xl text-foreground text-balance">{s.title}</h2>
+          <p className="mt-2.5 text-muted-foreground leading-relaxed text-sm">{s.body}</p>
+        </div>
+
+        {/* CTA */}
+        <div className="mt-6 animate-fade-up delay-250">
+          <Link to={next}>
+            <PrimaryButton>{i === slides.length - 1 ? "Continue" : "Next"}</PrimaryButton>
+          </Link>
         </div>
       </div>
     </ScreenWrapper>
@@ -86,26 +211,44 @@ export function Onboarding() {
 
 /* ───────────── 4. Language Selection ───────────── */
 export function LanguageSelect() {
-  const [picked, setPicked] = useState("en");
+  const { selectedLanguage, setLanguage } = useUserProgress();
+
   return (
     <ScreenWrapper>
-      <Header title="Choose your language" subtitle="You can change this anytime in Settings" />
-      <div className="px-5 flex-1 overflow-y-auto space-y-2 pb-4">
-        {languages.map((l) => {
-          const active = picked === l.code;
+      <Header
+        title="Choose your language"
+        subtitle="You can change this anytime in Settings"
+        back={true}
+      />
+      <div className="px-5 flex-1 overflow-y-auto space-y-2 pb-4 scroll-hide">
+        {supportedLanguages.map((l) => {
+          const active = selectedLanguage === l.code;
           return (
-            <AppCard key={l.code} onClick={() => setPicked(l.code)} className={cn("flex items-center justify-between", active && "border-primary/50 ring-1 ring-primary/30")}>
+            <AppCard
+              key={l.code}
+              onClick={() => setLanguage(l.code)}
+              className={cn(
+                "flex items-center justify-between",
+                active && "border-primary/50 ring-1 ring-primary/30",
+              )}
+            >
               <div>
                 <p className="font-serif text-lg text-foreground">{l.native}</p>
                 <p className="text-xs text-muted-foreground">{l.name}</p>
               </div>
-              {active ? <CheckCircle2 className="text-primary" size={22} /> : <Circle className="text-muted-foreground/40" size={22} />}
+              {active ? (
+                <CheckCircle2 className="text-primary" size={22} />
+              ) : (
+                <Circle className="text-muted-foreground/40" size={22} />
+              )}
             </AppCard>
           );
         })}
       </div>
       <div className="px-5 pb-6 pt-2">
-        <Link to="/home"><PrimaryButton>Continue</PrimaryButton></Link>
+        <Link to="/home">
+          <PrimaryButton>Continue</PrimaryButton>
+        </Link>
       </div>
     </ScreenWrapper>
   );
@@ -114,57 +257,114 @@ export function LanguageSelect() {
 /* ───────────── 5. Home ───────────── */
 export function HomeScreen() {
   const nav = useNavigate();
+  const { profile, selectedLanguage } = useUserProgress();
+  const { data: chaptersData } = useChapters();
+  const { data: verse } = useVerseDetail(2, 47);
+  const { data: quotes } = useQuotes(selectedLanguage);
+
+  const displayedChapters = chaptersData ? chaptersData.slice(0, 3) : [];
+  const dailyQuote =
+    quotes && quotes.length > 0 ? quotes[0] : { text: "The soul is eternal.", ref: "Gita 2.20" };
+
   return (
     <ScreenWrapper>
       <div className="px-5 pt-5 flex items-center justify-between">
         <div>
-          <p className="text-xs text-muted-foreground">Hari Om, Aarav</p>
+          <p className="text-xs text-muted-foreground">Hari Om, {profile.name}</p>
           <h1 className="font-serif text-2xl text-foreground">Today's Verse</h1>
         </div>
         <div className="flex gap-2">
-          <IconButton onClick={() => nav("/search")}><Search size={18} /></IconButton>
-          <IconButton onClick={() => nav("/reminders")}><Bell size={18} /></IconButton>
+          <IconButton onClick={() => nav("/search")}>
+            <Search size={18} />
+          </IconButton>
+          <IconButton onClick={() => nav("/notifications")}>
+            <Bell size={18} />
+          </IconButton>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-4">
+      <div className="flex-1 overflow-y-auto pb-4 scroll-hide">
         <div className="px-5 mt-5">
           <div onClick={() => nav("/verse/2.47")} className="cursor-pointer">
             <ImageBanner src={DEMO_IMG} alt="Verse of the day" className="aspect-[5/6]">
-              <span className="text-[10px] uppercase tracking-widest opacity-80">Verse of the day</span>
-              <p className="mt-2 font-serif text-2xl leading-snug text-balance">"You have the right to action, never to its fruits."</p>
+              <span className="text-[10px] uppercase tracking-widest opacity-80">
+                Verse of the day
+              </span>
+              <p className="mt-2 font-serif text-2xl leading-snug text-balance">
+                "
+                {verse?.translation[selectedLanguage]?.simple ||
+                  verse?.translation["en"]?.simple ||
+                  "You have the right to action, never to its fruits."}
+                "
+              </p>
               <p className="mt-3 text-xs opacity-80">Bhagavad Gita 2.47</p>
             </ImageBanner>
           </div>
         </div>
 
-        <SectionTitle action={<Link to="/journey" className="text-xs text-primary font-medium">View</Link>}>Your Journey</SectionTitle>
+        <SectionTitle
+          action={
+            <Link to="/journey" className="text-xs text-primary font-medium">
+              View
+            </Link>
+          }
+        >
+          Your Journey
+        </SectionTitle>
         <div className="px-5">
-          <AppCard className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground shadow-soft">
+          <AppCard className="flex items-center gap-4" onClick={() => nav("/journey")}>
+            <div className="h-14 w-14 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground shadow-soft shrink-0">
               <Flame size={22} />
             </div>
             <div className="flex-1">
               <p className="font-serif text-lg text-foreground">{profile.streak} day streak</p>
-              <p className="text-xs text-muted-foreground">{profile.versesRead} verses · {profile.minutes} min</p>
+              <p className="text-xs text-muted-foreground">
+                {profile.versesRead} verses · {profile.minutes} min
+              </p>
             </div>
             <ChevronRight className="text-muted-foreground" />
           </AppCard>
         </div>
 
-        <SectionTitle action={<Link to="/chapters" className="text-xs text-primary font-medium">All</Link>}>Continue Reading</SectionTitle>
+        <SectionTitle
+          action={
+            <Link to="/chapters" className="text-xs text-primary font-medium">
+              All
+            </Link>
+          }
+        >
+          Continue Reading
+        </SectionTitle>
         <div className="px-5 space-y-3">
-          {chapters.slice(0, 2).map((c) => (
-            <ChapterCard key={c.id} {...c} onClick={() => nav(`/chapter/${c.id}`)} />
+          {displayedChapters.map((c) => (
+            <ChapterCard
+              key={c.chapter_number}
+              id={c.chapter_number}
+              title={c.title[selectedLanguage] || c.title["en"]}
+              subtitle={c.summary[selectedLanguage] || c.summary["en"]}
+              verses={c.verseCount}
+              progress={c.chapter_number === 1 ? 0.6 : c.chapter_number === 2 ? 0.4 : 0}
+              onClick={() => nav(`/chapter/${c.chapter_number}`)}
+            />
           ))}
         </div>
 
-        <SectionTitle action={<Link to="/wisdom" className="text-xs text-primary font-medium">Explore</Link>}>Wisdom for Today</SectionTitle>
+        <SectionTitle
+          action={
+            <Link to="/wisdom" className="text-xs text-primary font-medium">
+              Explore
+            </Link>
+          }
+        >
+          Wisdom for Today
+        </SectionTitle>
         <div className="px-5">
-          <AppCard className="bg-gradient-dawn border-0">
-            <Sparkles className="text-primary mb-2" size={18} />
-            <p className="font-serif text-base text-foreground leading-relaxed">{wisdomQuotes[0].text}</p>
-            <p className="mt-2 text-xs text-muted-foreground">{wisdomQuotes[0].ref}</p>
+          <AppCard className="bg-gradient-dawn border-0" onClick={() => nav("/wisdom")}>
+            <span className="font-devanagari text-xl text-primary font-bold mb-1.5 block select-none">ॐ</span>
+            <p className="font-serif text-base text-foreground leading-relaxed">
+              "{dailyQuote.text}"
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">Bhagavad Gita</p>
           </AppCard>
         </div>
         <div className="h-4" />
@@ -179,14 +379,30 @@ export function HomeScreen() {
 /* ───────────── 6. Chapters List ───────────── */
 export function ChaptersList() {
   const nav = useNavigate();
+  const { selectedLanguage } = useUserProgress();
+  const { data: chapters, isLoading } = useChapters();
+
   return (
     <ScreenWrapper>
       <Header title="Chapters" subtitle="18 chapters · 700 verses" back={false} />
-      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-4">
-        {chapters.map((c) => (
-          <ChapterCard key={c.id} {...c} onClick={() => nav(`/chapter/${c.id}`)} />
-        ))}
+      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-4 scroll-hide">
+        {isLoading
+          ? Array.from({ length: 5 }).map((_, idx) => (
+              <Skeleton key={idx} className="h-24 w-full" />
+            ))
+          : chapters?.map((c) => (
+              <ChapterCard
+                key={c.chapter_number}
+                id={c.chapter_number}
+                title={c.title[selectedLanguage] || c.title["en"]}
+                subtitle={c.summary[selectedLanguage] || c.summary["en"]}
+                verses={c.verseCount}
+                progress={c.chapter_number === 1 ? 0.6 : c.chapter_number === 2 ? 0.4 : 0}
+                onClick={() => nav(`/chapter/${c.chapter_number}`)}
+              />
+            ))}
       </div>
+      <MiniPlayer />
       <BottomTabs />
     </ScreenWrapper>
   );
@@ -196,31 +412,101 @@ export function ChaptersList() {
 export function ChapterDetail() {
   const { id } = useParams();
   const nav = useNavigate();
-  const chapter = chapters.find((c) => c.id === Number(id)) ?? chapters[0];
+  const {
+    selectedLanguage,
+    downloading,
+    downloadChapter,
+    deleteChapterDownload,
+    isChapterDownloaded,
+  } = useUserProgress();
+  const { data: chapters } = useChapters();
+  const { data: verses, isLoading } = useVersesInChapter(Number(id));
+
+  const chapter = chapters?.find((c) => c.chapter_number === Number(id)) || {
+    chapter_number: Number(id),
+    title: { en: "Loading..." },
+    summary: { en: "" },
+    fullSummary: { en: "" },
+    verseCount: 0,
+  };
+
+  const title = (chapter.title as Record<string, string>)[selectedLanguage] || (chapter.title as Record<string, string>)["en"];
+  const summary = (chapter.summary as Record<string, string>)[selectedLanguage] || (chapter.summary as Record<string, string>)["en"];
+  const fullSummary = (chapter.fullSummary as Record<string, string>)[selectedLanguage] || (chapter.fullSummary as Record<string, string>)["en"];
+
   return (
     <ScreenWrapper>
-      <Header right={<IconButton><Share2 size={18} /></IconButton>} />
-      <div className="flex-1 overflow-y-auto pb-6">
+      <Header
+        right={
+          <IconButton onClick={() => toast.success("Shared successfully")}>
+            <Share2 size={18} />
+          </IconButton>
+        }
+        back={true}
+      />
+      <div className="flex-1 overflow-y-auto pb-6 scroll-hide">
         <div className="px-5">
-          <ImageBanner src={DEMO_IMG} alt={chapter.title} className="aspect-[5/3]">
-            <span className="text-[10px] uppercase tracking-widest opacity-80">Chapter {chapter.id}</span>
-            <p className="font-serif text-2xl mt-1">{chapter.title}</p>
-            <p className="text-xs opacity-80">{chapter.subtitle}</p>
+          <ImageBanner src={DEMO_IMG} alt={title} className="aspect-[5/3]">
+            <span className="text-[10px] uppercase tracking-widest opacity-80">
+              Chapter {chapter.chapter_number}
+            </span>
+            <p className="font-serif text-2xl mt-1">{title}</p>
+            <p className="text-xs opacity-80">{summary}</p>
           </ImageBanner>
         </div>
         <div className="px-5 mt-5 space-y-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">{chapter.summary}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{fullSummary}</p>
           <div className="grid grid-cols-3 gap-3">
-            <AppCard className="text-center"><p className="font-serif text-2xl text-foreground">{chapter.verses}</p><p className="text-[10px] text-muted-foreground uppercase tracking-widest">Verses</p></AppCard>
-            <AppCard className="text-center"><p className="font-serif text-2xl text-foreground">{Math.round(chapter.progress * 100)}%</p><p className="text-[10px] text-muted-foreground uppercase tracking-widest">Read</p></AppCard>
-            <AppCard className="text-center"><p className="font-serif text-2xl text-foreground">~{Math.round(chapter.verses * 0.6)}m</p><p className="text-[10px] text-muted-foreground uppercase tracking-widest">Length</p></AppCard>
+            <AppCard className="text-center">
+              <p className="font-serif text-2xl text-foreground">{chapter.verseCount}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Verses</p>
+            </AppCard>
+            <AppCard className="text-center">
+              <p className="font-serif text-2xl text-foreground">
+                {chapter.chapter_number === 1 ? "60%" : chapter.chapter_number === 2 ? "40%" : "0%"}
+              </p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Read</p>
+            </AppCard>
+            <AppCard className="text-center">
+              <p className="font-serif text-2xl text-foreground">
+                ~{Math.round(chapter.verseCount * 0.6)}m
+              </p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Length</p>
+            </AppCard>
           </div>
-          <PrimaryButton onClick={() => nav(`/verse/${chapter.id}.1`)}>Begin Chapter</PrimaryButton>
-          <h3 className="font-serif text-lg pt-2">Verses</h3>
           <div className="space-y-3">
-            {sampleVerses.map((v) => (
-              <VerseCard key={v.id} number={v.id} sanskrit={v.sanskrit} translation={v.translation} onClick={() => nav(`/verse/${v.id}`)} />
-            ))}
+            <PrimaryButton onClick={() => nav(`/verse/${chapter.chapter_number}.1`)}>
+              Begin Chapter
+            </PrimaryButton>
+
+            {isChapterDownloaded(chapter.chapter_number) ? (
+              <GhostButton
+                onClick={() => {
+                  if (window.confirm(`Delete offline audio for Chapter ${chapter.chapter_number}?`)) {
+                    deleteChapterDownload(chapter.chapter_number);
+                  }
+                }}
+                className="text-primary hover:text-primary/95 border-primary/30"
+              >
+                <CheckCircle2 size={16} className="fill-current text-primary mr-2 inline" />
+                Chapter Offline (Click to Delete)
+              </GhostButton>
+            ) : downloading[`chapter:${chapter.chapter_number}`] !== undefined ? (
+              <GhostButton
+                disabled
+                className="text-primary animate-pulse border-primary/20 bg-gradient-dawn"
+              >
+                Downloading Chapter Audio ({downloading[`chapter:${chapter.chapter_number}`]}%)
+              </GhostButton>
+            ) : (
+              <GhostButton
+                onClick={() => downloadChapter(chapter.chapter_number)}
+                className="text-foreground border-border/80"
+              >
+                <Download size={16} className="mr-2 inline text-primary" />
+                Download Chapter Audio
+              </GhostButton>
+            )}
           </div>
         </div>
       </div>
@@ -229,75 +515,438 @@ export function ChapterDetail() {
 }
 
 /* ───────────── 8. Verse Reading ───────────── */
+function FloriateDivider({ color = "#B7943A", width = 200 }: { color?: string; width?: number }) {
+  return (
+    <svg width={width} height={18} viewBox={`0 0 ${width} 18`} className="mx-auto my-2 block">
+      <line x1={0} y1={9} x2={width / 2 - 14} y2={9} stroke={color} strokeWidth={0.8} opacity={0.6} />
+      <line x1={width / 2 + 14} y1={9} x2={width} y2={9} stroke={color} strokeWidth={0.8} opacity={0.6} />
+      <path
+        d={`M${width / 2 - 12},9 C${width / 2 - 7},4 ${width / 2 - 2},2 ${width / 2},2 C${width / 2 + 2},2 ${width / 2 + 7},4 ${width / 2 + 12},9 C${width / 2 + 7},14 ${width / 2 + 2},16 ${width / 2},16 C${width / 2 - 2},16 ${width / 2 - 7},14 ${width / 2 - 12},9 Z`}
+        fill={color}
+        opacity={0.5}
+      />
+      <circle cx={width / 2} cy={9} r={2.5} fill={color} />
+      <circle cx={width / 2 - 16} cy={9} r={1.5} fill={color} opacity={0.5} />
+      <circle cx={width / 2 + 16} cy={9} r={1.5} fill={color} opacity={0.5} />
+    </svg>
+  );
+}
+
+
 export function VerseReading() {
   const { id } = useParams();
   const nav = useNavigate();
-  const verse = sampleVerses.find((v) => v.id === id) ?? sampleVerses[0];
-  const [saved, setSaved] = useState(false);
+  const {
+    selectedLanguage,
+    isBookmarked,
+    addBookmark,
+    removeBookmark,
+    addHistory,
+    isFavorite,
+    toggleFavorite,
+    downloading,
+    downloadVerse,
+    deleteVerseDownload,
+    isVerseDownloaded,
+  } = useUserProgress();
+  const {
+    isPlaying,
+    isLooping,
+    currentTime,
+    duration,
+    currentVerse,
+    play,
+    pause,
+    resume,
+    seek,
+    setRate,
+    toggleLooping,
+  } = useAudioPlayer();
+
+  const [chapterId, verseNumber] = (id ?? "2.47").split(/[\.\-_]/).map(Number);
+  const { data: verse, isLoading } = useVerseDetail(chapterId, verseNumber);
+
+  const [activeSpeedIdx, setActiveSpeedIdx] = useState(1);
+  const speeds = [0.8, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0];
+
+  const verseId = `${chapterId}.${verseNumber}`;
+  const saved = isBookmarked(verseId);
+  const favorited = isFavorite(verseId);
+
+  // Trigger reading history save on verse load
+  useEffect(() => {
+    if (verse) {
+      addHistory(chapterId, verseNumber);
+    }
+  }, [verseId, verse]);
+
+  const handleBookmarkToggle = () => {
+    if (saved) {
+      removeBookmark(verseId);
+      toast.success("Bookmark removed");
+    } else {
+      addBookmark(verseId);
+      toast.success("Bookmark saved");
+    }
+  };
+
+  const handleFavoriteToggle = () => {
+    toggleFavorite(verseId);
+    if (favorited) {
+      toast.success("Removed from Favorites");
+    } else {
+      toast.success("Added to Favorites");
+    }
+  };
+
+  const getChapterVerseCount = (chNum: number) => {
+    const counts: Record<number, number> = {
+      1: 47, 2: 72, 3: 43, 4: 42, 5: 29, 6: 47, 7: 30, 8: 28, 9: 34,
+      10: 42, 11: 55, 12: 20, 13: 35, 14: 27, 15: 20, 16: 24, 17: 28, 18: 78
+    };
+    return counts[chNum] || 40;
+  };
+
+  const handleNextVerse = () => {
+    const maxVerses = getChapterVerseCount(chapterId);
+    if (verseNumber < maxVerses) {
+      nav(`/verse/${chapterId}.${verseNumber + 1}`);
+    } else {
+      toast.info("End of Chapter");
+    }
+  };
+
+  const handlePrevVerse = () => {
+    if (verseNumber > 1) {
+      nav(`/verse/${chapterId}.${verseNumber - 1}`);
+    } else {
+      toast.info("Start of Chapter");
+    }
+  };
+
+  const handlePlayToggle = () => {
+    if (!verse) return;
+    const isThisVersePlaying = currentVerse && currentVerse.id === verse.id;
+    if (isThisVersePlaying) {
+      if (isPlaying) {
+        pause();
+      } else {
+        resume();
+      }
+    } else {
+      play(verse, selectedLanguage);
+    }
+  };
+
+  const handleSpeedToggle = () => {
+    const nextIdx = (activeSpeedIdx + 1) % speeds.length;
+    setActiveSpeedIdx(nextIdx);
+    setRate(speeds[nextIdx]);
+    toast.info(`Playback speed set to ${speeds[nextIdx]}x`);
+  };
+
+  const handleShare = async () => {
+    const translationText =
+      verse?.translation[selectedLanguage]?.simple || verse?.translation["en"]?.simple || "";
+    const msg = `Hare Krishna! \nCheck out this wisdom from Bhagavad Gita (Verse ${chapterId}.${verseNumber}):\n\n"${translationText}"\n\nRead more in Easy Gita App.`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `Bhagavad Gita Verse ${chapterId}.${verseNumber}`,
+          text: msg,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(msg);
+        toast.success("Link copied to clipboard!");
+      }
+    } catch (e) {
+      console.log("Share failed:", e);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <ScreenWrapper>
+        <Header title={`Verse ${chapterId}.${verseNumber}`} subtitle="Bhagavad Gita" back={true} />
+        <div className="px-5 space-y-4 pt-4">
+          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      </ScreenWrapper>
+    );
+  }
+
+  const isCurrentActive = currentVerse && currentVerse.chapter === chapterId && currentVerse.verse === verseNumber;
+
+  const translationText =
+    verse?.translation[selectedLanguage]?.simple || verse?.translation["en"]?.simple || "";
+  const deepReflection =
+    verse?.translation[selectedLanguage]?.deep || verse?.translation["en"]?.deep || "";
+  const essenceText =
+    verse?.translation[selectedLanguage]?.essence || verse?.translation["en"]?.essence || "";
+
+  const maxVerses = getChapterVerseCount(chapterId);
+  const progressPercent = isCurrentActive && duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  const formatTime = (time: number) => {
+    if (isNaN(time) || time === Infinity) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
   return (
     <ScreenWrapper>
       <Header
-        title={`Verse ${verse.id}`}
+        title={`Verse ${chapterId}.${verseNumber}`}
         subtitle="Bhagavad Gita"
+        back={true}
         right={
           <div className="flex gap-2">
-            <IconButton onClick={() => setSaved((s) => !s)}>
-              {saved ? <BookmarkCheck size={18} className="text-primary" /> : <Bookmark size={18} />}
+            {isVerseDownloaded(verseId) ? (
+              <IconButton
+                onClick={() => {
+                  if (window.confirm(`Delete offline audio for Verse ${verseId}?`)) {
+                    deleteVerseDownload(verseId);
+                  }
+                }}
+                className="text-primary hover:text-primary-dark"
+              >
+                <CheckCircle2 size={18} className="fill-current text-primary" />
+              </IconButton>
+            ) : downloading[`verse:${verseId}`] !== undefined ? (
+              <IconButton disabled className="text-primary font-bold">
+                <span className="text-[10px]">{downloading[`verse:${verseId}`]}%</span>
+              </IconButton>
+            ) : (
+              <IconButton onClick={() => downloadVerse(verseId)}>
+                <Download size={18} />
+              </IconButton>
+            )}
+            <IconButton onClick={handleBookmarkToggle}>
+              {saved ? (
+                <Bookmark size={18} className="text-primary fill-primary animate-bounce-once" />
+              ) : (
+                <Bookmark size={18} />
+              )}
             </IconButton>
-            <IconButton><Share2 size={18} /></IconButton>
+            <IconButton onClick={handleShare}>
+              <Share2 size={18} />
+            </IconButton>
           </div>
         }
       />
-      <div className="flex-1 overflow-y-auto px-5 pb-32 space-y-5">
-        <AppCard className="bg-gradient-dawn border-0">
-          <p className="font-devanagari text-2xl leading-loose text-foreground whitespace-pre-line text-center">{verse.sanskrit}</p>
+      <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-6 scroll-hide pt-4">
+        
+        {/* 1. Sanskrit Card */}
+        <AppCard className="bg-gradient-dawn border border-primary/10 shadow-soft py-6 px-5 flex flex-col items-center justify-center text-center">
+          <p className="font-devanagari text-2xl leading-loose text-foreground/95 select-all whitespace-pre-line">
+            {verse?.sanskrit ? verse.sanskrit.replace(/\n\s*\n/g, "\n").trim() : ""}
+          </p>
         </AppCard>
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-primary mb-2">Transliteration</p>
-          <p className="font-serif italic text-foreground leading-relaxed whitespace-pre-line">{verse.transliteration}</p>
+
+        {/* 2. Transliteration Section */}
+        {verse?.transliteration && (
+          <div className="space-y-1.5 text-center bg-card/35 rounded-2xl p-4 border border-border/10">
+            <p className="text-[10px] uppercase tracking-widest text-primary font-semibold font-sans">
+              {selectedLanguage === "hi" ? "लिप्यंतरण" : selectedLanguage === "te" ? "లిప్యంతరీకరణ" : "Transliteration"}
+            </p>
+            <p className="font-serif italic text-base leading-relaxed text-foreground/80 whitespace-pre-line select-all">
+              {verse.transliteration.replace(/\n\s*\n/g, "\n").trim()}
+            </p>
+          </div>
+        )}
+
+        {/* 3. Translation Section */}
+        <div className="space-y-1.5 bg-card/35 rounded-2xl p-5 border border-border/10 border-l-4 border-l-primary/60">
+          <p className="text-[10px] uppercase tracking-widest text-primary font-semibold font-sans">
+            {selectedLanguage === "hi" ? "अनुवाद" : selectedLanguage === "te" ? "అనువాదం" : "Translation"}
+          </p>
+          <p className="text-base leading-relaxed text-foreground select-all font-sans">
+            {translationText}
+          </p>
         </div>
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-primary mb-2">Translation</p>
-          <p className="text-foreground leading-relaxed">{verse.translation}</p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <GhostButton onClick={() => nav(`/verse/${verse.id}/commentary`)}>Commentary</GhostButton>
-          <GhostButton onClick={() => nav(`/verse/${verse.id}/words`)}>Word Meaning</GhostButton>
-        </div>
+
+        {/* 4. Reflection / Commentary Section */}
+        {(deepReflection || essenceText) && (
+          <div className="space-y-3 bg-card/50 border border-primary/10 shadow-card rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-devanagari text-base text-primary font-bold mr-0.5 select-none animate-pulse">ॐ</span>
+              <p className="text-[10px] uppercase tracking-widest text-primary font-semibold font-sans">
+                {selectedLanguage === "hi" ? "गहन व्याख्या व सार" : selectedLanguage === "te" ? "వివరణ మరియు సారాంశం" : "Reflection & Essence"}
+              </p>
+            </div>
+            {deepReflection && (
+              <p className="font-serif text-lg leading-relaxed text-foreground/90 whitespace-pre-line select-all">
+                {deepReflection}
+              </p>
+            )}
+            {deepReflection && essenceText && <div className="h-px bg-border/40 my-2" />}
+            {essenceText && (
+              <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line select-all">
+                {essenceText}
+              </p>
+            )}
+          </div>
+        )}
+
+
+
       </div>
-      <div className="sticky bottom-0 px-5 pb-safe pt-3 bg-gradient-to-t from-background via-background/95 to-transparent flex items-center justify-between gap-3">
-        <IconButton><ChevronLeft size={18} /></IconButton>
-        <button onClick={() => nav("/player")} className="flex-1 h-12 rounded-full bg-gradient-gold text-primary-foreground font-medium flex items-center justify-center gap-2 shadow-soft">
-          <Play size={18} /> Listen
-        </button>
-        <IconButton><ChevronRight size={18} /></IconButton>
+
+      {/* ── Sticky Glassmorphic Audio player ── */}
+      <div
+        className="sticky bottom-0 mx-0 rounded-t-3xl border-t border-x border-border/60 backdrop-blur-xl px-5 py-4 flex flex-col gap-2.5 z-20 shadow-soft bg-card/92"
+      >
+        {/* Progress Timeline Range Slider */}
+        <div className="w-full flex flex-col gap-1">
+          <input
+            type="range"
+            min="0"
+            max={isCurrentActive && duration > 0 ? duration : 100}
+            value={isCurrentActive ? currentTime : 0}
+            disabled={!isCurrentActive}
+            onChange={(e) => isCurrentActive && seek(Number(e.target.value))}
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer focus:outline-none transition-all"
+            style={{
+              background: `linear-gradient(to right, var(--color-primary) 0%, var(--color-primary) ${progressPercent}%, rgba(168, 144, 112, 0.15) ${progressPercent}%, rgba(168, 144, 112, 0.15) 100%)`,
+              accentColor: "var(--color-primary)"
+            }}
+          />
+          <div className="flex justify-between text-[10px] text-muted-foreground/80 font-medium px-0.5 select-none">
+            <span>{isCurrentActive ? formatTime(currentTime) : "0:00"}</span>
+            <span>{isCurrentActive ? formatTime(duration) : "0:00"}</span>
+          </div>
+        </div>
+
+        {/* Playback action buttons */}
+        <div className="flex items-center justify-between gap-4 mt-0.5">
+          {/* Looping / Repeat */}
+          <button
+            onClick={() => {
+              toggleLooping();
+              toast.info(isLooping ? "Repeat disabled" : "Repeat enabled");
+            }}
+            className="p-2 transition-all duration-200 hover:scale-105 active:scale-95"
+            style={{ color: isLooping ? "var(--color-primary)" : "var(--color-muted-foreground)" }}
+          >
+            <Repeat size={18} className={cn(isLooping && "animate-pulse")} />
+          </button>
+
+          {/* Media Buttons Group */}
+          <div className="flex items-center gap-4">
+            {/* Skip Back */}
+            <button
+              onClick={handlePrevVerse}
+              disabled={verseNumber <= 1}
+              className="p-2.5 rounded-full flex items-center justify-center border border-border/60 hover:bg-black/5 active:scale-90 transition bg-card disabled:opacity-40"
+            >
+              <SkipBack size={18} className="fill-current text-foreground" />
+            </button>
+
+            {/* Main Play/Pause */}
+            <button
+              onClick={handlePlayToggle}
+              className="w-12 h-12 rounded-full flex items-center justify-center shadow-soft active:scale-95 transition-all text-primary-foreground hover:brightness-105 bg-gradient-gold"
+            >
+              {isCurrentActive && isPlaying ? (
+                <Pause size={20} className="fill-current" />
+              ) : (
+                <Play size={20} className="fill-current ml-0.5" />
+              )}
+            </button>
+
+            {/* Skip Forward */}
+            <button
+              onClick={handleNextVerse}
+              disabled={verseNumber >= maxVerses}
+              className="p-2.5 rounded-full flex items-center justify-center border border-border/60 hover:bg-black/5 active:scale-90 transition bg-card disabled:opacity-40"
+            >
+              <SkipForward size={18} className="fill-current text-foreground" />
+            </button>
+          </div>
+
+          {/* Speed & Download Panel */}
+          <div className="flex items-center gap-1.5">
+            {/* Speed / Rate Toggle */}
+            <button
+              onClick={handleSpeedToggle}
+              className="h-8 px-2.5 rounded-full border border-border/50 flex items-center justify-center text-[10px] font-bold uppercase transition active:scale-90 text-primary bg-gradient-dawn"
+            >
+              {isCurrentActive ? speeds[activeSpeedIdx] : 1.0}x
+            </button>
+
+            {/* Offline/Download Audio — icon only */}
+            {isVerseDownloaded(verseId) ? (
+              <button
+                onClick={() => {
+                  if (window.confirm(`Delete offline audio for Verse ${verseId}?`)) {
+                    deleteVerseDownload(verseId);
+                  }
+                }}
+                title="Saved offline — tap to delete"
+                className="h-8 w-8 rounded-full border border-primary/40 flex items-center justify-center transition active:scale-90 text-primary bg-card/70"
+              >
+                <CheckCircle2 size={14} className="fill-current" />
+              </button>
+            ) : downloading[`verse:${verseId}`] !== undefined ? (
+              <button
+                disabled
+                title={`Downloading ${downloading[`verse:${verseId}`]}%`}
+                className="h-8 w-8 rounded-full border border-primary/20 flex items-center justify-center transition text-primary animate-pulse bg-gradient-dawn"
+              >
+                <span className="text-[9px] font-bold">{downloading[`verse:${verseId}`]}%</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => downloadVerse(verseId)}
+                title="Download verse audio for offline use"
+                className="h-8 w-8 rounded-full border border-border/50 flex items-center justify-center transition active:scale-90 text-muted-foreground hover:text-foreground bg-card"
+              >
+                <Download size={14} />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </ScreenWrapper>
   );
 }
 
+
 /* ───────────── 9. Commentary ───────────── */
 export function VerseCommentary() {
   const { id } = useParams();
-  const verse = sampleVerses.find((v) => v.id === id) ?? sampleVerses[0];
+  const { selectedLanguage } = useUserProgress();
+  const [chapterId, verseNumber] = (id ?? "2.47").split(/[\.\-_]/).map(Number);
+  const { data: verse } = useVerseDetail(chapterId, verseNumber);
+
+  const deepReflection =
+    verse?.translation[selectedLanguage]?.deep || verse?.translation["en"]?.deep || "";
+  const essenceText =
+    verse?.translation[selectedLanguage]?.essence || verse?.translation["en"]?.essence || "";
+
   return (
     <ScreenWrapper>
-      <Header title="Commentary" subtitle={`Verse ${verse.id}`} />
-      <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-5">
+      <Header title="Commentary" subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
+      <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-5 scroll-hide">
         <AppCard className="bg-gradient-dawn border-0">
-          <p className="font-devanagari text-lg text-foreground text-center leading-loose whitespace-pre-line">{verse.sanskrit}</p>
+          <p className="font-devanagari text-lg text-foreground text-center leading-loose whitespace-pre-line">
+            {verse?.sanskrit}
+          </p>
         </AppCard>
         <div>
           <p className="text-[10px] uppercase tracking-widest text-primary mb-2">Reflection</p>
-          <p className="font-serif text-lg text-foreground leading-relaxed">{verse.commentary}</p>
+          <p className="font-serif text-lg text-foreground leading-relaxed whitespace-pre-line">
+            {deepReflection}
+          </p>
         </div>
         <div>
           <p className="text-[10px] uppercase tracking-widest text-primary mb-2">A deeper look</p>
-          <p className="text-foreground leading-relaxed text-sm">
-            The verse is an invitation, not a command. To act without attachment is to discover an immense lightness — the work is done well precisely because nothing is demanded of it. Each task becomes an offering, complete in itself.
-          </p>
-          <p className="text-foreground leading-relaxed text-sm mt-3">
-            In daily practice, this means meeting outcomes — pleasant or otherwise — with the same steady gaze. The mind, no longer pulled by hope or fear, settles into a clarity that is itself the fruit.
+          <p className="text-foreground leading-relaxed text-sm whitespace-pre-line">
+            {essenceText}
           </p>
         </div>
       </div>
@@ -308,21 +957,48 @@ export function VerseCommentary() {
 /* ───────────── 10. Word Meaning ───────────── */
 export function VerseWords() {
   const { id } = useParams();
-  const verse = sampleVerses.find((v) => v.id === id) ?? sampleVerses[0];
+  const [chapterId, verseNumber] = (id ?? "2.47").split(/[\.\-_]/).map(Number);
+  const { data: verse } = useVerseDetail(chapterId, verseNumber);
+
+  // Parse raw word meanings e.g. "dhṛitarāśhtraḥ uvācha—Dhritarashtra said; dharma-kṣhetre—the land of dharma;"
+  const parseWordMeanings = (meaningsStr: string) => {
+    if (!meaningsStr) return [];
+    return meaningsStr
+      .split(";")
+      .map((pair) => {
+        const parts = pair.split(/[—–-]/); // Split on various dashes
+        return {
+          word: parts[0]?.trim() || "",
+          meaning: parts[1]?.trim() || "",
+        };
+      })
+      .filter((p) => p.word && p.meaning);
+  };
+
+  const words = parseWordMeanings(verse?.word_meanings || "");
+
   return (
     <ScreenWrapper>
-      <Header title="Word Meanings" subtitle={`Verse ${verse.id}`} />
-      <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-4">
+      <Header title="Word Meanings" subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
+      <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-4 scroll-hide">
         <AppCard className="bg-gradient-dawn border-0">
-          <p className="font-devanagari text-lg text-foreground text-center leading-loose whitespace-pre-line">{verse.sanskrit}</p>
+          <p className="font-devanagari text-lg text-foreground text-center leading-loose whitespace-pre-line">
+            {verse?.sanskrit}
+          </p>
         </AppCard>
         <div className="space-y-2">
-          {verse.words.map((w, i) => (
-            <AppCard key={i} className="flex items-center justify-between gap-4 py-3">
-              <p className="font-serif italic text-foreground">{w.word}</p>
-              <p className="text-sm text-muted-foreground text-right">{w.meaning}</p>
-            </AppCard>
-          ))}
+          {words.length === 0 ? (
+            <div className="text-center py-8 text-sm text-muted-foreground">
+              No word breakdown available for this verse.
+            </div>
+          ) : (
+            words.map((w, i) => (
+              <AppCard key={i} className="flex items-center justify-between gap-4 py-3">
+                <p className="font-serif italic text-foreground text-left">{w.word}</p>
+                <p className="text-sm text-muted-foreground text-right">{w.meaning}</p>
+              </AppCard>
+            ))
+          )}
         </div>
       </div>
     </ScreenWrapper>
@@ -335,14 +1011,16 @@ export function SearchScreen() {
   const [q, setQ] = useState("");
   return (
     <ScreenWrapper>
-      <Header title="Search" />
+      <Header title="Search" back={true} />
       <div className="px-5">
         <div className="flex items-center gap-2 rounded-full bg-card border border-border px-4 h-12 shadow-card">
           <Search size={18} className="text-muted-foreground" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && nav(`/search/results?q=${encodeURIComponent(q)}`)}
+            onKeyDown={(e) =>
+              e.key === "Enter" && nav(`/search/results?q=${encodeURIComponent(q)}`)
+            }
             placeholder="Search verses, words, themes…"
             className="flex-1 bg-transparent outline-none text-sm"
           />
@@ -352,7 +1030,11 @@ export function SearchScreen() {
         <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Suggested</p>
         <div className="flex flex-wrap gap-2">
           {["karma", "atman", "devotion", "fear", "meditation", "duty"].map((t) => (
-            <button key={t} onClick={() => nav(`/search/results?q=${t}`)} className="px-4 h-9 rounded-full bg-card border border-border text-sm text-foreground">
+            <button
+              key={t}
+              onClick={() => nav(`/search/results?q=${t}`)}
+              className="px-4 h-9 rounded-full bg-card border border-border text-sm text-foreground active:bg-muted/30"
+            >
               {t}
             </button>
           ))}
@@ -360,7 +1042,11 @@ export function SearchScreen() {
         <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3 mt-8">Recent</p>
         <div className="space-y-2">
           {["letting go", "steady mind"].map((t) => (
-            <AppCard key={t} onClick={() => nav(`/search/results?q=${t}`)} className="flex items-center justify-between py-3">
+            <AppCard
+              key={t}
+              onClick={() => nav(`/search/results?q=${t}`)}
+              className="flex items-center justify-between py-3"
+            >
               <span className="text-sm text-foreground">{t}</span>
               <Clock size={16} className="text-muted-foreground" />
             </AppCard>
@@ -375,17 +1061,42 @@ export function SearchScreen() {
 export function SearchResults() {
   const loc = useLocation();
   const nav = useNavigate();
+  const { selectedLanguage } = useUserProgress();
   const q = new URLSearchParams(loc.search).get("q") ?? "";
-  const results = sampleVerses;
+
+  // Perform search in fallback database
+  const queryWords = q.toLowerCase();
+  const allProcessedVerses = Object.values((gitaProcessedData as any).verses || {}) as any[];
+
+  const searchResults = allProcessedVerses
+    .filter((v: any) => {
+      const textToSearch =
+        `${v.sanskrit} ${v.transliteration} ${v.translation[selectedLanguage]?.simple || ""} ${v.translation["en"]?.simple || ""}`.toLowerCase();
+      return textToSearch.includes(queryWords);
+    })
+    .slice(0, 15) as Verse[]; // limit to 15 results
+
   return (
     <ScreenWrapper>
-      <Header title={`"${q}"`} subtitle={`${results.length} verses found`} />
-      <div className="flex-1 overflow-y-auto px-5 space-y-3 pb-8">
-        {results.length === 0 ? (
-          <EmptyState icon={<Search size={28} />} title="Nothing yet" body="Try a different word — perhaps a feeling or a theme." />
+      <Header title={`"${q}"`} subtitle={`${searchResults.length} verses found`} back={true} />
+      <div className="flex-1 overflow-y-auto px-5 space-y-3 pb-8 scroll-hide">
+        {searchResults.length === 0 ? (
+          <EmptyState
+            icon={<Search size={28} />}
+            title="Nothing yet"
+            body="Try a different word — perhaps a feeling or a theme."
+          />
         ) : (
-          results.map((v) => (
-            <VerseCard key={v.id} number={v.id} sanskrit={v.sanskrit} translation={v.translation} onClick={() => nav(`/verse/${v.id}`)} />
+          searchResults.map((v) => (
+            <VerseCard
+              key={v.id}
+              number={`${v.chapter}.${v.verse}`}
+              sanskrit={v.sanskrit}
+              translation={
+                v.translation[selectedLanguage]?.simple || v.translation["en"]?.simple || ""
+              }
+              onClick={() => nav(`/verse/${v.chapter}.${v.verse}`)}
+            />
           ))
         )}
       </div>
@@ -396,58 +1107,125 @@ export function SearchResults() {
 /* ───────────── 13. Wisdom ───────────── */
 export function WisdomScreen() {
   const nav = useNavigate();
+  const { selectedLanguage } = useUserProgress();
+  const { data: quotes } = useQuotes(selectedLanguage);
+
+  const displayedQuotes = quotes || [];
+
   return (
     <ScreenWrapper>
       <Header title="Wisdom" back={false} />
-      <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 scroll-hide">
         <ImageBanner src={DEMO_IMG} alt="Daily wisdom" className="aspect-[5/3]">
           <span className="text-[10px] uppercase tracking-widest opacity-80">Daily wisdom</span>
-          <p className="mt-1 font-serif text-xl leading-snug text-balance">{wisdomQuotes[1].text}</p>
-          <p className="mt-2 text-xs opacity-80">{wisdomQuotes[1].ref}</p>
+          <p className="mt-1 font-serif text-xl leading-snug text-balance">
+            "
+            {displayedQuotes[0]?.text ||
+              "When meditation is mastered, the mind is unwavering like the flame of a lamp in a windless place."}
+            "
+          </p>
+          <p className="mt-2 text-xs opacity-80">Bhagavad Gita</p>
         </ImageBanner>
+
         <button onClick={() => nav("/wisdom/themes")} className="w-full">
           <AppCard className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="h-10 w-10 rounded-full bg-gradient-dawn flex items-center justify-center text-primary"><Sparkles size={18} /></span>
+              <span className="h-10 w-10 rounded-full bg-gradient-dawn flex items-center justify-center text-primary select-none">
+                <span className="font-devanagari text-lg leading-none font-bold">ॐ</span>
+              </span>
               <div className="text-left">
                 <p className="font-serif text-base">Explore by theme</p>
-                <p className="text-xs text-muted-foreground">{wisdomThemes.length} curated themes</p>
+                <p className="text-xs text-muted-foreground">6 curated themes</p>
               </div>
             </div>
             <ChevronRight className="text-muted-foreground" />
           </AppCard>
         </button>
+
         <div className="space-y-3">
-          {wisdomQuotes.map((w) => (
-            <AppCard key={w.id}>
+          {displayedQuotes.slice(1).map((w, idx) => (
+            <AppCard key={idx}>
               <p className="font-serif text-base text-foreground leading-relaxed">"{w.text}"</p>
               <div className="mt-3 flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">{w.ref}</p>
+                <p className="text-xs text-muted-foreground">Gita Quote</p>
                 <div className="flex gap-1">
-                  <IconButton><Heart size={16} /></IconButton>
-                  <IconButton><Share2 size={16} /></IconButton>
+                  <IconButton onClick={() => toast.success("Added to favorites")}>
+                    <Heart size={16} />
+                  </IconButton>
+                  <IconButton onClick={() => toast.success("Shared successfully")}>
+                    <Share2 size={16} />
+                  </IconButton>
                 </div>
               </div>
             </AppCard>
           ))}
         </div>
       </div>
+      <MiniPlayer />
       <BottomTabs />
     </ScreenWrapper>
   );
 }
 
 /* ───────────── 14. Wisdom Themes ───────────── */
+const wisdomThemes = [
+  { id: "t1", title: "On Duty", count: 24, color: "from-amber-200 to-orange-200", query: "duty" },
+  {
+    id: "t2",
+    title: "On Detachment",
+    count: 18,
+    color: "from-rose-200 to-amber-200",
+    query: "detachment",
+  },
+  {
+    id: "t3",
+    title: "On Devotion",
+    count: 31,
+    color: "from-yellow-200 to-rose-200",
+    query: "devotion",
+  },
+  {
+    id: "t4",
+    title: "On Meditation",
+    count: 16,
+    color: "from-orange-200 to-yellow-200",
+    query: "meditation",
+  },
+  {
+    id: "t5",
+    title: "On The Soul",
+    count: 22,
+    color: "from-amber-100 to-orange-100",
+    query: "soul",
+  },
+  {
+    id: "t6",
+    title: "On Liberation",
+    count: 19,
+    color: "from-yellow-100 to-amber-200",
+    query: "liberation",
+  },
+];
+
 export function WisdomThemes() {
   const nav = useNavigate();
   return (
     <ScreenWrapper>
-      <Header title="Themes" subtitle="Wisdom organised by what you seek" />
-      <div className="flex-1 overflow-y-auto px-5 grid grid-cols-2 gap-3 pb-8">
+      <Header title="Themes" subtitle="Wisdom organised by what you seek" back={true} />
+      <div className="flex-1 overflow-y-auto px-5 grid grid-cols-2 gap-3 pb-8 scroll-hide">
         {wisdomThemes.map((t) => (
-          <button key={t.id} onClick={() => nav(`/wisdom/theme/${t.id}`)} className="text-left">
-            <AppCard className={cn("aspect-square flex flex-col justify-between bg-gradient-to-br", t.color)}>
-              <Sparkles className="text-foreground/70" size={18} />
+          <button
+            key={t.id}
+            onClick={() => nav(`/wisdom/theme/${t.id}`)}
+            className="text-left active:scale-[0.98] transition"
+          >
+            <AppCard
+              className={cn(
+                "aspect-square flex flex-col justify-between bg-gradient-to-br border-0 shadow-soft",
+                t.color,
+              )}
+            >
+              <span className="font-devanagari text-xl text-foreground/70 font-bold select-none">ॐ</span>
               <div>
                 <p className="font-serif text-lg text-foreground">{t.title}</p>
                 <p className="text-xs text-foreground/70">{t.count} verses</p>
@@ -464,16 +1242,37 @@ export function WisdomThemes() {
 export function WisdomThemeDetail() {
   const { id } = useParams();
   const nav = useNavigate();
-  const theme = wisdomThemes.find((t) => t.id === id) ?? wisdomThemes[0];
+  const { selectedLanguage } = useUserProgress();
+
+  const theme = wisdomThemes.find((t) => t.id === id) || wisdomThemes[0];
+
+  // Search verses matching the theme's query tag
+  const allProcessedVerses = Object.values((gitaProcessedData as any).verses || {}) as any[];
+  const themeVerses = allProcessedVerses
+    .filter((v: any) => {
+      const textToSearch =
+        `${v.translation[selectedLanguage]?.simple || ""} ${v.translation["en"]?.simple || ""}`.toLowerCase();
+      return textToSearch.includes(theme.query);
+    })
+    .slice(0, 5) as Verse[];
+
   return (
     <ScreenWrapper>
-      <Header title={theme.title} subtitle={`${theme.count} verses`} />
-      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-8">
+      <Header title={theme.title} subtitle={`${theme.count} verses`} back={true} />
+      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-8 scroll-hide">
         <ImageBanner src={DEMO_IMG} alt={theme.title} className="aspect-[5/2]">
           <p className="font-serif text-xl">{theme.title}</p>
         </ImageBanner>
-        {sampleVerses.map((v) => (
-          <VerseCard key={v.id} number={v.id} sanskrit={v.sanskrit} translation={v.translation} onClick={() => nav(`/verse/${v.id}`)} />
+        {themeVerses.map((v) => (
+          <VerseCard
+            key={v.id}
+            number={`${v.chapter}.${v.verse}`}
+            sanskrit={v.sanskrit}
+            translation={
+              v.translation[selectedLanguage]?.simple || v.translation["en"]?.simple || ""
+            }
+            onClick={() => nav(`/verse/${v.chapter}.${v.verse}`)}
+          />
         ))}
       </div>
     </ScreenWrapper>
@@ -483,50 +1282,108 @@ export function WisdomThemeDetail() {
 /* ───────────── 16. Bookmarks ───────────── */
 export function Bookmarks() {
   const nav = useNavigate();
-  const [tab, setTab] = useState<"all" | "collections">("all");
+  const loc = useLocation();
+  const [tab, setTab] = useState<"bookmarks" | "favorites">(
+    new URLSearchParams(loc.search).get("tab") === "favorites" ? "favorites" : "bookmarks"
+  );
+  const { bookmarks, favorites, selectedLanguage } = useUserProgress();
+
+  const allProcessedVerses = (gitaProcessedData as any).verses || {};
+  
+  // Load actual bookmarked verses
+  const bookmarkedVerses = (bookmarks || [])
+    .map((id) => {
+      const key = id.replace(/[\._]/g, "-");
+      return allProcessedVerses[key];
+    })
+    .filter(Boolean) as Verse[];
+
+  // Load actual favorited verses
+  const favoriteVerses = (favorites || [])
+    .map((id) => {
+      const key = id.replace(/[\._]/g, "-");
+      return allProcessedVerses[key];
+    })
+    .filter(Boolean) as Verse[];
+
   return (
     <ScreenWrapper>
-      <Header title="Saved" back={false} right={<IconButton onClick={() => nav("/favorites")}><Heart size={18} /></IconButton>} />
+      <Header
+        title="Saved Wisdom"
+        back={false}
+      />
       <div className="px-5">
         <div className="flex gap-1 p-1 rounded-full bg-muted">
-          {(["all", "collections"] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)} className={cn("flex-1 h-9 rounded-full text-sm capitalize transition", tab === t ? "bg-card shadow-card text-foreground" : "text-muted-foreground")}>
-              {t === "all" ? "Verses" : "Collections"}
-            </button>
-          ))}
+          <button
+            onClick={() => setTab("bookmarks")}
+            className={cn(
+              "flex-1 h-9 rounded-full text-sm font-medium transition",
+              tab === "bookmarks" ? "bg-card shadow-card text-foreground" : "text-muted-foreground",
+            )}
+          >
+            Verse Saves ({bookmarkedVerses.length})
+          </button>
+          <button
+            onClick={() => setTab("favorites")}
+            className={cn(
+              "flex-1 h-9 rounded-full text-sm font-medium transition",
+              tab === "favorites" ? "bg-card shadow-card text-foreground" : "text-muted-foreground",
+            )}
+          >
+            Wisdom Saves ({favoriteVerses.length})
+          </button>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto px-5 mt-4 space-y-3 pb-4">
-        {tab === "all" ? (
-          demoBookmarks.length === 0 ? (
-            <EmptyState icon={<Bookmark size={28} />} title="No saved verses yet" body="Tap the bookmark icon on any verse to keep it close." />
+      <div className="flex-1 overflow-y-auto px-5 mt-4 space-y-3 pb-4 scroll-hide">
+        {tab === "bookmarks" ? (
+          bookmarkedVerses.length === 0 ? (
+            <EmptyState
+              icon={<Bookmark size={28} />}
+              title="No saved bookmarks"
+              body="Tap the bookmark icon on any verse to keep it close."
+            />
           ) : (
-            demoBookmarks.map((b) => {
-              const v = sampleVerses.find((sv) => sv.id === b.verseId) ?? sampleVerses[0];
+            bookmarkedVerses.map((v) => {
+              const vId = `${v.chapter}.${v.verse}`;
               return (
-                <AppCard key={b.verseId} onClick={() => nav(`/verse/${b.verseId}`)}>
-                  <p className="text-[10px] uppercase tracking-widest text-primary">Verse {b.verseId}</p>
-                  <p className="font-serif text-base mt-1 line-clamp-2">{v.translation}</p>
-                  {b.note && <p className="text-xs text-muted-foreground mt-2 italic">"{b.note}"</p>}
+                <AppCard key={vId} onClick={() => nav(`/verse/${vId}`)}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">Verse {vId}</p>
+                    <Bookmark size={14} className="text-primary fill-primary animate-pulse" />
+                  </div>
+                  <p className="font-serif text-base mt-1.5 line-clamp-2 text-foreground leading-relaxed">
+                    {v.translation[selectedLanguage]?.simple || v.translation["en"]?.simple || ""}
+                  </p>
                 </AppCard>
               );
             })
           )
         ) : (
-          <button onClick={() => nav("/favorites")} className="w-full">
-            <AppCard className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="h-10 w-10 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground"><Heart size={18} /></span>
-                <div className="text-left">
-                  <p className="font-serif text-base">Favorites</p>
-                  <p className="text-xs text-muted-foreground">12 verses</p>
-                </div>
-              </div>
-              <ChevronRight className="text-muted-foreground" />
-            </AppCard>
-          </button>
+          favoriteVerses.length === 0 ? (
+            <EmptyState
+              icon={<Heart size={28} className="text-destructive" />}
+              title="No favorites yet"
+              body="Tap the heart icon on any verse or player to add it here."
+            />
+          ) : (
+            favoriteVerses.map((v) => {
+              const vId = `${v.chapter}.${v.verse}`;
+              return (
+                <AppCard key={vId} onClick={() => nav(`/verse/${vId}`)}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">Verse {vId}</p>
+                    <Heart size={14} className="text-destructive fill-destructive" />
+                  </div>
+                  <p className="font-serif text-base mt-1.5 line-clamp-2 text-foreground leading-relaxed">
+                    {v.translation[selectedLanguage]?.simple || v.translation["en"]?.simple || ""}
+                  </p>
+                </AppCard>
+              );
+            })
+          )
         )}
       </div>
+      <MiniPlayer />
       <BottomTabs />
     </ScreenWrapper>
   );
@@ -535,27 +1392,46 @@ export function Bookmarks() {
 /* ───────────── 17. Favorites Collections ───────────── */
 export function Favorites() {
   const nav = useNavigate();
-  const collections = [
-    { id: "c1", title: "Morning reflections", count: 7 },
-    { id: "c2", title: "On stillness", count: 5 },
-    { id: "c3", title: "For difficult days", count: 9 },
-  ];
+  const { favorites, selectedLanguage } = useUserProgress();
+  const allProcessedVerses = (gitaProcessedData as any).verses || {};
+
+  const favoriteVerses = (favorites || [])
+    .map((id) => {
+      const key = id.replace(/[\._]/g, "-");
+      return allProcessedVerses[key];
+    })
+    .filter(Boolean) as Verse[];
+
   return (
     <ScreenWrapper>
-      <Header title="Collections" right={<IconButton><Plus size={18} /></IconButton>} />
-      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-8">
-        {collections.map((c) => (
-          <AppCard key={c.id} onClick={() => nav(`/wisdom/theme/${c.id}`)} className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-gradient-dawn flex items-center justify-center text-primary shadow-card">
-              <Heart size={20} />
-            </div>
-            <div className="flex-1">
-              <p className="font-serif text-base">{c.title}</p>
-              <p className="text-xs text-muted-foreground">{c.count} verses</p>
-            </div>
-            <ChevronRight className="text-muted-foreground" />
-          </AppCard>
-        ))}
+      <Header
+        title="Favorites"
+        subtitle={`${favoriteVerses.length} verses`}
+        back={true}
+      />
+      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-8 scroll-hide">
+        {favoriteVerses.length === 0 ? (
+          <EmptyState
+            icon={<Heart size={28} className="text-destructive animate-pulse" />}
+            title="No favorites yet"
+            body="Tap the heart icon on any verse to add it here."
+          />
+        ) : (
+          favoriteVerses.map((v) => {
+            const vId = `${v.chapter}.${v.verse}`;
+            return (
+              <VerseCard
+                key={vId}
+                number={vId}
+                sanskrit={v.sanskrit}
+                translation={
+                  v.translation[selectedLanguage]?.simple || v.translation["en"]?.simple || ""
+                }
+                onClick={() => nav(`/verse/${vId}`)}
+              />
+            );
+          })
+        )}
       </div>
     </ScreenWrapper>
   );
@@ -563,16 +1439,19 @@ export function Favorites() {
 
 /* ───────────── 18. Notes ───────────── */
 export function Notes() {
-  const [items, setItems] = useState(demoNotes);
+  const { notes, addNote, deleteNote } = useUserProgress();
   const [draft, setDraft] = useState("");
-  const add = () => {
+
+  const handleSave = () => {
     if (!draft.trim()) return;
-    setItems([{ id: String(Date.now()), verseId: "—", title: "New reflection", body: draft, date: "Just now" }, ...items]);
+    addNote("General", "Reflection", draft);
     setDraft("");
+    toast.success("Reflection saved");
   };
+
   return (
     <ScreenWrapper>
-      <Header title="Notes & Reflections" />
+      <Header title="Notes & Reflections" back={true} />
       <div className="px-5">
         <AppCard>
           <textarea
@@ -583,24 +1462,45 @@ export function Notes() {
             className="w-full bg-transparent outline-none text-sm resize-none placeholder:text-muted-foreground"
           />
           <div className="flex justify-end mt-2">
-            <button onClick={add} className="px-4 h-9 rounded-full bg-gradient-gold text-primary-foreground text-sm font-medium">Save</button>
+            <button
+              onClick={handleSave}
+              className="px-4 h-9 rounded-full bg-gradient-gold text-primary-foreground text-sm font-medium active:scale-[0.97] transition"
+            >
+              Save
+            </button>
           </div>
         </AppCard>
       </div>
-      <div className="flex-1 overflow-y-auto px-5 mt-4 space-y-3 pb-8">
-        {items.length === 0 ? (
-          <EmptyState icon={<FileText size={28} />} title="No reflections yet" body="Write your first thought above — even one line is enough." />
+      <div className="flex-1 overflow-y-auto px-5 mt-4 space-y-3 pb-8 scroll-hide">
+        {notes.length === 0 ? (
+          <EmptyState
+            icon={<FileText size={28} />}
+            title="No reflections yet"
+            body="Write your first thought above — even one line is enough."
+          />
         ) : (
-          items.map((n) => (
+          notes.map((n) => (
             <AppCard key={n.id}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                   <p className="font-serif text-base text-foreground">{n.title}</p>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{n.date} · Verse {n.verseId}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                    {n.date} · Verse {n.verseId}
+                  </p>
                 </div>
-                <button onClick={() => setItems(items.filter((x) => x.id !== n.id))} className="text-muted-foreground"><Trash2 size={16} /></button>
+                <button
+                  onClick={() => {
+                    deleteNote(n.id);
+                    toast.success("Deleted note");
+                  }}
+                  className="text-muted-foreground active:scale-[0.9]"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
-              <p className="text-sm text-foreground mt-2 leading-relaxed">{n.body}</p>
+              <p className="text-sm text-foreground mt-2 leading-relaxed whitespace-pre-line">
+                {n.body}
+              </p>
             </AppCard>
           ))
         )}
@@ -612,22 +1512,36 @@ export function Notes() {
 /* ───────────── 19. Reading History ───────────── */
 export function HistoryScreen() {
   const nav = useNavigate();
+  const { history } = useUserProgress();
+
   return (
     <ScreenWrapper>
-      <Header title="Reading History" />
-      <div className="flex-1 overflow-y-auto px-5 space-y-3 pb-8">
-        {demoHistory.map((h) => (
-          <AppCard key={h.id} onClick={() => nav(`/verse/${h.chapter}.${h.verse}`)} className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-dawn flex items-center justify-center text-primary text-xs font-medium">
-              {h.chapter}.{h.verse}
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-foreground">Chapter {h.chapter}, verse {h.verse}</p>
-              <p className="text-xs text-muted-foreground">{h.date}</p>
-            </div>
-            <HistoryIcon size={16} className="text-muted-foreground" />
-          </AppCard>
-        ))}
+      <Header title="Reading History" back={true} />
+      <div className="flex-1 overflow-y-auto px-5 space-y-3 pb-8 scroll-hide">
+        {history.length === 0 ? (
+          <div className="text-center py-8 text-sm text-muted-foreground">
+            Your history is clear. Begin reading a verse!
+          </div>
+        ) : (
+          history.map((h) => (
+            <AppCard
+              key={h.id}
+              onClick={() => nav(`/verse/${h.chapter}.${h.verse}`)}
+              className="flex items-center gap-3"
+            >
+              <div className="h-10 w-10 rounded-full bg-gradient-dawn flex items-center justify-center text-primary text-xs font-medium shrink-0">
+                {h.chapter}.{h.verse}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-foreground truncate">
+                  Chapter {h.chapter}, verse {h.verse}
+                </p>
+                <p className="text-xs text-muted-foreground">{h.date}</p>
+              </div>
+              <HistoryIcon size={16} className="text-muted-foreground" />
+            </AppCard>
+          ))
+        )}
       </div>
     </ScreenWrapper>
   );
@@ -636,56 +1550,237 @@ export function HistoryScreen() {
 /* ───────────── 20. Audio Player ───────────── */
 export function Player() {
   const nav = useNavigate();
-  const [playing, setPlaying] = useState(true);
+  const { isFavorite, toggleFavorite } = useUserProgress();
+  const {
+    isPlaying,
+    currentTime,
+    duration,
+    currentVerse,
+    playbackRate,
+    pause,
+    resume,
+    seek,
+    setRate,
+    currentLanguage,
+  } = useAudioPlayer();
+
+  const [activeSpeedIdx, setActiveSpeedIdx] = useState(1);
+  const speeds = [0.8, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0];
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const handleSpeedToggle = () => {
+    const nextIdx = (activeSpeedIdx + 1) % speeds.length;
+    setActiveSpeedIdx(nextIdx);
+    setRate(speeds[nextIdx]);
+    toast.info(`Playback speed set to ${speeds[nextIdx]}x`);
+  };
+
+  if (!currentVerse) {
+    return (
+      <ScreenWrapper className="bg-gradient-dawn">
+        <div className="flex items-center justify-between px-5 pt-4">
+          <IconButton onClick={() => nav(-1)}>
+            <ChevronLeft size={18} />
+          </IconButton>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Now Playing</p>
+          <div className="w-10" />
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
+          <Headphones size={48} className="text-primary mb-4" />
+          <p className="text-lg font-serif">No audio loaded</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Browse the Gita and select "Listen" on any verse to start playback.
+          </p>
+        </div>
+      </ScreenWrapper>
+    );
+  }
+
+  const verseId = `${currentVerse.chapter}.${currentVerse.verse}`;
+  const translationText =
+    currentVerse.translation[currentLanguage]?.simple ||
+    currentVerse.translation["en"]?.simple ||
+    "";
+  const favorited = isFavorite(verseId);
+
+  const handleFavoriteToggle = () => {
+    toggleFavorite(verseId);
+    if (favorited) {
+      toast.success("Removed from Favorites");
+    } else {
+      toast.success("Added to Favorites");
+    }
+  };
+
   return (
     <ScreenWrapper className="bg-gradient-dawn">
       <div className="flex items-center justify-between px-5 pt-4">
-        <IconButton onClick={() => nav(-1)}><ChevronLeft size={18} /></IconButton>
+        <IconButton onClick={() => nav(-1)}>
+          <ChevronLeft size={18} />
+        </IconButton>
         <p className="text-xs uppercase tracking-widest text-muted-foreground">Now Playing</p>
-        <IconButton><Share2 size={18} /></IconButton>
+        <IconButton onClick={() => toast.success("Shared successfully")}>
+          <Share2 size={18} />
+        </IconButton>
       </div>
       <div className="flex-1 flex flex-col items-center px-8 pt-8">
         <div className="w-full max-w-xs aspect-square rounded-3xl overflow-hidden shadow-soft">
           <img src={DEMO_IMG} alt="Now playing" className="w-full h-full object-cover" />
         </div>
-        <div className="mt-8 text-center">
-          <p className="font-serif text-2xl text-foreground">Chapter 2, Verse 47</p>
-          <p className="text-sm text-muted-foreground mt-1">Sanskrit recitation · 2:14</p>
+        <div className="mt-8 text-center max-w-sm">
+          <p className="font-serif text-2xl text-foreground">
+            Chapter {currentVerse.chapter}, Verse {currentVerse.verse}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1 truncate">
+            Sanskrit Recitation & Commentary
+          </p>
+          <p className="text-sm text-foreground/80 mt-3 italic line-clamp-2">"{translationText}"</p>
         </div>
+
+        {/* Slider bar */}
         <div className="w-full mt-8">
-          <ProgressBar value={0.42} />
-          <div className="flex justify-between text-[10px] text-muted-foreground mt-2"><span>0:56</span><span>2:14</span></div>
+          <input
+            type="range"
+            min="0"
+            max={duration || 100}
+            value={currentTime}
+            onChange={(e) => seek(parseFloat(e.target.value))}
+            className="w-full h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-gold"
+          />
+          <div className="flex justify-between text-[10px] text-muted-foreground mt-2">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
         </div>
+
+        {/* Controls */}
         <div className="flex items-center justify-center gap-6 mt-10">
-          <IconButton><SkipBack size={20} /></IconButton>
-          <button onClick={() => setPlaying((p) => !p)} className="h-16 w-16 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shadow-soft">
-            {playing ? <Pause size={26} /> : <Play size={26} />}
+          <IconButton onClick={() => seek(Math.max(0, currentTime - 10))}>
+            <SkipBack size={20} />
+          </IconButton>
+          <button
+            onClick={isPlaying ? pause : resume}
+            className="h-16 w-16 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shadow-soft active:scale-[0.96] transition"
+          >
+            {isPlaying ? <Pause size={26} /> : <Play size={26} className="ml-1" />}
           </button>
-          <IconButton><SkipForward size={20} /></IconButton>
+          <IconButton onClick={() => seek(Math.min(duration, currentTime + 10))}>
+            <SkipForward size={20} />
+          </IconButton>
         </div>
-        <div className="flex justify-between w-full mt-8 text-muted-foreground">
-          <IconButton><Volume2 size={18} /></IconButton>
-          <IconButton><Heart size={18} /></IconButton>
-          <IconButton><Bookmark size={18} /></IconButton>
+
+        <div className="flex justify-between w-full mt-8 text-muted-foreground pt-4">
+          <button
+            onClick={handleSpeedToggle}
+            className="h-10 px-3 rounded-full bg-card/70 backdrop-blur shadow-card flex items-center justify-center text-xs font-semibold text-foreground/70 hover:text-foreground"
+          >
+            {speeds[activeSpeedIdx]}x
+          </button>
+          <IconButton onClick={handleFavoriteToggle}>
+            {favorited ? (
+              <Heart size={18} className="text-destructive fill-destructive" />
+            ) : (
+              <Heart size={18} />
+            )}
+          </IconButton>
+          <IconButton onClick={() => nav(`/verse/${verseId}`)}>
+            <BookOpen size={18} />
+          </IconButton>
         </div>
       </div>
     </ScreenWrapper>
   );
 }
 
-/* Mini player overlay state — appears at bottom of Home */
+/* Mini player overlay state — always visible; defaults to verse 1.1 for new users */
 export function MiniPlayer() {
   const nav = useNavigate();
-  const [playing, setPlaying] = useState(true);
+  const { isPlaying, currentVerse, pause, resume, play, currentLanguage } = useAudioPlayer();
+  const { downloadVerse, isVerseDownloaded, downloading, selectedLanguage } = useUserProgress();
+
+  // Always fetch verse 1.1 as the default "next up" when nothing is loaded
+  const { data: defaultVerse } = useVerseDetail(1, 1);
+
+  // Determine which verse to display — current if playing, else verse 1.1
+  const displayVerse = currentVerse ?? defaultVerse ?? null;
+  if (!displayVerse) return null;
+
+  const verseId = `${displayVerse.chapter}.${displayVerse.verse}`;
+  const isLoaded = !!currentVerse;
+
+  const handlePlay = () => {
+    if (isLoaded) {
+      isPlaying ? pause() : resume();
+    } else if (defaultVerse) {
+      // Start verse 1.1 fresh
+      play(defaultVerse, selectedLanguage);
+    }
+  };
+
+  const translationText =
+    displayVerse.translation[currentLanguage]?.simple ||
+    displayVerse.translation["en"]?.simple ||
+    "Sanskrit Recitation";
+
   return (
-    <div className="sticky bottom-0 mx-3 mb-2 rounded-2xl bg-card/95 backdrop-blur-xl border border-border shadow-soft px-3 py-2 flex items-center gap-3">
-      <img src={DEMO_IMG} alt="" className="h-10 w-10 rounded-xl object-cover" />
-      <div className="flex-1 min-w-0" onClick={() => nav("/player")}>
-        <p className="text-sm font-medium text-foreground truncate">Chapter 2 · Verse 47</p>
-        <p className="text-[10px] text-muted-foreground truncate">Sanskrit recitation</p>
+    <div className="sticky bottom-0 mx-3 mb-2 rounded-2xl bg-card/96 backdrop-blur-xl border border-border shadow-soft px-3 py-2.5 flex items-center gap-3 transition-transform">
+      <img
+        src={DEMO_IMG}
+        alt=""
+        className="h-10 w-10 rounded-xl object-cover shrink-0 cursor-pointer"
+        onClick={() => nav(`/verse/${displayVerse.chapter}.${displayVerse.verse}`)}
+      />
+      <div
+        className="flex-1 min-w-0 cursor-pointer"
+        onClick={() => nav(`/verse/${displayVerse.chapter}.${displayVerse.verse}`)}
+      >
+        <p className="text-sm font-medium text-foreground truncate">
+          Chapter {displayVerse.chapter} · Verse {displayVerse.verse}
+          {!isLoaded && <span className="text-[10px] text-primary font-semibold ml-1.5">UP NEXT</span>}
+        </p>
+        <p className="text-[10px] text-muted-foreground truncate">{translationText}</p>
       </div>
-      <button onClick={() => setPlaying((p) => !p)} className="h-9 w-9 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center">
-        {playing ? <Pause size={16} /> : <Play size={16} />}
+
+      {/* Download icon — only when a verse is actually loaded/playing */}
+      {isLoaded && (
+        isVerseDownloaded(verseId) ? (
+          <button
+            title="Saved offline"
+            className="h-8 w-8 rounded-full border border-primary/30 flex items-center justify-center shrink-0 text-primary bg-card/70 active:scale-90 transition"
+          >
+            <CheckCircle2 size={14} className="fill-current" />
+          </button>
+        ) : downloading[`verse:${verseId}`] !== undefined ? (
+          <button
+            disabled
+            title={`Downloading ${downloading[`verse:${verseId}`]}%`}
+            className="h-8 w-8 rounded-full border border-primary/20 flex items-center justify-center shrink-0 text-primary animate-pulse bg-gradient-dawn"
+          >
+            <span className="text-[9px] font-bold">{downloading[`verse:${verseId}`]}%</span>
+          </button>
+        ) : (
+          <button
+            onClick={(e) => { e.stopPropagation(); downloadVerse(verseId); }}
+            title="Download for offline"
+            className="h-8 w-8 rounded-full border border-border/50 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground bg-card active:scale-90 transition"
+          >
+            <Download size={14} />
+          </button>
+        )
+      )}
+
+      {/* Play/Pause */}
+      <button
+        onClick={handlePlay}
+        className="h-9 w-9 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shrink-0 active:scale-[0.93] transition shadow-card"
+      >
+        {isLoaded && isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
       </button>
     </div>
   );
@@ -693,26 +1788,44 @@ export function MiniPlayer() {
 
 /* ───────────── 22. Daily Journey / Streak ───────────── */
 export function Journey() {
+  const { profile } = useUserProgress();
   const days = Array.from({ length: 14 }, (_, i) => i);
   return (
     <ScreenWrapper>
-      <Header title="Your Journey" />
-      <div className="flex-1 overflow-y-auto px-5 space-y-4 pb-8">
-        <AppCard className="bg-gradient-gold text-primary-foreground border-0 text-center py-6">
-          <Flame size={28} className="mx-auto" />
+      <Header title="Your Journey" back={true} />
+      <div className="flex-1 overflow-y-auto px-5 space-y-4 pb-8 scroll-hide">
+        <AppCard className="bg-gradient-gold text-primary-foreground border-0 text-center py-6 shadow-soft">
+          <Flame size={28} className="mx-auto animate-pulse" />
           <p className="font-serif text-4xl mt-2">{profile.streak}</p>
           <p className="text-xs uppercase tracking-widest opacity-90">Day streak</p>
         </AppCard>
         <div className="grid grid-cols-3 gap-3">
-          <AppCard className="text-center"><p className="font-serif text-2xl">{profile.versesRead}</p><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Verses</p></AppCard>
-          <AppCard className="text-center"><p className="font-serif text-2xl">{profile.minutes}m</p><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Read time</p></AppCard>
-          <AppCard className="text-center"><p className="font-serif text-2xl">{profile.bookmarks}</p><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Saved</p></AppCard>
+          <AppCard className="text-center">
+            <p className="font-serif text-2xl">{profile.versesRead}</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Verses</p>
+          </AppCard>
+          <AppCard className="text-center">
+            <p className="font-serif text-2xl">{profile.minutes}m</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Read time</p>
+          </AppCard>
+          <AppCard className="text-center">
+            <p className="font-serif text-2xl">{profile.bookmarks}</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Saved</p>
+          </AppCard>
         </div>
         <AppCard>
           <p className="font-serif text-base mb-3">Last 14 days</p>
           <div className="grid grid-cols-7 gap-2">
             {days.map((d) => (
-              <div key={d} className={cn("aspect-square rounded-lg flex items-center justify-center text-[10px]", d % 4 === 3 ? "bg-muted text-muted-foreground" : "bg-gradient-gold text-primary-foreground")}>
+              <div
+                key={d}
+                className={cn(
+                  "aspect-square rounded-lg flex items-center justify-center text-[10px]",
+                  d % 4 === 3
+                    ? "bg-muted text-muted-foreground"
+                    : "bg-gradient-gold text-primary-foreground font-semibold",
+                )}
+              >
                 {d + 1}
               </div>
             ))}
@@ -723,7 +1836,7 @@ export function Journey() {
             <Bell className="text-primary" size={18} />
             <div className="flex-1">
               <p className="font-serif text-base">Daily reminder</p>
-              <p className="text-xs text-muted-foreground">Every morning at 7:00</p>
+              <p className="text-xs text-muted-foreground">Every morning at 07:00</p>
             </div>
           </div>
         </AppCard>
@@ -739,22 +1852,45 @@ export function Reminders() {
   const [picked, setPicked] = useState("07:00");
   return (
     <ScreenWrapper>
-      <Header title="Daily Reminder" />
-      <div className="px-5 flex-1 overflow-y-auto space-y-4 pb-8">
+      <Header title="Daily Reminder" back={true} />
+      <div className="px-5 flex-1 overflow-y-auto space-y-4 pb-8 scroll-hide">
         <AppCard className="flex items-center justify-between">
           <div>
             <p className="font-serif text-base">Gentle reminder</p>
             <p className="text-xs text-muted-foreground">A daily nudge to read one verse</p>
           </div>
-          <button onClick={() => setEnabled((e) => !e)} className={cn("w-12 h-7 rounded-full transition relative", enabled ? "bg-gradient-gold" : "bg-muted")}>
-            <span className={cn("absolute top-0.5 h-6 w-6 rounded-full bg-card shadow transition", enabled ? "left-5" : "left-0.5")} />
+          <button
+            onClick={() => {
+              setEnabled((e) => !e);
+              toast.info(enabled ? "Reminders disabled" : "Reminders enabled");
+            }}
+            className={cn(
+              "w-12 h-7 rounded-full transition relative",
+              enabled ? "bg-gradient-gold" : "bg-muted",
+            )}
+          >
+            <span
+              className={cn(
+                "absolute top-0.5 h-6 w-6 rounded-full bg-card shadow transition-all",
+                enabled ? "left-5" : "left-0.5",
+              )}
+            />
           </button>
         </AppCard>
         <div>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 mt-2">Time</p>
           <div className="grid grid-cols-3 gap-2">
             {times.map((t) => (
-              <button key={t} onClick={() => setPicked(t)} className={cn("h-12 rounded-full border text-sm font-medium transition", picked === t ? "bg-gradient-gold text-primary-foreground border-transparent" : "bg-card border-border text-foreground")}>
+              <button
+                key={t}
+                onClick={() => setPicked(t)}
+                className={cn(
+                  "h-12 rounded-full border text-sm font-medium transition active:scale-[0.98]",
+                  picked === t
+                    ? "bg-gradient-gold text-primary-foreground border-transparent"
+                    : "bg-card border-border text-foreground",
+                )}
+              >
                 {t}
               </button>
             ))}
@@ -764,11 +1900,347 @@ export function Reminders() {
           <p className="font-serif text-base mb-3">Days</p>
           <div className="flex justify-between">
             {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-              <button key={i} className={cn("h-9 w-9 rounded-full text-sm", i > 0 && i < 6 ? "bg-gradient-gold text-primary-foreground" : "bg-muted text-muted-foreground")}>{d}</button>
+              <button
+                key={i}
+                className={cn(
+                  "h-9 w-9 rounded-full text-sm font-medium",
+                  i > 0 && i < 6
+                    ? "bg-gradient-gold text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                {d}
+              </button>
             ))}
           </div>
         </AppCard>
-        <PrimaryButton>Save reminder</PrimaryButton>
+        <PrimaryButton onClick={() => toast.success(`Reminder set for ${picked} daily`)}>
+          Save reminder
+        </PrimaryButton>
+      </div>
+    </ScreenWrapper>
+  );
+}
+
+/* ───────────── 23b. Notifications ───────────── */
+interface AppNotification {
+  id: string;
+  category: "reminders" | "updates" | "quotes" | "achievements";
+  title: string;
+  body: string;
+  time: string;
+  dateGroup: "Today" | "This Week" | "Earlier";
+  read: boolean;
+  linkText?: string;
+  linkTo?: string;
+  iconType: "bell" | "lotus" | "trophy" | "calendar" | "chapter" | "share" | "megaphone";
+}
+
+export function Notifications() {
+  const nav = useNavigate();
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [notifications, setNotifications] = useState<AppNotification[]>([
+    {
+      id: "n1",
+      category: "reminders",
+      title: "Daily Reminder",
+      body: "Time to read your Gita for today.",
+      time: "7:00 AM",
+      dateGroup: "Today",
+      read: false,
+      linkText: "Continue Reading",
+      linkTo: "/home",
+      iconType: "bell"
+    },
+    {
+      id: "n2",
+      category: "quotes",
+      title: "New Verse of Wisdom",
+      body: "A new verse is waiting for you.",
+      time: "6:30 AM",
+      dateGroup: "Today",
+      read: false,
+      linkText: "Bhagavad Gita 2.47",
+      linkTo: "/verse/2.47",
+      iconType: "lotus"
+    },
+    {
+      id: "n3",
+      category: "achievements",
+      title: "Achievement Unlocked!",
+      body: "You've completed 7 days of reading.",
+      time: "Yesterday",
+      dateGroup: "Today",
+      read: false,
+      linkText: "Keep going!",
+      linkTo: "/journey",
+      iconType: "trophy"
+    },
+    {
+      id: "n4",
+      category: "reminders",
+      title: "Upcoming Reminder",
+      body: "Get ready for your reading time tomorrow.",
+      time: "May 19, 2026",
+      dateGroup: "This Week",
+      read: true,
+      linkText: "Daily at 7:00 AM",
+      linkTo: "/reminders",
+      iconType: "calendar"
+    },
+    {
+      id: "n5",
+      category: "updates",
+      title: "Chapter Completed",
+      body: "Great job! You've completed Chapter 1.",
+      time: "May 18, 2026",
+      dateGroup: "This Week",
+      read: true,
+      linkText: "Arjuna Viṣāda Yoga",
+      linkTo: "/chapter/1",
+      iconType: "chapter"
+    },
+    {
+      id: "n6",
+      category: "updates",
+      title: "Share the Wisdom",
+      body: "Inspire others by sharing a verse.",
+      time: "May 17, 2026",
+      dateGroup: "This Week",
+      read: true,
+      linkText: "Share Now",
+      linkTo: "/verse/2.47",
+      iconType: "share"
+    },
+    {
+      id: "n7",
+      category: "updates",
+      title: "What's New",
+      body: "Explore new features in Easy Gita.",
+      time: "May 15, 2026",
+      dateGroup: "Earlier",
+      read: true,
+      linkText: "See what's new",
+      linkTo: "/home",
+      iconType: "megaphone"
+    }
+  ]);
+
+  const categories = [
+    { id: "all", label: "All" },
+    { id: "reminders", label: "Reminders" },
+    { id: "updates", label: "Updates" },
+    { id: "quotes", label: "Quotes" },
+    { id: "achievements", label: "Achievements" }
+  ];
+
+  const handleNotificationClick = (n: AppNotification) => {
+    // Mark as read locally
+    setNotifications(prev =>
+      prev.map(item => item.id === n.id ? { ...item, read: true } : item)
+    );
+    if (n.linkTo) {
+      nav(n.linkTo);
+    }
+  };
+
+  const filteredNotifications = notifications.filter(
+    n => activeCategory === "all" || n.category === activeCategory
+  );
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "bell":
+        return (
+          <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-950/45 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm border border-amber-100/50 dark:border-transparent">
+            <Bell size={18} />
+          </div>
+        );
+      case "lotus":
+        return (
+          <div className="h-10 w-10 rounded-full bg-rose-50 dark:bg-rose-950/35 text-rose-500 dark:text-rose-400 flex items-center justify-center shrink-0 shadow-sm border border-rose-100/50 dark:border-transparent">
+            <Flower2 size={18} />
+          </div>
+        );
+      case "trophy":
+        return (
+          <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-950/35 text-primary flex items-center justify-center shrink-0 shadow-sm border border-amber-100/50 dark:border-transparent">
+            <Trophy size={18} />
+          </div>
+        );
+      case "calendar":
+        return (
+          <div className="h-10 w-10 rounded-full bg-indigo-50 dark:bg-indigo-950/35 text-indigo-500 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-sm border border-indigo-100/50 dark:border-transparent">
+            <Calendar size={18} />
+          </div>
+        );
+      case "chapter":
+        return (
+          <div className="h-10 w-10 rounded-full bg-emerald-50 dark:bg-emerald-950/35 text-emerald-500 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm border border-emerald-100/50 dark:border-transparent">
+            <ArrowUp size={18} />
+          </div>
+        );
+      case "share":
+        return (
+          <div className="h-10 w-10 rounded-full bg-sky-50 dark:bg-sky-950/35 text-sky-500 dark:text-sky-400 flex items-center justify-center shrink-0 shadow-sm border border-sky-100/50 dark:border-transparent">
+            <Share2 size={18} />
+          </div>
+        );
+      case "megaphone":
+        return (
+          <div className="h-10 w-10 rounded-full bg-orange-50 dark:bg-orange-950/35 text-orange-500 dark:text-orange-400 flex items-center justify-center shrink-0 shadow-sm border border-orange-100/50 dark:border-transparent">
+            <Megaphone size={18} />
+          </div>
+        );
+      default:
+        return (
+          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0 shadow-sm">
+            <Info size={18} />
+          </div>
+        );
+    }
+  };
+
+  const groups: ("Today" | "This Week" | "Earlier")[] = ["Today", "This Week", "Earlier"];
+
+  return (
+    <ScreenWrapper>
+      {/* Exquisite Top Reference Header */}
+      <div className="w-full flex justify-center pt-2 select-none">
+        <div className="flex items-center gap-1.5 opacity-60">
+          <span className="h-px w-6 bg-gradient-to-r from-transparent to-primary/45" />
+          <span className="font-devanagari text-xs text-primary font-semibold leading-none">ॐ</span>
+          <span className="h-px w-6 bg-gradient-to-l from-transparent to-primary/45" />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between px-5 pt-2 pb-2 relative">
+        <button
+          onClick={() => nav(-1)}
+          className="h-10 w-10 rounded-full bg-card/75 backdrop-blur shadow-card flex items-center justify-center text-foreground/75 hover:text-foreground active:scale-95 transition shrink-0"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <div className="text-center flex-1 mx-2">
+          <h1 className="font-serif text-2xl text-foreground leading-tight">Notifications</h1>
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-medium tracking-wide">Stay updated on your spiritual journey</p>
+        </div>
+        <button
+          onClick={() => nav("/reminders")}
+          className="h-10 w-10 rounded-full bg-card/75 backdrop-blur shadow-card flex items-center justify-center text-foreground/75 hover:text-foreground active:scale-95 transition shrink-0"
+        >
+          <SettingsIcon size={18} />
+        </button>
+      </div>
+
+      {/* Categories Horizontal Pills Scroll */}
+      <div className="flex gap-2.5 px-5 py-3 overflow-x-auto scroll-hide select-none shrink-0">
+        {categories.map((cat) => {
+          const active = activeCategory === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={cn(
+                "px-4.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition active:scale-95 border",
+                active
+                  ? "bg-gradient-gold text-primary-foreground border-transparent shadow-soft"
+                  : "bg-card border-border/50 text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {cat.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="px-5 flex-1 overflow-y-auto space-y-4 pb-8 scroll-hide">
+        {filteredNotifications.length === 0 ? (
+          <EmptyState
+            icon={<Bell size={28} />}
+            title="All caught up!"
+            body={`You have no notifications in the ${activeCategory} category.`}
+          />
+        ) : (
+          groups.map(group => {
+            const groupNotifications = filteredNotifications.filter(n => n.dateGroup === group);
+            if (groupNotifications.length === 0) return null;
+
+            return (
+              <div key={group} className="space-y-2.5">
+                <p className="font-serif text-base text-foreground/80 mt-2 mb-1 px-0.5">{group}</p>
+                <div className="space-y-3">
+                  {groupNotifications.map(n => (
+                    <AppCard
+                      key={n.id}
+                      onClick={() => handleNotificationClick(n)}
+                      className={cn(
+                        "flex items-start gap-3.5 p-3.5 transition-all border border-border/30 hover:border-primary/10 active:scale-[0.99]",
+                        !n.read ? "bg-card/95 border-l-3 border-l-primary/70" : "bg-card/50",
+                      )}
+                    >
+                      {getNotificationIcon(n.iconType)}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-sans text-sm font-semibold text-foreground truncate">
+                            {n.title}
+                          </p>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[9px] text-muted-foreground font-medium">
+                              {n.time}
+                            </span>
+                            {!n.read && (
+                              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground/90 mt-0.5 leading-relaxed">
+                          {n.body}
+                        </p>
+
+                        {n.linkText && (
+                          <div className="mt-2 flex items-center gap-1 text-[10px] text-primary font-bold hover:underline select-none">
+                            {n.iconType === "bell" || n.iconType === "lotus" || n.iconType === "chapter" ? (
+                              <BookOpen size={11} />
+                            ) : n.iconType === "trophy" ? (
+                              <Sparkles size={11} />
+                            ) : n.iconType === "calendar" ? (
+                              <Calendar size={11} />
+                            ) : n.iconType === "share" ? (
+                              <Share2 size={11} />
+                            ) : (
+                              <ChevronRight size={11} />
+                            )}
+                            {n.linkText}
+                          </div>
+                        )}
+                      </div>
+                    </AppCard>
+                  ))}
+                </div>
+              </div>
+            );
+          })
+        )}
+
+        {/* Bottom Preferences Managed Card */}
+        <button
+          onClick={() => nav("/reminders")}
+          className="w-full mt-4 active:scale-[0.99] transition-transform text-left block"
+        >
+          <AppCard className="bg-gradient-dawn border border-primary/20 flex items-center justify-between p-3.5 shadow-soft">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shrink-0 shadow-soft">
+                <SettingsIcon size={18} />
+              </div>
+              <div>
+                <p className="font-serif text-sm text-foreground">Manage Notification Preferences</p>
+                <p className="text-[10px] text-muted-foreground">Choose what you want to hear from us</p>
+              </div>
+            </div>
+            <ChevronRight className="text-muted-foreground" size={16} />
+          </AppCard>
+        </button>
       </div>
     </ScreenWrapper>
   );
@@ -776,24 +2248,300 @@ export function Reminders() {
 
 /* ───────────── 24. Downloads ───────────── */
 export function Downloads() {
+  const nav = useNavigate();
+  const {
+    downloadedVerses,
+    downloadedChapters,
+    isGitaDownloaded,
+    downloading,
+    downloadVerse,
+    deleteVerseDownload,
+    downloadChapter,
+    deleteChapterDownload,
+    downloadWholeGita,
+    deleteWholeGita,
+    isVerseDownloaded,
+    isChapterDownloaded,
+    selectedLanguage,
+  } = useUserProgress();
+
+  const { data: chapters, isLoading: chaptersLoading } = useChapters();
+  const [activeTab, setActiveTab] = useState<"library" | "download">("library");
+
+  const totalSpace = (downloadedVerses.length * 0.25).toFixed(1);
+
+  // Filter out verses whose parent chapter is already fully downloaded
+  const individualDownloadedVerses = downloadedVerses.filter((vId) => {
+    const [ch] = vId.split(".").map(Number);
+    return !downloadedChapters.includes(ch);
+  });
+
   return (
     <ScreenWrapper>
-      <Header title="Offline Library" subtitle="Read & listen without a connection" />
-      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-8">
-        {demoDownloads.length === 0 ? (
-          <EmptyState icon={<Download size={28} />} title="Nothing downloaded yet" body="Save chapters and recitations for moments without signal." />
+      <Header title="Offline Library" subtitle="Read & listen without internet" back={true} />
+
+      <div className="px-5 pb-3">
+        {/* Statistics Panel */}
+        <AppCard className="bg-gradient-dawn border border-primary/10 flex items-center justify-between py-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <RefreshCw size={18} className="animate-spin-slow text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Local Storage</p>
+              <p className="font-serif text-lg text-foreground">{totalSpace} MB used</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">{downloadedVerses.length} / 700 verses</p>
+            <p className="text-[10px] text-primary uppercase font-bold tracking-widest mt-0.5">
+              {isGitaDownloaded ? "Full Gita Offline" : `${downloadedChapters.length} chapters`}
+            </p>
+          </div>
+        </AppCard>
+
+        {/* Tab Selection */}
+        <div className="flex bg-muted/65 p-1 rounded-full mt-4 border border-border/40">
+          <button
+            onClick={() => setActiveTab("library")}
+            className={cn(
+              "flex-1 py-2 text-xs font-semibold rounded-full transition active:scale-95",
+              activeTab === "library" ? "bg-card shadow-card text-foreground" : "text-muted-foreground",
+            )}
+          >
+            My Library ({downloadedChapters.length + individualDownloadedVerses.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("download")}
+            className={cn(
+              "flex-1 py-2 text-xs font-semibold rounded-full transition active:scale-95",
+              activeTab === "download" ? "bg-card shadow-card text-foreground" : "text-muted-foreground",
+            )}
+          >
+            Browse & Download
+          </button>
+        </div>
+      </div>
+
+      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-8 scroll-hide">
+        {activeTab === "library" ? (
+          /* ───── LIBRARY TAB ───── */
+          downloadedChapters.length === 0 && individualDownloadedVerses.length === 0 ? (
+            <EmptyState
+              icon={<Headphones size={28} />}
+              title="Your library is empty"
+              body="Switch to the 'Browse & Download' tab or click the download button on any verse to download recitations."
+            />
+          ) : (
+            <div className="space-y-3">
+              {/* Full Gita Card if offline */}
+              {isGitaDownloaded && (
+                <AppCard className="bg-gradient-gold border-0 text-primary-foreground flex items-center justify-between p-4 shadow-soft">
+                  <div className="flex items-center gap-3">
+                    <span className="font-devanagari text-2xl font-bold select-none text-primary-foreground/90">ॐ</span>
+                    <div>
+                      <p className="font-serif text-lg">Complete Bhagavad Gita</p>
+                      <p className="text-xs opacity-90">All 18 Chapters · 700 Verses offline</p>
+                    </div>
+                  </div>
+                  <IconButton
+                    onClick={() => {
+                      if (window.confirm("Clear all offline downloads? This action is permanent.")) {
+                        deleteWholeGita();
+                      }
+                    }}
+                    className="bg-white/20 border-0 text-white hover:bg-white/30"
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
+                </AppCard>
+              )}
+
+              {/* Downloaded Chapters list */}
+              {!isGitaDownloaded &&
+                downloadedChapters.map((chNum) => {
+                  const ch = chapters?.find((c) => c.chapter_number === chNum);
+                  const titleStr = ch
+                    ? ch.title[selectedLanguage] || ch.title["en"]
+                    : `Chapter ${chNum}`;
+                  return (
+                    <AppCard key={`lib-ch-${chNum}`} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-dawn flex items-center justify-center text-primary">
+                          <Headphones size={16} />
+                        </div>
+                        <div>
+                          <p className="font-serif text-base">{titleStr}</p>
+                          <p className="text-xs text-muted-foreground">Complete Chapter Recitation</p>
+                        </div>
+                      </div>
+                      <IconButton
+                        onClick={() => {
+                          if (window.confirm(`Delete offline audio for Chapter ${chNum}?`)) {
+                            deleteChapterDownload(chNum);
+                          }
+                        }}
+                        className="text-destructive hover:bg-destructive/5 border-transparent bg-transparent shadow-none"
+                      >
+                        <Trash2 size={16} />
+                      </IconButton>
+                    </AppCard>
+                  );
+                })}
+
+              {/* Downloaded Individual Verses list */}
+              {individualDownloadedVerses.map((vId) => {
+                return (
+                  <AppCard key={`lib-ver-${vId}`} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground">
+                        <Headphones size={16} />
+                      </div>
+                      <div>
+                        <p className="font-serif text-base">Verse {vId}</p>
+                        <p className="text-xs text-muted-foreground">Individual Verse Recitation</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <IconButton
+                        onClick={() => nav(`/verse/${vId}`)}
+                        className="text-primary hover:bg-primary/5 border-transparent bg-transparent shadow-none"
+                      >
+                        <BookOpen size={16} />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => {
+                          if (window.confirm(`Delete offline audio for Verse ${vId}?`)) {
+                            deleteVerseDownload(vId);
+                          }
+                        }}
+                        className="text-destructive hover:bg-destructive/5 border-transparent bg-transparent shadow-none"
+                      >
+                        <Trash2 size={16} />
+                      </IconButton>
+                    </div>
+                  </AppCard>
+                );
+              })}
+            </div>
+          )
         ) : (
-          demoDownloads.map((d) => (
-            <AppCard key={d.id} className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-gradient-dawn flex items-center justify-center text-primary"><Headphones size={18} /></div>
-              <div className="flex-1 min-w-0">
-                <p className="font-serif text-base truncate">{d.title}</p>
-                <p className="text-xs text-muted-foreground">{d.size}</p>
-                {!d.done && <div className="mt-2"><ProgressBar value={d.progress ?? 0} /></div>}
+          /* ───── BROWSE & DOWNLOAD TAB ───── */
+          <div className="space-y-4 pt-1">
+            {/* Global Gita Download Card */}
+            <AppCard className="bg-gradient-gold border-0 text-primary-foreground p-5 shadow-soft">
+              <span className="font-devanagari text-3xl font-bold mb-1.5 block select-none text-primary-foreground/90">
+                ॐ
+              </span>
+              <h3 className="font-serif text-xl">Full Bhagavad Gita Audio</h3>
+              <p className="text-xs opacity-90 mt-1 leading-relaxed">
+                Download the complete audio recitation of all 18 chapters and 700 verses in Sanskrit
+                (approx. 175 MB) for complete offline meditation.
+              </p>
+
+              <div className="mt-4">
+                {isGitaDownloaded ? (
+                  <div className="flex items-center gap-2 text-xs font-semibold bg-white/20 px-3 py-2 rounded-full w-fit">
+                    <CheckCircle2 size={14} className="fill-current text-white" />
+                    Offline Ready
+                  </div>
+                ) : downloading["gita"] !== undefined ? (
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-semibold">
+                      <span>Downloading entire Gita...</span>
+                      <span>{downloading["gita"]}%</span>
+                    </div>
+                    <ProgressBar value={downloading["gita"] / 100} />
+                  </div>
+                ) : (
+                  <button
+                    onClick={downloadWholeGita}
+                    className="px-5 h-10 rounded-full bg-white text-primary text-xs font-bold shadow-soft flex items-center gap-1.5 active:scale-95 transition hover:bg-white/95"
+                  >
+                    <Download size={14} />
+                    Download Complete Gita
+                  </button>
+                )}
               </div>
-              {d.done ? <CheckCircle2 className="text-primary" size={20} /> : <span className="text-xs text-muted-foreground">{Math.round((d.progress ?? 0) * 100)}%</span>}
             </AppCard>
-          ))
+
+            {/* Chapters list */}
+            <div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-2.5 px-0.5">
+                Chapters Recitations
+              </p>
+              <div className="space-y-3">
+                {chaptersLoading ? (
+                  Array.from({ length: 3 }).map((_, idx) => (
+                    <Skeleton key={idx} className="h-16 w-full" />
+                  ))
+                ) : (
+                  chapters?.map((ch) => {
+                    const isChDownloaded = isChapterDownloaded(ch.chapter_number);
+                    const isChDownloading = downloading[`chapter:${ch.chapter_number}`] !== undefined;
+                    const chTitle = ch.title[selectedLanguage] || ch.title["en"];
+
+                    return (
+                      <AppCard
+                        key={`dl-ch-${ch.chapter_number}`}
+                        className="flex items-center justify-between p-3.5"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="font-serif text-base truncate">
+                            Chapter {ch.chapter_number} — {chTitle}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {ch.verseCount} verses · ~{(ch.verseCount * 0.25).toFixed(1)} MB
+                          </p>
+
+                          {isChDownloading && (
+                            <div className="mt-2 w-4/5">
+                              <ProgressBar value={downloading[`chapter:${ch.chapter_number}`] / 100} />
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          {isChDownloaded ? (
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] text-primary uppercase font-bold tracking-widest mr-1">
+                                Offline
+                              </span>
+                              <IconButton
+                                onClick={() => {
+                                  if (
+                                    window.confirm(
+                                      `Delete offline audio for Chapter ${ch.chapter_number}?`,
+                                    )
+                                  ) {
+                                    deleteChapterDownload(ch.chapter_number);
+                                  }
+                                }}
+                                className="text-destructive bg-transparent shadow-none hover:bg-destructive/5"
+                              >
+                                <Trash2 size={16} />
+                              </IconButton>
+                            </div>
+                          ) : isChDownloading ? (
+                            <span className="text-xs font-bold text-primary mr-3 select-none">
+                              {downloading[`chapter:${ch.chapter_number}`]}%
+                            </span>
+                          ) : (
+                            <IconButton
+                              onClick={() => downloadChapter(ch.chapter_number)}
+                              className="text-primary bg-primary/5 hover:bg-primary/10 border-transparent shadow-none"
+                            >
+                              <Download size={16} />
+                            </IconButton>
+                          )}
+                        </div>
+                      </AppCard>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </ScreenWrapper>
@@ -801,108 +2549,313 @@ export function Downloads() {
 }
 
 /* ───────────── 25. Settings ───────────── */
+
+/* ───────────── 25. Settings ───────────── */
 export function Settings() {
-  const nav = useNavigate();
-  const [dark, setDark] = useState(false);
-  const groups = [
-    {
-      label: "Reading",
-      items: [
-        { icon: Languages, label: "Language", value: "English", to: "/language" },
-        { icon: BookOpen, label: "Font size", value: "Medium" },
-        { icon: dark ? Moon : Sun, label: "Theme", value: dark ? "Dark" : "Light", action: () => setDark((d) => !d) },
-      ],
-    },
-    {
-      label: "Practice",
-      items: [
-        { icon: Bell, label: "Daily reminder", value: "07:00", to: "/reminders" },
-        { icon: Flame, label: "Streak", value: `${profile.streak} days`, to: "/journey" },
-        { icon: Download, label: "Downloads", value: `${demoDownloads.length}`, to: "/downloads" },
-      ],
-    },
-    {
-      label: "About",
-      items: [
-        { icon: FileText, label: "Notes", to: "/notes" },
-        { icon: HistoryIcon, label: "Reading history", to: "/history" },
-        { icon: SettingsIcon, label: "About Easy Gita" },
-      ],
-    },
-  ];
-  return (
-    <ScreenWrapper>
-      <Header title="Settings" back={false} />
-      <div className="flex-1 overflow-y-auto px-5 space-y-6 pb-8">
-        {groups.map((g) => (
-          <div key={g.label}>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">{g.label}</p>
-            <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
-              {g.items.map((it, i) => {
-                const Icon = it.icon;
-                const handler = () => {
-                  if ("to" in it && it.to) nav(it.to);
-                  else if ("action" in it && it.action) it.action();
-                };
-                return (
-                  <button key={i} onClick={handler} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
-                    <Icon size={18} className="text-primary" />
-                    <span className="flex-1 text-sm text-foreground">{it.label}</span>
-                    {"value" in it && it.value && <span className="text-xs text-muted-foreground">{it.value}</span>}
-                    <ChevronRight size={16} className="text-muted-foreground" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-        <button className="w-full flex items-center justify-center gap-2 h-12 rounded-full bg-card border border-border text-destructive font-medium">
-          <LogOut size={16} /> Sign out
-        </button>
-      </div>
-    </ScreenWrapper>
-  );
+  return <Profile />;
 }
 
 /* ───────────── 26. Profile ───────────── */
 export function Profile() {
   const nav = useNavigate();
+  const {
+    user,
+    profile,
+    bookmarks,
+    triggerSync,
+    signOutUser,
+    selectedLanguage,
+    downloadedVerses,
+  } = useUserProgress();
+
+  // Dark theme toggle state
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  
+  // Seeding state
+  const [seedingProgress, setSeedingProgress] = useState<SeedingProgress>({
+    status: "idle",
+    message: "",
+    percent: 0,
+  });
+
+  const toggleTheme = () => {
+    const nextDark = !dark;
+    setDark(nextDark);
+    if (nextDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    toast.success(`${nextDark ? "Dark" : "Light"} mode enabled`);
+  };
+
+  const handleSeedDatabase = async () => {
+    if (seedingProgress.status === "running") return;
+
+    if (
+      !window.confirm(
+        "This will overwrite existing Gita records on Firestore with standard aggregated text. Proceed?"
+      )
+    ) {
+      return;
+    }
+
+    await seedGitaDatabase((p) => {
+      setSeedingProgress(p);
+      if (p.status === "success") {
+        toast.success(p.message);
+      } else if (p.status === "error") {
+        toast.error(p.message);
+      }
+    });
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOutUser();
+      toast.success("Signed out successfully");
+      nav("/");
+    } catch (e) {
+      toast.error("Failed to sign out");
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const nativeUser = await GoogleAuth.signIn();
+        const credential = GoogleAuthProvider.credential(nativeUser.authentication.idToken);
+        await signInWithCredential(auth, credential);
+        toast.success("Signed in with Google successfully!");
+      } catch (e: any) {
+        console.error("Native Google sign-in failed:", e);
+        toast.error(`Sign-in failed: ${e.message || e}`);
+      }
+    } else {
+      try {
+        const { signInWithPopup } = await import("firebase/auth");
+        await signInWithPopup(auth, new GoogleAuthProvider());
+        toast.success("Signed in with Google successfully!");
+      } catch (e: any) {
+        console.error("Web Google sign-in failed:", e);
+        toast.error(`Sign-in failed: ${e.message || e}`);
+      }
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    if (Capacitor.getPlatform() === "ios") {
+      try {
+        const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
+        const result = await SignInWithApple.authorize({
+          clientId: "com.gitachapters.app",
+          redirectUri: "https://gita-1fe63.firebaseapp.com/__/auth/handler",
+          scopes: "email name",
+        });
+        const credential = new OAuthProvider("apple.com").credential({
+          idToken: result.response.identityToken,
+          rawNonce: result.response.nonce,
+        });
+        await signInWithCredential(auth, credential);
+        toast.success("Signed in with Apple successfully!");
+      } catch (e: any) {
+        console.error("Apple sign-in failed:", e);
+        toast.error(`Apple Sign-In failed: ${e.message || e}`);
+      }
+    } else {
+      try {
+        const { signInWithPopup } = await import("firebase/auth");
+        await signInWithPopup(auth, new OAuthProvider("apple.com"));
+        toast.success("Signed in with Apple successfully!");
+      } catch (e: any) {
+        console.error("Web Apple sign-in failed:", e);
+        toast.error(`Apple Sign-In failed: ${e.message || e}`);
+      }
+    }
+  };
+
+  const activeLanguageObj = supportedLanguages.find((l) => l.code === selectedLanguage);
+
   return (
     <ScreenWrapper>
-      <Header title="Profile" back={false} right={<IconButton onClick={() => nav("/settings")}><SettingsIcon size={18} /></IconButton>} />
-      <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4">
-        <AppCard className="flex items-center gap-4">
-          <img src={DEMO_IMG} alt={profile.name} className="h-16 w-16 rounded-full object-cover shadow-card" />
-          <div className="flex-1">
-            <p className="font-serif text-xl text-foreground">{profile.name}</p>
-            <p className="text-xs text-muted-foreground">{profile.email}</p>
-          </div>
-        </AppCard>
+      <Header
+        title="Dashboard & Settings"
+        back={false}
+      />
+      <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-6 scroll-hide pt-4">
+        {/* Dynamic User Profile card */}
+        {user ? (
+          <AppCard className="flex items-center gap-4 border border-primary/10">
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={profile.name}
+                className="h-16 w-16 rounded-full object-cover shadow-card shrink-0"
+              />
+            ) : (
+              <div className="h-16 w-16 rounded-full bg-gradient-dawn flex items-center justify-center text-primary font-bold text-xl shadow-card shrink-0">
+                {profile.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="font-serif text-xl text-foreground truncate">{profile.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+            </div>
+          </AppCard>
+        ) : (
+          <AppCard className="bg-gradient-dawn border border-primary/10 p-5 shadow-soft">
+            <h2 className="font-serif text-lg text-foreground mb-1">Backup your progress</h2>
+            <p className="text-xs text-muted-foreground mb-4">
+              Sign in to back up your streaks, bookmarks, and reflections to the cloud.
+            </p>
+            <div className="space-y-2">
+              <button
+                onClick={handleGoogleSignIn}
+                className="w-full h-11 rounded-full bg-card border border-border text-foreground font-semibold flex items-center justify-center gap-2 text-sm shadow-card active:scale-[0.98] transition"
+              >
+                <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
+                Continue with Google
+              </button>
+              {(Capacitor.getPlatform() === "ios" || !Capacitor.isNativePlatform()) && (
+                <button
+                  onClick={handleAppleSignIn}
+                  className="w-full h-11 rounded-full bg-foreground text-background font-semibold flex items-center justify-center gap-2 text-sm shadow-soft active:scale-[0.98] transition"
+                >
+                  <svg className="h-4 w-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.51-.62.71-1.16 1.85-1.01 2.96 1.1.09 2.24-.57 2.96-1.41" />
+                  </svg>
+                  Sign in with Apple
+                </button>
+              )}
+            </div>
+          </AppCard>
+        )}
+
+        {/* Stats Section */}
         <div className="grid grid-cols-3 gap-3">
-          <AppCard className="text-center"><p className="font-serif text-2xl">{profile.streak}</p><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Streak</p></AppCard>
-          <AppCard className="text-center"><p className="font-serif text-2xl">{profile.versesRead}</p><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Verses</p></AppCard>
-          <AppCard className="text-center"><p className="font-serif text-2xl">{profile.bookmarks}</p><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Saved</p></AppCard>
+          <AppCard className="text-center bg-card/40">
+            <p className="font-serif text-2xl text-primary font-bold">{profile.streak}</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Streak</p>
+          </AppCard>
+          <AppCard className="text-center bg-card/40">
+            <p className="font-serif text-2xl text-primary font-bold">{profile.versesRead}</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Verses</p>
+          </AppCard>
+          <AppCard className="text-center bg-card/40">
+            <p className="font-serif text-2xl text-primary font-bold">{profile.minutes}m</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Minutes</p>
+          </AppCard>
         </div>
-        <div className="space-y-2">
-          {[
-            { icon: HistoryIcon, label: "Reading history", to: "/history" },
-            { icon: FileText, label: "Notes & reflections", to: "/notes" },
-            { icon: Bookmark, label: "Saved verses", to: "/bookmarks" },
-            { icon: Heart, label: "Favorites", to: "/favorites" },
-            { icon: Download, label: "Downloads", to: "/downloads" },
-            { icon: Flame, label: "Daily journey", to: "/journey" },
-          ].map((r, i) => {
-            const Icon = r.icon;
-            return (
-              <AppCard key={i} onClick={() => nav(r.to)} className="flex items-center gap-3 py-3">
-                <span className="h-10 w-10 rounded-full bg-gradient-dawn flex items-center justify-center text-primary"><Icon size={18} /></span>
-                <span className="flex-1 text-sm text-foreground">{r.label}</span>
-                <ChevronRight size={16} className="text-muted-foreground" />
-              </AppCard>
-            );
-          })}
+
+        {/* Reading Settings */}
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">
+            Reading Settings
+          </p>
+          <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
+            <button
+              onClick={() => nav("/language")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+            >
+              <Languages size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Language</span>
+              <span className="text-xs text-muted-foreground">{activeLanguageObj?.name || "English"}</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button
+              onClick={toggleTheme}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+            >
+              {dark ? <Moon size={18} className="text-primary" /> : <Sun size={18} className="text-primary" />}
+              <span className="flex-1 text-sm text-foreground">Theme</span>
+              <span className="text-xs text-muted-foreground">{dark ? "Dark" : "Light"}</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button
+              onClick={() => nav("/reminders")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+            >
+              <Bell size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Daily reminder</span>
+              <span className="text-xs text-muted-foreground">07:00 AM</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+          </div>
         </div>
+
+        {/* Practice Tools */}
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">
+            Practice & Tools
+          </p>
+          <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
+            <button
+              onClick={() => nav("/notes")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+            >
+              <FileText size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Notes & Reflections</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button
+              onClick={() => nav("/history")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+            >
+              <HistoryIcon size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Reading history</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button
+              onClick={() => nav("/downloads")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+            >
+              <Download size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Downloads</span>
+              <span className="text-xs text-muted-foreground">{downloadedVerses.length} tracks</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button
+              onClick={() => nav("/journey")}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+            >
+              <Flame size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Daily journey</span>
+              <span className="text-xs text-muted-foreground">{profile.streak} days</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+
+
+
+        {/* Auth Sign out */}
+        {user && (
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-full bg-card border border-border text-destructive font-medium active:scale-[0.98] transition hover:bg-destructive/5"
+          >
+            <LogOut size={16} /> Sign out
+          </button>
+        )}
       </div>
+      <MiniPlayer />
       <BottomTabs />
     </ScreenWrapper>
   );
