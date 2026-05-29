@@ -1,7 +1,7 @@
 const config = {
   googleProjectId: 'REPLACE_ME_GCP_PROJECT_ID',
   googleRegion: 'us-central1',
-  googleCredentialsPath: './gita-credentials.json',
+  googleCredentialsPath: '../gita-credentials.json',
   imagenModel: 'imagen-4.0-ultra-generate-001',
   imagenOutputMimeType: 'image/jpeg',
   r2: {

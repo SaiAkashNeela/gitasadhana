@@ -1,56 +1,87 @@
-import pkg from '@google-cloud/aiplatform';
-const { ImageGenerationServiceClient } = pkg;
+import axios from 'axios';
+import { readFileSync } from 'fs';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import logger from './logger.js';
 import config from './config.js';
 
+const execAsync = promisify(exec);
+
 class ImagenClient {
   constructor() {
-    this.client = new ImageGenerationServiceClient({
-      projectId: config.googleProjectId,
-      apiEndpoint: `${config.googleRegion}-aiplatform.googleapis.com`,
-    });
-    this.model = `projects/${config.googleProjectId}/locations/${config.googleRegion}/publishers/google/models/${config.imagenModel}`;
+    this.projectId = config.googleProjectId;
+    this.region = config.googleRegion;
+    this.endpoint = `https://${config.googleRegion}-aiplatform.googleapis.com/v1/projects/${config.googleProjectId}/locations/${config.googleRegion}/publishers/google/models/${config.imagenModel}:predict`;
+    this.loadCredentials();
+  }
+
+  loadCredentials() {
+    try {
+      const credsPath = config.googleCredentialsPath;
+      const credsData = readFileSync(credsPath, 'utf-8');
+      this.credentials = JSON.parse(credsData);
+      logger.debug('Loaded GCP credentials');
+    } catch (error) {
+      logger.error(`Failed to load credentials: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async getAccessToken() {
+    try {
+      const { stdout } = await execAsync('gcloud auth application-default print-access-token');
+      return stdout.trim();
+    } catch (error) {
+      logger.error('Error getting access token:', error.message);
+      throw new Error('Failed to get access token. Ensure gcloud CLI is authenticated.');
+    }
   }
 
   async generateImage(prompt, imageName = 'generated_image') {
     try {
-      logger.debug(`Generating image for prompt: ${prompt.substring(0, 100)}...`);
+      logger.debug(`Generating image: ${imageName}`);
+
+      let accessToken;
+      try {
+        accessToken = await this.getAccessToken();
+      } catch (error) {
+        logger.warn('Skipping image generation (no gcloud auth)');
+        throw error;
+      }
 
       const request = {
-        parent: `projects/${config.googleProjectId}/locations/${config.googleRegion}`,
-        instances: [
-          {
-            prompt,
-          },
-        ],
+        instances: [{ prompt }],
         parameters: {
           sampleCount: 1,
-          aspectRatio: '1:1', // Square format for mobile
+          aspectRatio: '1:1',
           outputMimeType: config.imagenOutputMimeType,
         },
       };
 
-      const [response] = await this.client.generateImages(request);
+      const response = await axios.post(this.endpoint, request, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        timeout: 60000,
+      });
 
-      if (!response.predictions || response.predictions.length === 0) {
-        throw new Error('No image generated from Imagen');
+      if (!response.data.predictions?.[0]) {
+        throw new Error('No image in response');
       }
 
-      const prediction = response.predictions[0];
-      
-      // Base64 encoded image
+      const prediction = response.data.predictions[0];
       const imageBase64 = prediction.bytesBase64Encoded;
+
       if (!imageBase64) {
-        throw new Error('No base64 image data returned');
+        throw new Error('No base64 data returned');
       }
 
-      logger.info(`✓ Successfully generated image: ${imageName}`);
+      logger.info(`✓ Generated: ${imageName}`);
 
       return {
-        success: true,
         imageBase64,
         mimeType: config.imagenOutputMimeType,
-        imageName,
         generatedAt: new Date().toISOString(),
       };
 
@@ -69,26 +100,12 @@ class ImagenClient {
           prompt.imagePrompt,
           prompt.imageName || `image_${i}`
         );
-        results.push({
-          ...prompt,
-          ...result,
-          index: i,
-        });
-        logger.info(`[${i + 1}/${prompts.length}] Image generated`);
+        results.push({ ...prompt, ...result, index: i });
       } catch (error) {
-        logger.error(`[${i + 1}/${prompts.length}] Failed to generate image:`, error.message);
-        results.push({
-          ...prompt,
-          success: false,
-          error: error.message,
-          index: i,
-        });
+        logger.error(`Batch error [${i + 1}/${prompts.length}]: ${error.message}`);
+        results.push({ ...prompt, error: error.message, index: i });
       }
-      
-      // Add small delay between requests to avoid rate limiting
-      if (i < prompts.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
     return results;
   }

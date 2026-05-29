@@ -45,12 +45,15 @@ async function orchestratePipeline() {
       logger.warn('NOTE: Image generation is ENABLED. Each image costs $0.06');
       logger.info(`This will process prompts in batches of ${config.batchSize}\n`);
 
-      // Ask for confirmation if running in interactive mode
-      const shouldProceed = process.argv.includes('--no-confirm') || process.argv.includes('--yes');
-      if (!shouldProceed && process.stdin.isTTY) {
+      // Auto-proceed in non-interactive mode (Docker, CI/CD)
+      // In interactive mode, require explicit --yes flag
+      const isInteractive = process.stdin.isTTY;
+      const hasYesFlag = process.argv.includes('--yes') || process.argv.includes('--no-confirm');
+      
+      if (isInteractive && !hasYesFlag) {
         logger.warn('Skipping image generation. Use --yes flag to proceed.');
-        logger.info('Run: bun run src/generateImages.js\n');
-      } else if (shouldProceed) {
+        logger.info('Run: npm run generate-images\n');
+      } else {
         generatedImages = await generateImages();
         logger.info(`✓ Image generation complete\n`);
       }
