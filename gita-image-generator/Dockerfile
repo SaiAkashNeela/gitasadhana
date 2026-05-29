@@ -11,6 +11,9 @@ COPY package.json package-lock.json ./
 # Copy Gita data
 COPY gita-english.json ./
 
+# Copy GCP credentials
+COPY gcp-creds.json ./
+
 # Install dependencies
 RUN npm ci --omit=dev
 

@@ -7,7 +7,7 @@ const projectRoot = path.dirname(__dirname);
 const config = {
   googleProjectId: 'project-7f37abfa-24e2-4383-824',
   googleRegion: 'us-central1',
-  googleCredentialsPath: path.join(projectRoot, 'gita-credentials.json'),
+  googleCredentialsPath: path.join(projectRoot, 'gcp-creds.json'),
   imagenModel: 'imagen-4.0-ultra-generate-001',
   imagenOutputMimeType: 'image/jpeg',
   r2: {

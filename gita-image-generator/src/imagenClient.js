@@ -15,8 +15,14 @@ class ImagenClient {
   loadCredentials() {
     try {
       const credsPath = config.googleCredentialsPath;
+      logger.info(`Loading credentials from: ${credsPath}`);
+      
       const credsData = readFileSync(credsPath, 'utf-8');
       const credentials = JSON.parse(credsData);
+      
+      if (!credentials.client_email || !credentials.private_key) {
+        throw new Error('Credentials missing required fields: client_email or private_key');
+      }
       
       this.jwtClient = new JWT({
         email: credentials.client_email,
@@ -24,11 +30,12 @@ class ImagenClient {
         scopes: ['https://www.googleapis.com/auth/cloud-platform'],
       });
       
-      this.projectId = credentials.project_id;
-      logger.debug('Initialized JWT client from service account credentials');
+      this.projectId = credentials.project_id || config.googleProjectId;
+      logger.info(`JWT client initialized with project: ${this.projectId}`);
     } catch (error) {
       logger.error(`Failed to load credentials: ${error.message}`);
-      throw error;
+      logger.error(`Attempted path: ${config.googleCredentialsPath}`);
+      throw new Error(`Credentials not found or invalid at ${config.googleCredentialsPath}: ${error.message}`);
     }
   }
 
