@@ -81,12 +81,9 @@ async function generateImages(startIndex = 0, limit = null) {
           logger.info(`✓ Generated & Uploaded to R2: ${prompt.verseKey || `Chapter ${prompt.chapterNumber}`}`);
 
         } catch (error) {
-          logger.error(`Failed to generate image: ${error.message}`);
-          generatedResults.push({
-            verseKey: prompt.verseKey || `Chapter ${prompt.chapterNumber}`,
-            success: false,
-            error: error.message,
-          });
+          logger.error(`Failed to generate/upload image: ${error.message}`);
+          logger.error('STOPPING PROCESS: R2 upload must succeed for every image');
+          throw error; // Stop the entire process on upload failure
         }
 
         // Rate limit

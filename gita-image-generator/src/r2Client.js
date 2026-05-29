@@ -61,6 +61,9 @@ class R2Client {
   }
 
   hash256(data) {
+    if (Buffer.isBuffer(data)) {
+      return crypto.createHash('sha256').update(data).digest('hex');
+    }
     return crypto.createHash('sha256').update(data).digest('hex');
   }
 
@@ -101,22 +104,37 @@ class R2Client {
   async uploadImage(base64Data, key, mimeType = 'image/jpeg') {
     try {
       const buffer = Buffer.from(base64Data, 'base64');
-      const url = `${this.endpoint}/${this.bucketName}/${key}`;
+      const path = `/${this.bucketName}/${key}`;
+      const url = `${this.endpoint}${path}`;
 
       const headers = this.sign(
         'PUT',
-        `/${this.bucketName}/${key}`,
+        path,
         {
           'Content-Type': mimeType,
           'Content-Length': buffer.length.toString(),
         },
-        buffer.toString('binary')
+        buffer
       );
+
+      logger.debug(`Uploading to R2:`);
+      logger.debug(`  URL: ${url}`);
+      logger.debug(`  Content-Length: ${buffer.length}`);
+      logger.debug(`  x-amz-content-sha256: ${headers['x-amz-content-sha256']}`);
+      logger.debug(`  Authorization: ${headers['Authorization'].substring(0, 50)}...`);
 
       const response = await axios.put(url, buffer, {
         headers,
         timeout: 60000,
+        validateStatus: null,
       });
+
+      if (response.status !== 200) {
+        logger.error(`R2 Upload failed with status ${response.status}`);
+        logger.error(`Response: ${JSON.stringify(response.data)}`);
+        logger.error(`Headers sent: ${JSON.stringify(headers)}`);
+        throw new Error(`R2 upload failed: ${response.status} ${response.statusText}`);
+      }
 
       logger.info(`✓ Uploaded to R2: ${key}`);
 
