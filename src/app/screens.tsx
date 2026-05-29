@@ -73,6 +73,7 @@ import {
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { auth, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "@/lib/firebase";
 import { seedGitaDatabase, SeedingProgress } from "@/lib/seeding";
+import { getReminderConfig, updateReminderSettings, formatTime12Hour } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 import gitaProcessedData from "@/app/gita-processed.json";
 
@@ -760,10 +761,20 @@ export function VerseReading() {
         )}
 
         {/* 3. Translation Section */}
-        <div className="space-y-1.5 bg-card/35 rounded-2xl p-5 border border-border/10 border-l-4 border-l-primary/60">
-          <p className="text-[10px] uppercase tracking-widest text-primary font-semibold font-sans">
-            {selectedLanguage === "hi" ? "अनुवाद" : selectedLanguage === "te" ? "అనువాదం" : "Translation"}
-          </p>
+        <div className="space-y-2 bg-card/35 rounded-2xl p-5 border border-border/10 border-l-4 border-l-primary/60">
+          <div className="flex justify-between items-center">
+            <p className="text-[10px] uppercase tracking-widest text-primary font-semibold font-sans">
+              {selectedLanguage === "hi" ? "अनुवाद" : selectedLanguage === "te" ? "అనువాదం" : "Translation"}
+            </p>
+            {selectedLanguage === "en" && (
+              <button
+                onClick={() => nav(`/verse/${chapterId}.${verseNumber}/words`)}
+                className="text-[10px] uppercase tracking-widest text-primary font-bold hover:underline active:scale-95 transition-transform cursor-pointer"
+              >
+                Word meanings →
+              </button>
+            )}
+          </div>
           <p className="text-base leading-relaxed text-foreground select-all font-sans">
             {translationText}
           </p>
@@ -798,7 +809,7 @@ export function VerseReading() {
 
       {/* ── Sticky Glassmorphic Audio player ── */}
       <div
-        className="sticky bottom-0 mx-0 rounded-t-3xl border-t border-x border-border/60 backdrop-blur-xl px-5 py-4 flex flex-col gap-2.5 z-20 shadow-soft bg-card/92"
+        className="sticky bottom-0 mx-0 rounded-t-3xl border-t border-x border-border/60 backdrop-blur-xl px-5 pt-4 pb-safe flex flex-col gap-2.5 z-20 shadow-soft bg-card/92"
       >
         {/* Progress Timeline Range Slider */}
         <div className="w-full flex flex-col gap-1">
@@ -957,6 +968,8 @@ export function VerseCommentary() {
 /* ───────────── 10. Word Meaning ───────────── */
 export function VerseWords() {
   const { id } = useParams();
+  const nav = useNavigate();
+  const { selectedLanguage } = useUserProgress();
   const [chapterId, verseNumber] = (id ?? "2.47").split(/[\.\-_]/).map(Number);
   const { data: verse } = useVerseDetail(chapterId, verseNumber);
 
@@ -976,6 +989,29 @@ export function VerseWords() {
   };
 
   const words = parseWordMeanings(verse?.word_meanings || "");
+
+  if (selectedLanguage !== "en") {
+    return (
+      <ScreenWrapper>
+        <Header title="Word Meanings" subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-8 py-16">
+          <div className="h-20 w-20 rounded-full bg-gradient-dawn flex items-center justify-center text-primary mb-5 shadow-card">
+            <Languages size={28} />
+          </div>
+          <h3 className="font-serif text-xl text-foreground">Language Not Supported</h3>
+          <p className="text-sm text-muted-foreground mt-2 max-w-xs">
+            Word-by-word breakdowns are currently only available when your app reading language is set to English.
+          </p>
+          <button
+            onClick={() => nav("/language")}
+            className="mt-6 px-6 h-10 rounded-full bg-gradient-gold text-primary-foreground text-xs font-bold shadow-soft active:scale-95 transition cursor-pointer"
+          >
+            Switch to English
+          </button>
+        </div>
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
@@ -1629,7 +1665,7 @@ export function Player() {
           <Share2 size={18} />
         </IconButton>
       </div>
-      <div className="flex-1 flex flex-col items-center px-8 pt-8">
+      <div className="flex-1 flex flex-col items-center px-8 pt-8 pb-safe">
         <div className="w-full max-w-xs aspect-square rounded-3xl overflow-hidden shadow-soft">
           <img src={DEMO_IMG} alt="Now playing" className="w-full h-full object-cover" />
         </div>
@@ -1847,9 +1883,15 @@ export function Journey() {
 
 /* ───────────── 23. Reminders ───────────── */
 export function Reminders() {
-  const [enabled, setEnabled] = useState(true);
-  const times = ["06:00", "07:00", "21:00"];
-  const [picked, setPicked] = useState("07:00");
+  const [config] = useState(() => getReminderConfig());
+  const [enabled, setEnabled] = useState(config.enabled);
+  const [picked, setPicked] = useState(config.time);
+  const times = ["05:00", "06:00", "07:00", "08:00", "09:00", "21:00"];
+
+  const handleSave = async () => {
+    await updateReminderSettings(enabled, picked);
+  };
+
   return (
     <ScreenWrapper>
       <Header title="Daily Reminder" back={true} />
@@ -1862,7 +1904,6 @@ export function Reminders() {
           <button
             onClick={() => {
               setEnabled((e) => !e);
-              toast.info(enabled ? "Reminders disabled" : "Reminders enabled");
             }}
             className={cn(
               "w-12 h-7 rounded-full transition relative",
@@ -1877,44 +1918,46 @@ export function Reminders() {
             />
           </button>
         </AppCard>
-        <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 mt-2">Time</p>
-          <div className="grid grid-cols-3 gap-2">
-            {times.map((t) => (
-              <button
-                key={t}
-                onClick={() => setPicked(t)}
-                className={cn(
-                  "h-12 rounded-full border text-sm font-medium transition active:scale-[0.98]",
-                  picked === t
-                    ? "bg-gradient-gold text-primary-foreground border-transparent"
-                    : "bg-card border-border text-foreground",
-                )}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
-        <AppCard>
-          <p className="font-serif text-base mb-3">Days</p>
-          <div className="flex justify-between">
-            {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-              <button
-                key={i}
-                className={cn(
-                  "h-9 w-9 rounded-full text-sm font-medium",
-                  i > 0 && i < 6
-                    ? "bg-gradient-gold text-primary-foreground"
-                    : "bg-muted text-muted-foreground",
-                )}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-        </AppCard>
-        <PrimaryButton onClick={() => toast.success(`Reminder set for ${picked} daily`)}>
+        {enabled && (
+          <>
+            <div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 mt-2">Time</p>
+              <div className="grid grid-cols-3 gap-2">
+                {times.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setPicked(t)}
+                    className={cn(
+                      "h-12 rounded-full border text-xs font-semibold transition active:scale-[0.98]",
+                      picked === t
+                        ? "bg-gradient-gold text-primary-foreground border-transparent shadow-soft"
+                        : "bg-card border-border/50 text-foreground hover:text-primary",
+                    )}
+                  >
+                    {formatTime12Hour(t)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <AppCard className="bg-gradient-dawn border border-primary/10">
+              <p className="font-serif text-sm text-foreground mb-1">Daily Commitment</p>
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                Your daily reminder will trigger every day to help you build a consistent meditation streak.
+              </p>
+              <div className="flex justify-between mt-3 px-1">
+                {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+                  <div
+                    key={i}
+                    className="h-8 w-8 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center text-xs font-bold shadow-soft"
+                  >
+                    {d}
+                  </div>
+                ))}
+              </div>
+            </AppCard>
+          </>
+        )}
+        <PrimaryButton onClick={handleSave}>
           Save reminder
         </PrimaryButton>
       </div>
@@ -2578,6 +2621,8 @@ export function Profile() {
     percent: 0,
   });
 
+  const reminderConfig = getReminderConfig();
+
   const toggleTheme = () => {
     const nextDark = !dark;
     setDark(nextDark);
@@ -2794,7 +2839,9 @@ export function Profile() {
             >
               <Bell size={18} className="text-primary" />
               <span className="flex-1 text-sm text-foreground">Daily reminder</span>
-              <span className="text-xs text-muted-foreground">07:00 AM</span>
+              <span className="text-xs text-muted-foreground">
+                {reminderConfig.enabled ? formatTime12Hour(reminderConfig.time) : "Disabled"}
+              </span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
           </div>
