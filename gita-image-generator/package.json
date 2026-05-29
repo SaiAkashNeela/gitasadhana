@@ -5,12 +5,12 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "bun run src/index.js",
-    "dev": "bun run src/index.js --mode=dev",
-    "generate-prompts": "bun run src/generatePrompts.js",
-    "generate-images": "bun run src/generateImages.js",
-    "validate-prompts": "bun run src/validatePrompts.js",
-    "upload-to-r2": "bun run src/uploadToR2.js"
+    "start": "node src/index.js",
+    "dev": "node src/index.js --mode=dev",
+    "generate-prompts": "node src/generatePrompts.js",
+    "generate-images": "node src/generateImages.js",
+    "validate-prompts": "node src/validatePrompts.js",
+    "upload-to-r2": "node src/uploadToR2.js"
   },
   "dependencies": {
     "@google-cloud/aiplatform": "^3.20.0",
