@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
 import { UserProgressProvider } from "@/hooks/useUserProgress";
 import { AudioProvider } from "@/hooks/useAudioPlayer";
 import {
@@ -29,6 +30,10 @@ import {
   Downloads,
   Settings,
   Profile,
+  HelpContact,
+  HelpPrivacy,
+  HelpTerms,
+  HelpCorrection,
 } from "./screens";
 
 // Instantiate TanStack React Query Client
@@ -46,6 +51,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <UserProgressProvider>
         <AudioProvider>
+          <Toaster position="bottom-center" richColors />
           <HashRouter>
             <Routes>
               <Route path="/" element={<Welcome />} />
@@ -74,6 +80,10 @@ export default function App() {
               <Route path="/downloads" element={<Downloads />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/help/contact" element={<HelpContact />} />
+              <Route path="/help/privacy" element={<HelpPrivacy />} />
+              <Route path="/help/terms" element={<HelpTerms />} />
+              <Route path="/help/correction" element={<HelpCorrection />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </HashRouter>

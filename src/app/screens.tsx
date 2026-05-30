@@ -294,7 +294,7 @@ export function HomeScreen() {
               <span className="text-[10px] uppercase tracking-widest opacity-80">
                 {t("verseOfTheDay", selectedLanguage)}
               </span>
-              <p className="mt-2 font-serif text-2xl leading-snug text-balance">
+              <p className="mt-2 font-serif text-xl leading-snug text-balance">
                 "
                 {verse?.translation[selectedLanguage]?.simple ||
                   verse?.translation["en"]?.simple ||
@@ -1488,7 +1488,7 @@ export function WisdomScreen() {
     <ScreenWrapper>
       <Header title={t("wisdom", selectedLanguage)} back={false} />
       <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 scroll-hide">
-        <ImageBanner src={DEMO_IMG} alt="Daily wisdom" className="aspect-[5/3]">
+        <ImageBanner src={DEMO_IMG} alt="Daily wisdom" fit="contain" className="bg-gradient-dawn">
           <span className="text-[10px] uppercase tracking-widest opacity-80">{t("dailyWisdom", selectedLanguage)}</span>
           <p className="mt-1 font-serif text-xl leading-snug text-balance">
             "
@@ -1499,26 +1499,14 @@ export function WisdomScreen() {
           <p className="mt-2 text-xs opacity-80">{t("gitaQuote", selectedLanguage)}</p>
         </ImageBanner>
 
-        <button onClick={() => nav("/wisdom/themes")} className="w-full">
-          <AppCard className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="h-10 w-10 rounded-full bg-gradient-dawn flex items-center justify-center text-primary select-none">
-                <span className="font-devanagari text-lg leading-none font-bold">ॐ</span>
-              </span>
-              <div className="text-left">
-                <p className="font-serif text-base">{t("exploreByTheme", selectedLanguage)}</p>
-                <p className="text-xs text-muted-foreground">{t("curatedThemesCount", selectedLanguage)}</p>
-              </div>
-            </div>
-            <ChevronRight className="text-muted-foreground" />
-          </AppCard>
-        </button>
-
         <div className="space-y-3">
           {displayedQuotes.slice(1).map((w, idx) => (
             <AppCard key={idx}>
-              <p className="font-serif text-base text-foreground leading-relaxed">"{w.text}"</p>
-              <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-start gap-3">
+                <span className="text-[10px] font-bold text-primary/60 mt-1 w-6 shrink-0 text-right">{idx + 1}</span>
+                <p className="font-serif text-base text-foreground leading-relaxed flex-1">"{w.text}"</p>
+              </div>
+              <div className="mt-3 flex items-center justify-between pl-9">
                 <p className="text-xs text-muted-foreground">{t("gitaQuote", selectedLanguage)}</p>
                 <div className="flex gap-1">
                   <IconButton onClick={() => { toggleFavorite(w.id); toast.success(isFavorite(w.id) ? t("removedFromFavoritesToast", selectedLanguage) : t("addedToFavoritesToast", selectedLanguage)); }}>
@@ -3272,6 +3260,33 @@ export function Profile() {
 
 
 
+        {/* Help & Support */}
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">Help & Support</p>
+          <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
+            <button onClick={() => nav("/help/contact")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+              <Info size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Contact Us</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button onClick={() => nav("/help/privacy")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+              <FileText size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Privacy Policy</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button onClick={() => nav("/help/terms")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+              <FileText size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Terms of Service</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button onClick={() => nav("/help/correction")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+              <Megaphone size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">Verse / Language Correction</span>
+              <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+
         {/* Auth Sign out */}
         {user && (
           <button
@@ -3283,6 +3298,300 @@ export function Profile() {
         )}
       </div>
       <BottomTabs />
+    </ScreenWrapper>
+  );
+}
+
+/* ───────────── Help: Contact ───────────── */
+export function HelpContact() {
+  const nav = useNavigate();
+  const { user } = useUserProgress();
+  const [message, setMessage] = useState("");
+
+  const userEmail = user?.email || "";
+
+  return (
+    <ScreenWrapper>
+      <Header title="Contact Us" back={true} backTo="/profile" />
+      <div className="px-5 space-y-6 pt-4 pb-8">
+        <div className="rounded-2xl bg-card border border-border/60 shadow-card p-4 flex items-center gap-3">
+          <Info size={20} className="text-primary shrink-0" />
+          <div>
+            <p className="text-xs text-muted-foreground">Email us directly</p>
+            <a href="mailto:hello@gitasadhana.com" className="text-sm text-primary font-medium">hello@gitasadhana.com</a>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">Your Email</label>
+            <input
+              type="email"
+              value={userEmail}
+              readOnly={!!user}
+              placeholder="your@email.com"
+              className="w-full h-11 rounded-xl border border-border/60 bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">Message</label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="How can we help you?"
+              rows={5}
+              className="w-full rounded-xl border border-border/60 bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+            />
+          </div>
+          <button
+            onClick={() => toast.success("Message sent! We'll get back to you soon.")}
+            className="w-full h-12 rounded-full bg-primary text-white font-medium active:scale-[0.98] transition"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </ScreenWrapper>
+  );
+}
+
+/* ───────────── Help: Privacy Policy ───────────── */
+export function HelpPrivacy() {
+  return (
+    <ScreenWrapper>
+      <Header title="Privacy Policy" back={true} backTo="/profile" />
+      <div className="px-5 pb-10 pt-4 space-y-6 overflow-y-auto flex-1 scroll-hide">
+        <p className="text-xs text-muted-foreground">Last updated: May 2025</p>
+
+        {[
+          {
+            title: "Information We Collect",
+            body: "Gita Sadhana collects minimal personal information to provide you with a meaningful spiritual experience. When you create an account, we collect your name and email address. We also collect anonymized usage data such as which verses you read, your reading streak, and bookmarks — solely to personalize your journey.",
+          },
+          {
+            title: "How We Use Your Information",
+            body: "Your data is used exclusively to power your in-app experience: syncing your bookmarks, notes, reading history, and streak across devices. We do not sell, rent, or share your personal information with third parties for marketing purposes.",
+          },
+          {
+            title: "Audio & Offline Content",
+            body: "When you download verses for offline listening, audio files are cached locally on your device. These files are sourced from our secure cloud storage and are used only for personal, non-commercial spiritual practice.",
+          },
+          {
+            title: "Third-Party Services",
+            body: "We use Firebase (Google) for authentication and data sync, and Cloudflare R2 for audio storage. These services operate under their own privacy policies. We encourage you to review them. We do not use advertising SDKs or trackers.",
+          },
+          {
+            title: "Data Retention & Deletion",
+            body: "Your data is retained as long as your account is active. You may delete your account at any time by contacting us at hello@gitasadhana.com. Upon deletion, all your personal data is removed from our systems within 30 days.",
+          },
+          {
+            title: "Children's Privacy",
+            body: "Gita Sadhana is suitable for all ages. We do not knowingly collect data from children under 13 without parental consent. If you believe a child has provided us with personal information, please contact us immediately.",
+          },
+          {
+            title: "Contact",
+            body: "For privacy-related inquiries, please reach us at hello@gitasadhana.com. We are committed to resolving any concerns promptly and transparently.",
+          },
+        ].map((section) => (
+          <div key={section.title} className="space-y-1.5">
+            <h3 className="font-serif text-base text-foreground">{section.title}</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{section.body}</p>
+          </div>
+        ))}
+      </div>
+    </ScreenWrapper>
+  );
+}
+
+/* ───────────── Help: Terms of Service ───────────── */
+export function HelpTerms() {
+  return (
+    <ScreenWrapper>
+      <Header title="Terms of Service" back={true} backTo="/profile" />
+      <div className="px-5 pb-10 pt-4 space-y-6 overflow-y-auto flex-1 scroll-hide">
+        <p className="text-xs text-muted-foreground">Last updated: May 2025</p>
+
+        {[
+          {
+            title: "Acceptance of Terms",
+            body: "By using Gita Sadhana, you agree to these Terms of Service. If you do not agree, please discontinue use of the application. These terms apply to all users, including guests and registered members.",
+          },
+          {
+            title: "Purpose of the App",
+            body: "Gita Sadhana is a spiritual study companion designed to help individuals explore the Bhagavad Gita. The app provides translations, commentary, audio recitations, and personal study tools. It is intended for personal, non-commercial use only.",
+          },
+          {
+            title: "User Accounts",
+            body: "You may use the app as a guest or sign in with Google or Apple. By creating an account, you agree to provide accurate information and keep your credentials secure. You are responsible for all activity under your account.",
+          },
+          {
+            title: "Content & Intellectual Property",
+            body: "All content within Gita Sadhana — including translations, commentary, audio, and imagery — is either original or used with appropriate rights. You may not reproduce, distribute, or commercialize any content without prior written consent from Gita Sadhana.",
+          },
+          {
+            title: "Offline Downloads",
+            body: "Audio tracks downloaded for offline use are licensed solely for personal, non-commercial spiritual practice. You may not extract, redistribute, or use these recordings outside of the Gita Sadhana app.",
+          },
+          {
+            title: "Prohibited Conduct",
+            body: "You agree not to misuse the app, attempt to reverse-engineer any part of it, submit false correction reports, or engage in any activity that disrupts the service for others. Violations may result in account suspension.",
+          },
+          {
+            title: "Disclaimer",
+            body: "Gita Sadhana is provided as-is. While we strive for accuracy in all translations and commentary, we make no guarantees of completeness or correctness. For authoritative scriptural guidance, please consult a qualified teacher.",
+          },
+          {
+            title: "Changes to Terms",
+            body: "We may update these terms from time to time. Continued use of the app after changes constitutes your acceptance of the revised terms. We will notify users of significant changes via in-app notice.",
+          },
+          {
+            title: "Contact",
+            body: "Questions about these terms? Reach us at hello@gitasadhana.com.",
+          },
+        ].map((section) => (
+          <div key={section.title} className="space-y-1.5">
+            <h3 className="font-serif text-base text-foreground">{section.title}</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{section.body}</p>
+          </div>
+        ))}
+      </div>
+    </ScreenWrapper>
+  );
+}
+
+/* ───────────── Help: Verse/Language Correction ───────────── */
+function PickerSheet({ label, placeholder, value, options, onSelect, disabled = false }: {
+  label: string;
+  placeholder: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onSelect: (v: string) => void;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((o) => o.value === value);
+  return (
+    <div>
+      <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">{label}</label>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen(true)}
+        className={cn(
+          "w-full h-11 rounded-xl border border-border/60 bg-card px-4 text-sm flex items-center justify-between transition",
+          disabled ? "opacity-40 cursor-not-allowed" : "active:bg-muted/10",
+          selected ? "text-foreground" : "text-muted-foreground"
+        )}
+      >
+        <span>{selected ? selected.label : placeholder}</span>
+        <ChevronRight size={16} className="text-muted-foreground rotate-90" />
+      </button>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-end" onClick={() => setOpen(false)}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="relative w-full bg-card rounded-t-3xl shadow-2xl max-h-[60vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border/60">
+              <span className="font-serif text-base text-foreground">{label}</span>
+              <button onClick={() => setOpen(false)} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                <ChevronLeft size={16} className="rotate-[-90deg]" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 py-2">
+              {options.map((o) => (
+                <button
+                  key={o.value}
+                  onClick={() => { onSelect(o.value); setOpen(false); }}
+                  className={cn(
+                    "w-full px-5 py-3 text-left text-sm flex items-center justify-between transition active:bg-muted/10",
+                    o.value === value ? "text-primary font-semibold" : "text-foreground"
+                  )}
+                >
+                  {o.label}
+                  {o.value === value && <span className="w-2 h-2 rounded-full bg-primary" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function HelpCorrection() {
+  const { selectedLanguage } = useUserProgress();
+  const [lang, setLang] = useState("");
+  const [chapter, setChapter] = useState("");
+  const [verse, setVerse] = useState("");
+  const [message, setMessage] = useState("");
+
+  const CHAPTER_VERSE_COUNTS: Record<number, number> = {
+    1: 47, 2: 72, 3: 43, 4: 42, 5: 29, 6: 47, 7: 30, 8: 28, 9: 34,
+    10: 42, 11: 55, 12: 20, 13: 35, 14: 27, 15: 20, 16: 24, 17: 28, 18: 78,
+  };
+
+  const languageOptions = [
+    { value: "en", label: "English" },
+    { value: "hi", label: "Hindi" },
+    { value: "kn", label: "Kannada" },
+    { value: "te", label: "Telugu" },
+    { value: "ta", label: "Tamil" },
+    { value: "ml", label: "Malayalam" },
+    { value: "mr", label: "Marathi" },
+    { value: "gu", label: "Gujarati" },
+    { value: "bn", label: "Bengali" },
+    { value: "pa", label: "Punjabi" },
+  ];
+
+  const chapterOptions = Array.from({ length: 18 }, (_, i) => ({
+    value: String(i + 1),
+    label: `Chapter ${i + 1}`,
+  }));
+
+  const verseCount = chapter ? CHAPTER_VERSE_COUNTS[Number(chapter)] || 0 : 0;
+  const verseOptions = Array.from({ length: verseCount }, (_, i) => ({
+    value: String(i + 1),
+    label: `Verse ${i + 1}`,
+  }));
+
+  const handleSubmit = () => {
+    if (!lang || !chapter || !verse || !message.trim()) {
+      toast.error("All fields are required.");
+      return;
+    }
+    toast.success("Correction submitted. Thank you!");
+  };
+
+  return (
+    <ScreenWrapper>
+      <Header title="Verse / Language Correction" back={true} backTo="/profile" />
+      <div className="px-5 space-y-4 pt-4 pb-8">
+        <p className="text-sm text-muted-foreground">Found an error in a translation or audio? Let us know and we'll fix it.</p>
+
+        <PickerSheet label="Language" placeholder="Select language…" value={lang} options={languageOptions} onSelect={setLang} />
+
+        <PickerSheet label="Chapter" placeholder="Select chapter…" value={chapter} options={chapterOptions} onSelect={(v) => { setChapter(v); setVerse(""); }} />
+
+        <PickerSheet label="Verse" placeholder="Select verse…" value={verse} options={verseOptions} onSelect={setVerse} disabled={!chapter} />
+
+        <div>
+          <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">Describe the issue</label>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Describe the error or correction needed…"
+            rows={5}
+            className="w-full rounded-xl border border-border/60 bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+          />
+        </div>
+
+        <button
+          onClick={handleSubmit}
+          className="w-full h-12 rounded-full bg-primary text-white font-medium active:scale-[0.98] transition"
+        >
+          Submit Correction
+        </button>
+      </div>
     </ScreenWrapper>
   );
 }
