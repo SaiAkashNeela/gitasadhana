@@ -389,8 +389,11 @@ export function HomeScreen() {
       try {
         const parsed = JSON.parse(cached);
         if (parsed.date === intervalKey) {
-          setDailyQuote(parsed.quote);
-          return;
+          const exists = quotes.find((q) => q.id === parsed.quote.id);
+          if (exists) {
+            setDailyQuote(exists);
+            return;
+          }
         }
       } catch (e) {
         console.error(e);
@@ -1801,7 +1804,9 @@ export function WisdomScreen() {
   return (
     <ScreenWrapper>
       <Header title={t("wisdom", selectedLanguage)} back={false} />
-      <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 scroll-hide">
+      
+      {/* Sticky/Fixed Daily Wisdom Banner */}
+      <div className="px-5 pb-2 shrink-0">
         <AnimatedImageBanner className="aspect-[16/10]">
           <span className="text-[10px] uppercase tracking-widest opacity-80">{t("dailyWisdom", selectedLanguage)}</span>
           <p className="mt-1 font-serif text-xl leading-snug text-balance">
@@ -1812,28 +1817,29 @@ export function WisdomScreen() {
           </p>
           <p className="mt-2 text-xs opacity-80">{t("gitaQuote", selectedLanguage)}</p>
         </AnimatedImageBanner>
+      </div>
 
-        <div className="space-y-3">
-          {displayedQuotes.map((w, idx) => (
-            <AppCard key={idx}>
-              <div className="flex items-start gap-3">
-                <span className="text-[10px] font-bold text-primary/60 mt-1 w-6 shrink-0 text-right">{idx + 1}</span>
-                <p className="font-serif text-base text-foreground leading-relaxed flex-1">"{w.text}"</p>
+      {/* Scrollable list of other quotes */}
+      <div className="flex-1 overflow-y-auto px-5 pb-44 space-y-3 scroll-hide">
+        {displayedQuotes.map((w, idx) => (
+          <AppCard key={idx}>
+            <div className="flex items-start gap-3">
+              <span className="text-[10px] font-bold text-primary/60 mt-1 w-6 shrink-0 text-right">{idx + 1}</span>
+              <p className="font-serif text-base text-foreground leading-relaxed flex-1">"{w.text}"</p>
+            </div>
+            <div className="mt-3 flex items-center justify-between pl-9">
+              <p className="text-xs text-muted-foreground">{t("gitaQuote", selectedLanguage)}</p>
+              <div className="flex gap-1">
+                <IconButton onClick={() => { toggleFavorite(w.id); toast.success(isFavorite(w.id) ? t("removedFromFavoritesToast", selectedLanguage) : t("addedToFavoritesToast", selectedLanguage)); }}>
+                  <Bookmark size={16} className={isFavorite(w.id) ? "fill-primary text-primary" : ""} />
+                </IconButton>
+                <IconButton onClick={() => toast.success(t("sharedSuccessfullyToast", selectedLanguage))}>
+                  <Share2 size={16} />
+                </IconButton>
               </div>
-              <div className="mt-3 flex items-center justify-between pl-9">
-                <p className="text-xs text-muted-foreground">{t("gitaQuote", selectedLanguage)}</p>
-                <div className="flex gap-1">
-                  <IconButton onClick={() => { toggleFavorite(w.id); toast.success(isFavorite(w.id) ? t("removedFromFavoritesToast", selectedLanguage) : t("addedToFavoritesToast", selectedLanguage)); }}>
-                    <Bookmark size={16} className={isFavorite(w.id) ? "fill-primary text-primary" : ""} />
-                  </IconButton>
-                  <IconButton onClick={() => toast.success(t("sharedSuccessfullyToast", selectedLanguage))}>
-                    <Share2 size={16} />
-                  </IconButton>
-                </div>
-              </div>
-            </AppCard>
-          ))}
-        </div>
+            </div>
+          </AppCard>
+        ))}
       </div>
       <BottomTabs />
     </ScreenWrapper>
