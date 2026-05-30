@@ -4,6 +4,7 @@ import { doc, getDoc, setDoc, onSnapshot, deleteDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { toast } from "sonner";
 import gitaProcessedData from "@/app/gita-processed.json";
+import { getReminderConfig, scheduleDailyReminder } from "@/lib/notifications";
 
 export interface AppNotification {
   id: string;
@@ -558,6 +559,14 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     setSelectedLanguage(lang);
     localStorage.setItem("gita_language", lang);
     syncStateToCloud(bookmarks, notes, history, favorites, profile, lang);
+    
+    // Reschedule push notifications in the newly selected language if enabled
+    const reminderConfig = getReminderConfig();
+    if (reminderConfig.enabled) {
+      scheduleDailyReminder(reminderConfig.time).catch((err) => {
+        console.error("Failed to reschedule reminders on language change:", err);
+      });
+    }
   };
 
   const addBookmark = (verseId: string) => {
