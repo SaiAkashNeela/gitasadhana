@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   Flower2,
@@ -82,6 +82,53 @@ import { cn } from "@/lib/utils";
 import gitaProcessedData from "@/app/gita-processed.json";
 
 export const DEMO_IMG = "https://static.zingdelights.com/4.png";
+
+export function AnimatedImageBanner({
+  className,
+  children,
+}: {
+  className?: string;
+  children?: ReactNode;
+}) {
+  const [currentIdx, setCurrentIdx] = useState(1);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIdx((prev) => (prev % 9) + 1);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const scenes = Array.from({ length: 9 }, (_, i) => `/assets/images/scene_${i + 1}.png`);
+
+  return (
+    <div className={cn("relative overflow-hidden rounded-3xl shadow-soft", className)}>
+      {/* Background scenes */}
+      {scenes.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt={`Scene ${i + 1}`}
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
+            i + 1 === currentIdx ? "opacity-100" : "opacity-0"
+          )}
+        />
+      ))}
+
+      {/* Dark overlays for text contrast */}
+      <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent pointer-events-none" />
+
+      {/* Content overlay */}
+      {children && (
+        <div className="absolute inset-0 p-5 flex flex-col justify-end text-white z-10">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const supportedLanguages = [
   { code: "en", name: "English", native: "English" },
@@ -318,14 +365,105 @@ export function LanguageSelect() {
 /* ───────────── 5. Home ───────────── */
 export function HomeScreen() {
   const nav = useNavigate();
-  const { profile, selectedLanguage, notifications } = useUserProgress();
+  const { profile, selectedLanguage, notifications, completedVerses } = useUserProgress();
   const { data: chaptersData } = useChapters();
-  const { data: verse } = useVerseDetail(2, 47);
   const { data: quotes } = useQuotes(selectedLanguage);
 
-  const displayedChapters = chaptersData ? chaptersData.slice(0, 3) : [];
-  const dailyQuote =
-    quotes && quotes.length > 0 ? quotes[0] : { text: "The soul is eternal.", ref: "Gita 2.20" };
+  const allChapters = chaptersData || [];
+
+  const getChapterProgress = (chNum: number, totalVerses: number) => {
+    if (!completedVerses) return 0;
+    const completed = completedVerses.filter((vId) => vId.startsWith(`${chNum}.`));
+    return totalVerses > 0 ? completed.length / totalVerses : 0;
+  };
+
+  const [dailyQuote, setDailyQuote] = useState<{ text: string } | null>(null);
+  const [dailyVerse, setDailyVerse] = useState<any>(null);
+
+  useEffect(() => {
+    if (!quotes || quotes.length === 0) return;
+    const now = new Date();
+    const intervalKey = `${now.toDateString()}-${now.getHours()}-${now.getMinutes()}`;
+    let cached = localStorage.getItem("gita_daily_wisdom");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed.date === intervalKey) {
+          setDailyQuote(parsed.quote);
+          return;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    let pool: string[] = [];
+    try {
+      pool = JSON.parse(localStorage.getItem("gita_daily_wisdom_pool") || "[]");
+    } catch {
+      pool = [];
+    }
+    const allKeys = quotes.map((q) => q.id);
+    let unshownKeys = allKeys.filter((k) => !pool.includes(k));
+    if (unshownKeys.length === 0) {
+      pool = [];
+      unshownKeys = allKeys;
+    }
+    const randomKey = unshownKeys[Math.floor(Math.random() * unshownKeys.length)];
+    const chosenQuote = quotes.find((q) => q.id === randomKey);
+    if (chosenQuote) {
+      const newPool = [...pool, randomKey];
+      localStorage.setItem("gita_daily_wisdom_pool", JSON.stringify(newPool));
+      const dailyObj = { date: intervalKey, quote: chosenQuote };
+      localStorage.setItem("gita_daily_wisdom", JSON.stringify(dailyObj));
+      setDailyQuote(chosenQuote);
+    }
+  }, [quotes]);
+
+  useEffect(() => {
+    const allProcessed = Object.values((gitaProcessedData as any).verses || {}) as any[];
+    if (allProcessed.length === 0) return;
+
+    const now = new Date();
+    const intervalKey = `${now.toDateString()}-${now.getHours()}-${now.getMinutes()}`;
+    let cached = localStorage.getItem("gita_verse_of_the_day");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed.date === intervalKey) {
+          setDailyVerse(parsed.verse);
+          return;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    let pool: string[] = [];
+    try {
+      pool = JSON.parse(localStorage.getItem("gita_verse_of_the_day_pool") || "[]");
+    } catch {
+      pool = [];
+    }
+
+    const allKeys = allProcessed.map((v) => `${v.chapter}.${v.verse}`);
+    let unshownKeys = allKeys.filter((k) => !pool.includes(k));
+
+    if (unshownKeys.length === 0) {
+      pool = [];
+      unshownKeys = allKeys;
+    }
+
+    const randomKey = unshownKeys[Math.floor(Math.random() * unshownKeys.length)];
+    const chosenVerse = allProcessed.find((v) => `${v.chapter}.${v.verse}` === randomKey);
+
+    if (chosenVerse) {
+      const newPool = [...pool, randomKey];
+      localStorage.setItem("gita_verse_of_the_day_pool", JSON.stringify(newPool));
+      const dailyObj = { date: intervalKey, verse: chosenVerse };
+      localStorage.setItem("gita_verse_of_the_day", JSON.stringify(dailyObj));
+      setDailyVerse(chosenVerse);
+    }
+  }, []);
 
   const hasUnread = notifications.some(n => !n.read);
 
@@ -348,21 +486,110 @@ export function HomeScreen() {
 
       <div className="flex-1 overflow-y-auto pb-44 scroll-hide">
         <div className="px-5 mt-5">
-          <div onClick={() => nav("/verse/2.47")} className="cursor-pointer">
-            <ImageBanner src={DEMO_IMG} alt={t("verseOfTheDay", selectedLanguage)} className="aspect-[5/6]">
+          <div
+            onClick={() =>
+              nav(
+                `/verse/${
+                  dailyVerse ? `${dailyVerse.chapter}.${dailyVerse.verse}` : "2.47"
+                }`
+              )
+            }
+            className="cursor-pointer"
+          >
+            <AnimatedImageBanner className="aspect-[5/6]">
               <span className="text-[10px] uppercase tracking-widest opacity-80">
                 {t("verseOfTheDay", selectedLanguage)}
               </span>
               <p className="mt-2 font-serif text-xl leading-snug text-balance">
                 "
-                {verse?.translation[selectedLanguage]?.simple ||
-                  verse?.translation["en"]?.simple ||
+                {dailyVerse?.translation[selectedLanguage]?.simple ||
+                  dailyVerse?.translation["en"]?.simple ||
                   "You have the right to action, never to its fruits."}
                 "
               </p>
-              <p className="mt-3 text-xs opacity-80">Bhagavad Gita 2.47</p>
-            </ImageBanner>
+              <p className="mt-3 text-xs opacity-80">
+                Bhagavad Gita {dailyVerse ? `${dailyVerse.chapter}.${dailyVerse.verse}` : "2.47"}
+              </p>
+            </AnimatedImageBanner>
           </div>
+        </div>
+
+        <SectionTitle
+          action={
+            <Link to="/chapters" className="text-xs text-primary font-medium">
+              {t("allBtn", selectedLanguage)}
+            </Link>
+          }
+        >
+          {t("chapters", selectedLanguage)}
+        </SectionTitle>
+        <div className="flex gap-4 overflow-x-auto px-5 pb-3 scroll-hide snap-x snap-mandatory">
+          {allChapters.map((c) => {
+            const progress = getChapterProgress(c.chapter_number, c.verseCount);
+            const size = 72;
+            const r = (size - 4) / 2;
+            const circ = 2 * Math.PI * r;
+            const strokeDashoffset = circ - (progress * circ);
+
+            return (
+              <button
+                key={c.chapter_number}
+                onClick={() => nav(`/chapter/${c.chapter_number}`)}
+                className="snap-start shrink-0 flex flex-col items-center text-center w-20 active:scale-[0.97] transition-transform select-none"
+              >
+                {/* Circular image and progress container */}
+                <div className="relative shrink-0" style={{ width: size, height: size }}>
+                  {/* Circular Image inside */}
+                  <div className="absolute inset-[3px] rounded-full overflow-hidden">
+                    <img
+                      src={`/assets/images/chapter_${c.chapter_number}.png`}
+                      alt={c.title[selectedLanguage] || c.title["en"]}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  
+                  {/* SVG Circular Progress Border */}
+                  <svg
+                    width={size}
+                    height={size}
+                    className="absolute inset-0 rotate-[-90deg] pointer-events-none"
+                  >
+                    {/* Track */}
+                    <circle
+                      cx={size / 2}
+                      cy={size / 2}
+                      r={r}
+                      fill="none"
+                      stroke="var(--color-border)"
+                      strokeWidth={1.5}
+                      className="opacity-40"
+                    />
+                    {/* Fill */}
+                    {progress > 0 && (
+                      <circle
+                        cx={size / 2}
+                        cy={size / 2}
+                        r={r}
+                        fill="none"
+                        stroke="var(--color-gold)"
+                        strokeWidth={2.5}
+                        strokeDasharray={circ}
+                        strokeDashoffset={strokeDashoffset}
+                        strokeLinecap="round"
+                        className="transition-all duration-300"
+                        style={{ filter: "drop-shadow(0 0 1.5px var(--color-gold-soft))" }}
+                      />
+                    )}
+                  </svg>
+                </div>
+
+                {/* Chapter Title text below */}
+                <p className="font-serif text-xs font-semibold mt-2.5 text-[#4A3728] dark:text-foreground/90 line-clamp-2 max-w-[80px] leading-snug">
+                  {c.title[selectedLanguage] || c.title["en"]}
+                </p>
+              </button>
+            );
+          })}
         </div>
 
         <SectionTitle
@@ -391,29 +618,6 @@ export function HomeScreen() {
 
         <SectionTitle
           action={
-            <Link to="/chapters" className="text-xs text-primary font-medium">
-              {t("allBtn", selectedLanguage)}
-            </Link>
-          }
-        >
-          {t("continueReading", selectedLanguage)}
-        </SectionTitle>
-        <div className="px-5 space-y-3">
-          {displayedChapters.map((c) => (
-            <ChapterCard
-              key={c.chapter_number}
-              id={c.chapter_number}
-              title={c.title[selectedLanguage] || c.title["en"]}
-              subtitle={c.summary[selectedLanguage] || c.summary["en"]}
-              verses={c.verseCount}
-              progress={c.chapter_number === 1 ? 0.6 : c.chapter_number === 2 ? 0.4 : 0}
-              onClick={() => nav(`/chapter/${c.chapter_number}`)}
-            />
-          ))}
-        </div>
-
-        <SectionTitle
-          action={
             <Link to="/wisdom" className="text-xs text-primary font-medium">
               {t("exploreBtn", selectedLanguage)}
             </Link>
@@ -425,7 +629,7 @@ export function HomeScreen() {
           <AppCard className="bg-gradient-dawn border-0" onClick={() => nav("/wisdom")}>
             <span className="font-devanagari text-xl text-primary font-bold mb-1.5 block select-none">ॐ</span>
             <p className="font-serif text-base text-foreground leading-relaxed">
-              "{dailyQuote.text}"
+              "{dailyQuote?.text || "The soul is eternal."}"
             </p>
             <p className="mt-2 text-xs text-muted-foreground">{t("gitaQuote", selectedLanguage)}</p>
           </AppCard>
@@ -1541,25 +1745,76 @@ export function WisdomScreen() {
   const { selectedLanguage, toggleFavorite, isFavorite } = useUserProgress();
   const { data: quotes } = useQuotes(selectedLanguage);
 
-  const displayedQuotes = quotes || [];
+  const [dailyQuote, setDailyQuote] = useState<Quote | null>(null);
+
+  useEffect(() => {
+    if (!quotes || quotes.length === 0) return;
+
+    const now = new Date();
+    const intervalKey = `${now.toDateString()}-${now.getHours()}-${now.getMinutes()}`;
+
+    let cached = localStorage.getItem("gita_daily_wisdom");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed.date === intervalKey) {
+          const exists = quotes.find((q) => q.id === parsed.quote.id);
+          if (exists) {
+            setDailyQuote(exists);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    let pool: string[] = [];
+    try {
+      pool = JSON.parse(localStorage.getItem("gita_daily_wisdom_pool") || "[]");
+    } catch {
+      pool = [];
+    }
+
+    const allKeys = quotes.map((q) => q.id);
+    let unshownKeys = allKeys.filter((k) => !pool.includes(k));
+
+    if (unshownKeys.length === 0) {
+      pool = [];
+      unshownKeys = allKeys;
+    }
+
+    const randomKey = unshownKeys[Math.floor(Math.random() * unshownKeys.length)];
+    const chosenQuote = quotes.find((q) => q.id === randomKey);
+
+    if (chosenQuote) {
+      const newPool = [...pool, randomKey];
+      localStorage.setItem("gita_daily_wisdom_pool", JSON.stringify(newPool));
+      const dailyObj = { date: intervalKey, quote: chosenQuote };
+      localStorage.setItem("gita_daily_wisdom", JSON.stringify(dailyObj));
+      setDailyQuote(chosenQuote);
+    }
+  }, [quotes]);
+
+  const displayedQuotes = quotes ? quotes.filter((q) => q.id !== dailyQuote?.id) : [];
 
   return (
     <ScreenWrapper>
       <Header title={t("wisdom", selectedLanguage)} back={false} />
       <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 scroll-hide">
-        <ImageBanner src={DEMO_IMG} alt={t("dailyWisdom", selectedLanguage)} fit="contain" className="bg-gradient-dawn">
+        <AnimatedImageBanner className="aspect-[16/10]">
           <span className="text-[10px] uppercase tracking-widest opacity-80">{t("dailyWisdom", selectedLanguage)}</span>
           <p className="mt-1 font-serif text-xl leading-snug text-balance">
             "
-            {displayedQuotes[0]?.text ||
+            {dailyQuote?.text ||
               "When meditation is mastered, the mind is unwavering like the flame of a lamp in a windless place."}
             "
           </p>
           <p className="mt-2 text-xs opacity-80">{t("gitaQuote", selectedLanguage)}</p>
-        </ImageBanner>
+        </AnimatedImageBanner>
 
         <div className="space-y-3">
-          {displayedQuotes.slice(1).map((w, idx) => (
+          {displayedQuotes.map((w, idx) => (
             <AppCard key={idx}>
               <div className="flex items-start gap-3">
                 <span className="text-[10px] font-bold text-primary/60 mt-1 w-6 shrink-0 text-right">{idx + 1}</span>

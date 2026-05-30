@@ -260,8 +260,16 @@ export function ChapterCard({
   const { selectedLanguage } = useUserProgress();
   return (
     <AppCard onClick={onClick} className="flex items-center gap-4">
-      <div className="h-14 w-14 rounded-2xl bg-gradient-dawn flex items-center justify-center font-serif text-lg text-foreground/80 shadow-card shrink-0">
-        {id.toString().padStart(2, "0")}
+      <div className="relative h-14 w-18 rounded-xl overflow-hidden shrink-0 shadow-soft">
+        <img
+          src={`/assets/images/chapter_${id}.png`}
+          alt={title}
+          className="h-full w-full object-cover"
+        />
+        {/* Small premium number badge overlay */}
+        <div className="absolute top-1 left-1 h-4.5 w-4.5 rounded-full bg-black/55 backdrop-blur-xs flex items-center justify-center font-serif text-[9px] font-bold text-white leading-none">
+          {id}
+        </div>
       </div>
       <div className="flex-1 min-w-0">
         <h3 className="font-serif text-base text-foreground truncate">{title}</h3>
