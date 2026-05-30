@@ -516,7 +516,7 @@ export function ChapterDetail() {
 
   const chapter = chapters?.find((c) => c.chapter_number === Number(id)) || {
     chapter_number: Number(id),
-    title: { en: "Loading..." },
+    title: { en: t("loadingTitle", selectedLanguage) },
     summary: { en: "" },
     fullSummary: { en: "" },
     verseCount: 0,
@@ -579,9 +579,9 @@ export function ChapterDetail() {
             {isChapterDownloaded(chapter.chapter_number) ? (
               <GhostButton
                 onClick={() => {
-                  toast(`Delete offline audio for Chapter ${chapter.chapter_number}?`, {
-                    action: { label: "Delete", onClick: () => deleteChapterDownload(chapter.chapter_number) },
-                    cancel: { label: "Cancel", onClick: () => {} },
+                  toast(`${t("deleteChapterConfirm", selectedLanguage)} ${chapter.chapter_number}?`, {
+                    action: { label: t("delete", selectedLanguage), onClick: () => deleteChapterDownload(chapter.chapter_number) },
+                    cancel: { label: t("cancel", selectedLanguage), onClick: () => {} },
                   });
                 }}
                 className="text-primary hover:text-primary/95 border-primary/30"
@@ -630,7 +630,7 @@ export function ChapterVerses() {
 
   const chapter = chapters?.find((c) => c.chapter_number === Number(id)) || {
     chapter_number: Number(id),
-    title: { en: "Loading..." },
+    title: { en: t("loadingTitle", selectedLanguage) },
     verseCount: 0,
   };
 
@@ -1029,9 +1029,9 @@ export function VerseReading() {
             {isVerseDownloaded(verseId) ? (
               <IconButton
                 onClick={() => {
-                  toast(`Delete offline audio for Verse ${verseId}?`, {
-                    action: { label: "Delete", onClick: () => deleteVerseDownload(verseId) },
-                    cancel: { label: "Cancel", onClick: () => {} },
+                  toast(`${t("deleteVerseConfirm", selectedLanguage)} ${verseId}?`, {
+                    action: { label: t("delete", selectedLanguage), onClick: () => deleteVerseDownload(verseId) },
+                    cancel: { label: t("cancel", selectedLanguage), onClick: () => {} },
                   });
                 }}
                 className="text-primary hover:text-primary-dark"
@@ -1232,12 +1232,12 @@ export function VerseReading() {
             {isVerseDownloaded(verseId) ? (
               <button
                 onClick={() => {
-                  toast(`Delete offline audio for Verse ${verseId}?`, {
-                    action: { label: "Delete", onClick: () => deleteVerseDownload(verseId) },
-                    cancel: { label: "Cancel", onClick: () => {} },
+                  toast(`${t("deleteVerseConfirm", selectedLanguage)} ${verseId}?`, {
+                    action: { label: t("delete", selectedLanguage), onClick: () => deleteVerseDownload(verseId) },
+                    cancel: { label: t("cancel", selectedLanguage), onClick: () => {} },
                   });
                 }}
-                title="Saved offline — tap to delete"
+                title={`${t("savedOfflineLabel", selectedLanguage)} — ${t("tapToDelete", selectedLanguage)}`}
                 className="h-8 w-8 rounded-full border border-primary/40 flex items-center justify-center transition active:scale-90 bg-card/70"
               >
                 <DownloadDone size={14} />
@@ -1361,7 +1361,7 @@ export function VerseWords() {
         <div className="space-y-2">
           {words.length === 0 ? (
             <div className="text-center py-8 text-sm text-muted-foreground">
-              No word breakdown available for this verse.
+              {t("noWordBreakdown", selectedLanguage)}
             </div>
           ) : (
             words.map((w, i) => (
@@ -1958,14 +1958,14 @@ export function Player() {
           <IconButton onClick={() => nav(-1)}>
             <ChevronLeft size={18} />
           </IconButton>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Now Playing</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("nowPlayingLabel", selectedLanguage)}</p>
           <div className="w-10" />
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
           <Headphones size={48} className="text-primary mb-4" />
-          <p className="text-lg font-serif">No audio loaded</p>
+          <p className="text-lg font-serif">{t("noAudioLoadedTitle", selectedLanguage)}</p>
           <p className="text-sm text-muted-foreground mt-2">
-            Browse the Gita and select "Listen" on any verse to start playback.
+            {t("noAudioLoadedSub", selectedLanguage)}
           </p>
         </div>
       </ScreenWrapper>
@@ -2001,14 +2001,14 @@ export function Player() {
       </div>
       <div className="flex-1 flex flex-col items-center px-8 pt-8 pb-safe">
         <div className="w-full max-w-xs aspect-square rounded-3xl overflow-hidden shadow-soft">
-          <img src={DEMO_IMG} alt="Now playing" className="w-full h-full object-cover" />
+          <img src={DEMO_IMG} alt={t("nowPlayingLabel", selectedLanguage)} className="w-full h-full object-cover" />
         </div>
         <div className="mt-8 text-center max-w-sm">
           <p className="font-serif text-2xl text-foreground">
-            Chapter {currentVerse.chapter}, Verse {currentVerse.verse}
+            {t("chapterLabel", selectedLanguage)} {currentVerse.chapter}, {t("verseLabel", selectedLanguage)} {currentVerse.verse}
           </p>
           <p className="text-xs text-muted-foreground mt-1 truncate">
-            Sanskrit Recitation & Commentary
+            {t("recitationAndCommentary", selectedLanguage)}
           </p>
           <p className="text-sm text-foreground/80 mt-3 italic line-clamp-2">"{translationText}"</p>
         </div>
@@ -2126,7 +2126,7 @@ export function MiniPlayer({ hasTabs = true }: { hasTabs?: boolean }) {
       {isLoaded && (
         isVerseDownloaded(verseId) ? (
           <button
-            title="Saved offline"
+            title={t("savedOfflineLabel", selectedLanguage)}
             className="h-8 w-8 rounded-full border border-primary/30 flex items-center justify-center shrink-0 bg-card/70 active:scale-90 transition"
           >
             <DownloadDone size={14} />
@@ -2619,8 +2619,8 @@ export function Notifications() {
                 <SettingsIcon size={18} />
               </div>
               <div>
-                <p className="font-serif text-sm text-foreground">Manage Notification Preferences</p>
-                <p className="text-[10px] text-muted-foreground">Choose what you want to hear from us</p>
+                <p className="font-serif text-sm text-foreground">{t("manageNotificationPreferences", selectedLanguage)}</p>
+                <p className="text-[10px] text-muted-foreground">{t("chooseWhatToHear", selectedLanguage)}</p>
               </div>
             </div>
             <ChevronRight className="text-muted-foreground" size={16} />
@@ -2961,6 +2961,40 @@ export function Profile() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [newsletterPref, setNewsletterPref] = useState("daily");
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  // Cache profile photo as base64 data URL for 24h — avoids repeated Google image fetches
+  const [cachedPhotoURL, setCachedPhotoURL] = useState<string | null>(() => {
+    try {
+      const cached = localStorage.getItem("gita_photo_cache");
+      if (!cached) return null;
+      const { dataUrl, ts } = JSON.parse(cached);
+      if (Date.now() - ts < 24 * 60 * 60 * 1000) return dataUrl;
+      return null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    if (!user?.photoURL) return;
+    // Already have a valid cached data URL — skip fetch
+    if (cachedPhotoURL?.startsWith("data:")) return;
+    fetch(user.photoURL)
+      .then((r) => r.blob())
+      .then(
+        (blob) =>
+          new Promise<string>((res) => {
+            const reader = new FileReader();
+            reader.onloadend = () => res(reader.result as string);
+            reader.readAsDataURL(blob);
+          })
+      )
+      .then((dataUrl) => {
+        setCachedPhotoURL(dataUrl);
+        localStorage.setItem("gita_photo_cache", JSON.stringify({ dataUrl, ts: Date.now() }));
+      })
+      .catch(() => setCachedPhotoURL(user.photoURL));
+  }, [user?.photoURL, cachedPhotoURL]);
   
   // Seeding state
   const [seedingProgress, setSeedingProgress] = useState<SeedingProgress>({
@@ -3085,24 +3119,24 @@ export function Profile() {
         back={false}
       />
       <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-6 scroll-hide pt-4">
-         {/* Dynamic User Profile card */}
-          {user ? (
-            <AppCard className="flex items-center gap-4 border border-primary/10">
-              {user.photoURL ? (
-                <img
-                  src={user.photoURL}
-                  alt={profile.name}
-                  className="h-16 w-16 rounded-full object-cover shadow-card shrink-0"
-                />
-              ) : (
-                <div className="h-16 w-16 rounded-full bg-gradient-dawn flex items-center justify-center text-primary font-bold text-xl shadow-card shrink-0">
-                  {profile.name.charAt(0).toUpperCase()}
+          {/* Dynamic User Profile card */}
+           {user ? (
+             <AppCard className="flex items-center gap-4 border border-primary/10">
+               {cachedPhotoURL || user.photoURL ? (
+                 <img
+                   src={cachedPhotoURL || user.photoURL}
+                   alt={profile.name}
+                   className="h-16 w-16 rounded-full object-cover shadow-card shrink-0"
+                 />
+               ) : (
+                 <div className="h-16 w-16 rounded-full bg-gradient-dawn flex items-center justify-center text-primary font-bold text-xl shadow-card shrink-0">
+                   {profile.name.charAt(0).toUpperCase()}
+                 </div>
+               )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-serif text-xl text-foreground truncate">{profile.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
                 </div>
-              )}
-               <div className="flex-1 min-w-0">
-                 <p className="font-serif text-xl text-foreground truncate">{profile.name}</p>
-                 <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
-               </div>
                 <button
                   onClick={() => setShowSettingsModal(true)}
                   className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition active:scale-90 shrink-0"
@@ -3184,7 +3218,7 @@ export function Profile() {
             >
               <Languages size={18} className="text-primary" />
               <span className="flex-1 text-sm text-foreground">{t("language", selectedLanguage)}</span>
-              <span className="text-xs text-muted-foreground">{activeLanguageObj?.name || "English"}</span>
+              <span className="text-xs text-muted-foreground">{activeLanguageObj?.name || t("selectLanguageShort", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
             <button
@@ -3192,9 +3226,9 @@ export function Profile() {
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
               <Volume2 size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">{t("Audio Auto Play", selectedLanguage) || "Auto-play Audio"}</span>
+              <span className="flex-1 text-sm text-foreground">{t("autoPlayAudioLabel", selectedLanguage)}</span>
               <span className={`text-xs ${autoPlayOnOpen ? "text-primary" : "text-muted-foreground"}`}>
-                {autoPlayOnOpen ? "On" : "Off"}
+                {autoPlayOnOpen ? t("onLabel", selectedLanguage) : t("offLabel", selectedLanguage)}
               </span>
               <div className={`w-9 h-5 rounded-full transition-colors relative ${autoPlayOnOpen ? "bg-primary" : "bg-muted"}`}>
                 <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${autoPlayOnOpen ? "translate-x-4" : "translate-x-0.5"}`} />
@@ -3216,7 +3250,7 @@ export function Profile() {
               <Bell size={18} className="text-primary" />
               <span className="flex-1 text-sm text-foreground">{t("dailyReminder", selectedLanguage)}</span>
               <span className="text-xs text-muted-foreground">
-                {reminderConfig.enabled ? formatTime12Hour(reminderConfig.time) : "Disabled"}
+                {reminderConfig.enabled ? formatTime12Hour(reminderConfig.time) : t("disabledStatus", selectedLanguage)}
               </span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
@@ -3268,28 +3302,45 @@ export function Profile() {
 
 
 
-        {/* Help & Support */}
-        <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">Help & Support</p>
-          <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
-            <button onClick={() => nav("/help/contact")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
-              <Info size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Contact Us</span>
-              <ChevronRight size={16} className="text-muted-foreground" />
-            </button>
+         {/* Help & Support */}
+         <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">{t("helpSupportTitle", selectedLanguage)}</p>
+           <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
+             <button onClick={() => {
+               const shareText = `I'm reading the Bhagavad Gita on Gita Sadhana! Join me on this spiritual journey.`;
+               if (navigator.share) {
+                 navigator.share({
+                   title: "Gita Sadhana",
+                   text: shareText,
+                   url: "https://gitasadhana.com",
+                 });
+               } else {
+                 navigator.clipboard.writeText(shareText);
+                  toast.success(t("copiedToClipboardToast", selectedLanguage));
+               }
+             }} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+               <Share2 size={18} className="text-primary" />
+                <span className="flex-1 text-sm text-foreground">{t("shareWisdom", selectedLanguage)}</span>
+               <ChevronRight size={16} className="text-muted-foreground" />
+             </button>
+             <button onClick={() => nav("/help/contact")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+               <Info size={18} className="text-primary" />
+                <span className="flex-1 text-sm text-foreground">{t("contactUsTitle", selectedLanguage)}</span>
+               <ChevronRight size={16} className="text-muted-foreground" />
+             </button>
             <button onClick={() => nav("/help/privacy")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
               <FileText size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Privacy Policy</span>
+               <span className="flex-1 text-sm text-foreground">{t("privacyPolicyTitle", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
             <button onClick={() => nav("/help/terms")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
               <FileText size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Terms of Service</span>
+               <span className="flex-1 text-sm text-foreground">{t("termsTitle", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
             <button onClick={() => nav("/help/correction")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
               <Megaphone size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Verse / Language Correction</span>
+               <span className="flex-1 text-sm text-foreground">{t("verseLanguageCorrectionTitle", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
           </div>
@@ -3312,7 +3363,7 @@ export function Profile() {
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative w-full max-w-sm bg-card rounded-3xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
-              <span className="font-serif text-base text-foreground">Sign Out</span>
+              <span className="font-serif text-base text-foreground">{t("signOutTitle", selectedLanguage)}</span>
               <button onClick={() => !isSigningOut && setShowSignOutModal(false)} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition">
                 <X size={18} />
               </button>
@@ -3327,14 +3378,14 @@ export function Profile() {
                   disabled={isSigningOut}
                   className="flex-1 h-11 rounded-full bg-muted text-foreground font-semibold flex items-center justify-center transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Cancel
+                  {t("cancel", selectedLanguage)}
                 </button>
                 <button
                   onClick={confirmSignOut}
                   disabled={isSigningOut}
                   className="flex-1 h-11 rounded-full bg-destructive text-white font-semibold flex items-center justify-center transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {isSigningOut ? "Signing out..." : "Sign Out"}
+                  {isSigningOut ? t("signingOut", selectedLanguage) : t("signOutTitle", selectedLanguage)}
                 </button>
               </div>
             </div>
@@ -3350,8 +3401,8 @@ export function Profile() {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-primary/5 sticky top-0 bg-gradient-to-b from-card to-card/90 backdrop-blur-sm">
               <div>
-                <span className="font-serif text-lg text-foreground block">Account Settings</span>
-                <p className="text-xs text-muted-foreground mt-0.5">Customize your experience</p>
+                <span className="font-serif text-lg text-foreground block">{t("accountSettingsTitle", selectedLanguage)}</span>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("accountSettingsSub", selectedLanguage)}</p>
               </div>
               <button onClick={() => !isDeletingAccount && setShowSettingsModal(false)} className="h-9 w-9 rounded-full bg-muted/60 flex items-center justify-center hover:bg-muted transition text-muted-foreground hover:text-foreground">
                 <X size={18} />
@@ -3363,14 +3414,14 @@ export function Profile() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
                   <Bell size={18} className="text-primary" />
-                  <label className="text-sm font-semibold text-foreground">Email Notifications</label>
+                  <label className="text-sm font-semibold text-foreground">{t("emailNotifications", selectedLanguage)}</label>
                 </div>
                 <div className="space-y-2">
                   {[
-                    { value: "daily", label: "Daily Digest", desc: "Get a verse each morning" },
-                    { value: "weekly", label: "Weekly Digest", desc: "One email every Sunday" },
-                    { value: "monthly", label: "Monthly Digest", desc: "Curated highlights" },
-                    { value: "none", label: "No Emails", desc: "Stay silent" },
+                    { value: "daily", label: t("dailyDigest", selectedLanguage), desc: t("dailyDigestDesc", selectedLanguage) },
+                    { value: "weekly", label: t("weeklyDigest", selectedLanguage), desc: t("weeklyDigestDesc", selectedLanguage) },
+                    { value: "monthly", label: t("monthlyDigest", selectedLanguage), desc: t("monthlyDigestDesc", selectedLanguage) },
+                    { value: "none", label: t("noEmails", selectedLanguage), desc: t("noEmailsDesc", selectedLanguage) },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -3406,16 +3457,16 @@ export function Profile() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
                   <Trash2 size={18} className="text-destructive" />
-                  <label className="text-sm font-semibold text-foreground">Danger Zone</label>
+                  <label className="text-sm font-semibold text-foreground">{t("dangerZone", selectedLanguage)}</label>
                 </div>
                 <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 space-y-3">
-                  <p className="text-xs text-destructive/80">This action cannot be undone. All your data will be permanently deleted.</p>
+                  <p className="text-xs text-destructive/80">{t("dangerZoneWarning", selectedLanguage)}</p>
                   <button
                     onClick={() => setIsDeletingAccount(true)}
                     disabled={isDeletingAccount}
                     className="w-full h-11 rounded-full bg-destructive text-white font-semibold text-sm border border-destructive/50 transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-destructive/20"
                   >
-                    {isDeletingAccount ? "Deleting Account..." : "Delete Account"}
+                    {isDeletingAccount ? t("deletingAccount", selectedLanguage) : t("deleteAccount", selectedLanguage)}
                   </button>
                 </div>
               </div>
@@ -3423,7 +3474,7 @@ export function Profile() {
 
             {/* Footer note */}
             <div className="px-6 py-4 border-t border-primary/5 bg-muted/30 text-center">
-              <p className="text-xs text-muted-foreground">Changes are saved automatically</p>
+                <p className="text-xs text-muted-foreground">{t("changesSavedNote", selectedLanguage)}</p>
             </div>
           </div>
         </div>
@@ -3444,19 +3495,19 @@ export function HelpContact() {
 
   return (
     <ScreenWrapper>
-      <Header title="Contact Us" back={true} backTo="/profile" />
+      <Header title={t("contactUsTitle", selectedLanguage)} back={true} backTo="/profile" />
       <div className="px-5 space-y-6 pt-4 pb-8">
         <div className="rounded-2xl bg-card border border-border/60 shadow-card p-4 flex items-center gap-3">
           <Info size={20} className="text-primary shrink-0" />
           <div>
-            <p className="text-xs text-muted-foreground">Email us directly</p>
+            <p className="text-xs text-muted-foreground">{t("emailUsDirectly", selectedLanguage)}</p>
             <a href="mailto:hello@gitasadhana.com" className="text-sm text-primary font-medium">hello@gitasadhana.com</a>
           </div>
         </div>
 
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">Your Email</label>
+            <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">{t("yourEmail", selectedLanguage)}</label>
             <input
               type="email"
               value={userEmail}
@@ -3466,46 +3517,21 @@ export function HelpContact() {
             />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">Message</label>
+            <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">{t("messageLabel", selectedLanguage)}</label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="How can we help you?"
+              placeholder={t("contactMessagePlaceholder", selectedLanguage)}
               rows={5}
               className="w-full rounded-xl border border-border/60 bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
             />
           </div>
           <button
-            onClick={() => toast.success("Message sent! We'll get back to you soon.")}
+            onClick={() => toast.success(t("messageSentToast", selectedLanguage))}
             className="w-full h-12 rounded-full bg-primary text-white font-medium active:scale-[0.98] transition"
           >
-            Submit
+            {t("submitBtn", selectedLanguage)}
           </button>
-        </div>
-
-        <div className="rounded-2xl bg-card border border-border/60 shadow-card p-4 flex items-center gap-3">
-          <Share2 size={20} className="text-primary shrink-0" />
-          <div className="flex-1">
-            <p className="text-xs text-muted-foreground">Share your wisdom</p>
-            <button
-              onClick={() => {
-                const shareText = `I'm exploring the Bhagavad Gita on Gita Sadhana - a beautiful spiritual study companion app!`;
-                if (navigator.share) {
-                  navigator.share({
-                    title: "Gita Sadhana",
-                    text: shareText,
-                    url: "https://gitasadhana.com",
-                  });
-                } else {
-                  navigator.clipboard.writeText(shareText);
-                  toast.success("Copied to clipboard!");
-                }
-              }}
-              className="text-sm text-primary font-medium hover:underline"
-            >
-              Share the app
-            </button>
-          </div>
         </div>
       </div>
     </ScreenWrapper>
@@ -3516,9 +3542,9 @@ export function HelpContact() {
 export function HelpPrivacy() {
   return (
     <ScreenWrapper>
-      <Header title="Privacy Policy" back={true} backTo="/profile" />
+      <Header title={t("privacyPolicyTitle", selectedLanguage)} back={true} backTo="/profile" />
       <div className="px-5 pb-10 pt-4 space-y-6 overflow-y-auto flex-1 scroll-hide">
-        <p className="text-xs text-muted-foreground">Last updated: May 2025</p>
+        <p className="text-xs text-muted-foreground">{t("privacyLastUpdated", selectedLanguage)}</p>
 
         {[
           {
@@ -3564,9 +3590,9 @@ export function HelpPrivacy() {
 export function HelpTerms() {
   return (
     <ScreenWrapper>
-      <Header title="Terms of Service" back={true} backTo="/profile" />
+      <Header title={t("termsTitle", selectedLanguage)} back={true} backTo="/profile" />
       <div className="px-5 pb-10 pt-4 space-y-6 overflow-y-auto flex-1 scroll-hide">
-        <p className="text-xs text-muted-foreground">Last updated: May 2025</p>
+        <p className="text-xs text-muted-foreground">{t("termsLastUpdated", selectedLanguage)}</p>
 
         {[
           {
@@ -3721,22 +3747,22 @@ export function HelpCorrection() {
 
   return (
     <ScreenWrapper>
-      <Header title="Verse / Language Correction" back={true} backTo="/profile" />
+      <Header title={t("verseLanguageCorrectionTitle", selectedLanguage)} back={true} backTo="/profile" />
       <div className="px-5 space-y-4 pt-4 pb-8">
-        <p className="text-sm text-muted-foreground">Found an error in a translation or audio? Let us know and we'll fix it.</p>
+        <p className="text-sm text-muted-foreground">{t("correctionHelpText", selectedLanguage)}</p>
 
-        <PickerSheet label="Language" placeholder="Select language…" value={lang} options={languageOptions} onSelect={setLang} />
+        <PickerSheet label={t("languageLabel", selectedLanguage)} placeholder={t("languageLabel", selectedLanguage)} value={lang} options={languageOptions} onSelect={setLang} />
 
-        <PickerSheet label="Chapter" placeholder="Select chapter…" value={chapter} options={chapterOptions} onSelect={(v) => { setChapter(v); setVerse(""); }} />
+        <PickerSheet label={t("chapterLabel", selectedLanguage)} placeholder={t("chapterLabel", selectedLanguage)} value={chapter} options={chapterOptions} onSelect={(v) => { setChapter(v); setVerse(""); }} />
 
-        <PickerSheet label="Verse" placeholder="Select verse…" value={verse} options={verseOptions} onSelect={setVerse} disabled={!chapter} />
+        <PickerSheet label={t("verseLabel", selectedLanguage)} placeholder={t("verseLabel", selectedLanguage)} value={verse} options={verseOptions} onSelect={setVerse} disabled={!chapter} />
 
         <div>
-          <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">Describe the issue</label>
+          <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">{t("describeIssueLabel", selectedLanguage)}</label>
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Describe the error or correction needed…"
+              placeholder={t("correctionHelpText", selectedLanguage)}
             rows={5}
             className="w-full rounded-xl border border-border/60 bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
           />
@@ -3746,7 +3772,7 @@ export function HelpCorrection() {
           onClick={handleSubmit}
           className="w-full h-12 rounded-full bg-primary text-white font-medium active:scale-[0.98] transition"
         >
-          Submit Correction
+          {t("submitCorrectionBtn", selectedLanguage)}
         </button>
       </div>
     </ScreenWrapper>
@@ -3757,7 +3783,7 @@ export function HelpCorrection() {
 export function LoadingDemo() {
   return (
     <ScreenWrapper>
-      <Header title="Loading" />
+      <Header title={t("loadingTitle", "en")} />
       <div className="px-5 space-y-3">
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-20 w-full" />

@@ -1149,8 +1149,402 @@ export const translations: Record<string, Partial<Record<SupportedLanguage, stri
     hi: "श्लोक का चिह्न हटाया गया",
     te: "శ్లోకం గుర్తు తొలగించబడింది",
     sa: "श्लोकस्य चिह्नं निष्कासितम्"
+  },
+  cancel: {
+    en: "Cancel",
+    hi: "रद्द करें",
+    te: "రద్దు చేయి",
+    sa: "निरसितु"
+  },
+  delete: {
+    en: "Delete",
+    hi: "हटाएं",
+    te: "తొలగించండి",
+    sa: "निष्कासयतु"
+  },
+  loadingTitle: {
+    en: "Loading",
+    hi: "लोड हो रहा है",
+    te: "లోడ్ అవుతోంది",
+    sa: "लोड् भवति"
+  },
+  noWordBreakdown: {
+    en: "No word breakdown available for this verse.",
+    hi: "इस श्लोक के लिए शब्द-विश्लेषण उपलब्ध नहीं है।",
+    te: "ఈ శ్లోకానికి పదాల విభజన అందుబాటులో లేదు.",
+    sa: "एतस्मै श्लोकाय शब्दविभागः उपलब्धः नास्ति।"
+  },
+  recitationAndCommentary: {
+    en: "Sanskrit Recitation & Commentary",
+    hi: "संस्कृत पाठ और व्याख्या",
+    te: "సంస్కృత పఠనం & వ్యాఖ్యానం",
+    sa: "संस्कृत पठनं च व्याख्या"
+  },
+  savedOfflineLabel: {
+    en: "Saved offline",
+    hi: "ऑफ़लाइन सहेजा गया",
+    te: "ఆఫ్‌లైన్‌లో సేవ్ చేయబడింది",
+    sa: "ऑफ़लाइन रक्षितम्"
+  },
+  tapToDelete: {
+    en: "tap to delete",
+    hi: "हटाने के लिए दबाएं",
+    te: "తొలగించడానికి నొక్కండి",
+    sa: "निष्कासयितुं नुदतु"
+  },
+  autoPlayAudioLabel: {
+    en: "Auto-play Audio",
+    hi: "ऑटो-प्ले ऑडियो",
+    te: "ఆటో-ప్లే ఆడియో",
+    sa: "स्वतः-वादनं स्वरः"
+  },
+  onLabel: {
+    en: "On",
+    hi: "चालू",
+    te: "ఆన్",
+    sa: "सक्रियम्"
+  },
+  offLabel: {
+    en: "Off",
+    hi: "बंद",
+    te: "ఆఫ్",
+    sa: "निष्क्रियम्"
+  },
+  manageNotificationPreferences: {
+    en: "Manage Notification Preferences",
+    hi: "सूचना प्राथमिकताएं प्रबंधित करें",
+    te: "నోటిఫికేషన్ ప్రాధాన్యతలను నిర్వహించండి",
+    sa: "सूचना-प्राधान्यानि व्यवस्थापयतु"
+  },
+  chooseWhatToHear: {
+    en: "Choose what you want to hear from us",
+    hi: "हमसे क्या सुनना है, चुनें",
+    te: "మా నుండి మీరు ఏమి వినాలనుకుంటున్నారో ఎంచుకోండి",
+    sa: "अस्माभिः किं श्रोतुम् इच्छसि तत् चिनोतु"
+  },
+  helpSupportTitle: {
+    en: "Help & Support",
+    hi: "सहायता और समर्थन",
+    te: "సహాయం & మద్దతు",
+    sa: "सहायता च समर्थनम्"
+  },
+  shareWisdom: {
+    en: "Share the Wisdom",
+    hi: "ज्ञान साझा करें",
+    te: "జ్ఞానాన్ని పంచండి",
+    sa: "ज्ञानं साझां कुरुत"
+  },
+  copiedToClipboardToast: {
+    en: "Copied to clipboard!",
+    hi: "क्लिपबोर्ड पर कॉपी किया गया!",
+    te: "క్లిప్‌బోర్డ్‌కి కాపీ చేయబడింది!",
+    sa: "क्लिप्बोर्ड् मध्ये प्रतिलिपीकृतम्!"
+  },
+  contactUsTitle: {
+    en: "Contact Us",
+    hi: "हमसे संपर्क करें",
+    te: "మమ్మల్ని సంప్రదించండి",
+    sa: "अस्मान् सम्पर्कयतु"
+  },
+  emailUsDirectly: {
+    en: "Email us directly",
+    hi: "हमें सीधे ईमेल करें",
+    te: "మాకు నేరుగా ఇమెయిల్ చేయండి",
+    sa: "प्रत्यक्षं ईमेलं कुरुत"
+  },
+  yourEmail: {
+    en: "Your Email",
+    hi: "आपका ईमेल",
+    te: "మీ ఇమెయిల్",
+    sa: "भवतः ईमेल्"
+  },
+  messageLabel: {
+    en: "Message",
+    hi: "संदेश",
+    te: "సందేశం",
+    sa: "सन्देशः"
+  },
+  contactMessagePlaceholder: {
+    en: "How can we help you?",
+    hi: "हम आपकी कैसे मदद कर सकते हैं?",
+    te: "మేము మీకు ఎలా సహాయం చేయగలం?",
+    sa: "वयं भवतः कथं सहायं कर्तुं शक्नुमः?"
+  },
+  submitBtn: {
+    en: "Submit",
+    hi: "भेजें",
+    te: "సమర్పించండి",
+    sa: "प्रेषयतु"
+  },
+  messageSentToast: {
+    en: "Message sent! We'll get back to you soon.",
+    hi: "संदेश भेज दिया गया! हम जल्द ही उत्तर देंगे।",
+    te: "సందేశం పంపబడింది! మేము త్వరలో మీకు తిరిగి స్పందిస్తాము.",
+    sa: "सन्देशः प्रेषितः! शीघ्रमेव प्रत्युत्तरं दास्यामः।"
+  },
+  privacyPolicyTitle: {
+    en: "Privacy Policy",
+    hi: "गोपनीयता नीति",
+    te: "గోప్యతా విధానం",
+    sa: "गोपनीयता-नीतिः"
+  },
+  privacyLastUpdated: {
+    en: "Last updated: May 2025",
+    hi: "अंतिम अद्यतन: मई 2025",
+    te: "చివరిగా నవీకరించబడింది: మే 2025",
+    sa: "अन्तिम-अपडेट्: 2025 मे"
+  },
+  termsTitle: {
+    en: "Terms of Service",
+    hi: "सेवा की शर्तें",
+    te: "సేవా నిబంధనలు",
+    sa: "सेवा-शर्ताः"
+  },
+  termsLastUpdated: {
+    en: "Last updated: May 2025",
+    hi: "अंतिम अद्यतन: मई 2025",
+    te: "చివరిగా నవీకరించబడింది: మే 2025",
+    sa: "अन्तिम-अपडेट्: 2025 मे"
+  },
+  verseLanguageCorrectionTitle: {
+    en: "Verse / Language Correction",
+    hi: "श्लोक / भाषा सुधार",
+    te: "శ్లోకం / భాషా సవరణ",
+    sa: "श्लोक / भाषा-संशोधनम्"
+  },
+  correctionHelpText: {
+    en: "Found an error in a translation or audio? Let us know and we'll fix it.",
+    hi: "क्या आपने अनुवाद या ऑडियो में कोई त्रुटि देखी? हमें बताएं, हम इसे ठीक करेंगे।",
+    te: "అనువాదం లేదా ఆడియోలో లోపం దొరికిందా? మాకు తెలియజేయండి, మేము దాన్ని సరిచేస్తాము.",
+    sa: "अनुवादे वा स्वरे दोषं दृष्टवान्? अस्मान् सूचयतु, वयं संशोधयामः।"
+  },
+  languageLabel: {
+    en: "Language",
+    hi: "भाषा",
+    te: "భాష",
+    sa: "भाषा"
+  },
+  describeIssueLabel: {
+    en: "Describe the issue",
+    hi: "समस्या का वर्णन करें",
+    te: "సమస్యను వివరించండి",
+    sa: "समस्यां वर्णयतु"
+  },
+  submitCorrectionBtn: {
+    en: "Submit Correction",
+    hi: "सुधार भेजें",
+    te: "సవరణను సమర్పించండి",
+    sa: "संशोधनं प्रेषयतु"
+  },
+  allFieldsRequiredToast: {
+    en: "All fields are required.",
+    hi: "सभी फ़ील्ड आवश्यक हैं।",
+    te: "అన్ని ఫీల్డ్‌లు అవసరం.",
+    sa: "सर्वाणि क्षेत्राणि आवश्यकानि।"
+  },
+  correctionSubmittedToast: {
+    en: "Correction submitted. Thank you!",
+    hi: "सुधार भेज दिया गया। धन्यवाद!",
+    te: "సవరణ సమర్పించబడింది. ధన్యవాదాలు!",
+    sa: "संशोधनं प्रेषितम्। धन्यवादः!"
+  },
+  autoPlayAudioLabel: { en: "Auto-play Audio", hi: "ऑटो-प्ले ऑडियो", te: "ఆటో-ప్లే ఆడియో", sa: "स्वतः-वादनं स्वरः" },
+  onLabel: { en: "On", hi: "चालू", te: "ఆన్", sa: "सक्रियम्" },
+  offLabel: { en: "Off", hi: "बंद", te: "ఆఫ్", sa: "निष्क्रियम्" },
+  disabledStatus: { en: "Disabled", hi: "निष्क्रिय", te: "నిలిపివేయబడింది", sa: "निष्क्रियम्" },
+  helpSupportTitle: { en: "Help & Support", hi: "सहायता और समर्थन", te: "సహాయం & మద్దతు", sa: "सहायता च समर्थनम्" },
+  shareWisdom: { en: "Share the Wisdom", hi: "ज्ञान साझा करें", te: "జ్ఞానాన్ని పంచండి", sa: "ज्ञानं साझां कुरुत" },
+  copiedToClipboardToast: { en: "Copied to clipboard!", hi: "क्लिपबोर्ड पर कॉपी किया गया!", te: "క్లిప్‌బోర్డ్‌కి కాపీ చేయబడింది!", sa: "क्लिप्बोर्ड् मध्ये प्रतिलिपीकृतम्!" },
+  notificationsToday: { en: "Today", hi: "आज", te: "ఈరోజు", sa: "अद्य" },
+  notificationsThisWeek: { en: "This Week", hi: "इस सप्ताह", te: "ఈ వారం", sa: "इदानीन्तनसप्ताहः" },
+  notificationsEarlier: { en: "Earlier", hi: "पहले", te: "ముందు", sa: "पूर्वम्" },
+  notificationsAll: { en: "All", hi: "सभी", te: "అన్నీ", sa: "सर्वाणि" },
+  notificationsReminders: { en: "Reminders", hi: "अनुस्मारक", te: "రిమైండర్‌లు", sa: "स्मारकाणि" },
+  notificationsUpdates: { en: "Updates", hi: "अपडेट्स", te: "అప్‌డేట్లు", sa: "नवीनताः" },
+  notificationsQuotes: { en: "Quotes", hi: "उद्धरण", te: "కోట్‌లు", sa: "उद्धरणानि" },
+  notificationsAchievements: { en: "Achievements", hi: "उपलब्धियां", te: "అచీవ్‌మెంట్‌లు", sa: "सिद्धयः" },
+  dailyReminderTitle: { en: "Daily Reminder", hi: "दैनिक अनुस्मारक", te: "రోజువారీ రిమైండర్", sa: "दैनिक स्मरणम्" },
+  dailyReminderBody: { en: "Time to read your Gita for today.", hi: "आज की गीता पढ़ने का समय।", te: "ఈరోజు మీ గీత చదవాల్సిన సమయం వచ్చింది.", sa: "अद्य गीता-पठनस्य समयः।" },
+  continueReadingLink: { en: "Continue Reading", hi: "पठन जारी रखें", te: "పఠనం కొనసాగించండి", sa: "पठनम् अनुवर्तताम्" },
+  newVerseOfWisdomTitle: { en: "New Verse of Wisdom", hi: "ज्ञान का नया श्लोक", te: "జ్ఞానానికి కొత్త శ్లోకం", sa: "ज्ञानस्य नवीनः श्लोकः" },
+  newVerseOfWisdomBody: { en: "A new verse is waiting for you.", hi: "आपके लिए एक नया श्लोक प्रतीक्षा कर रहा है।", te: "మీ కోసం కొత్త శ్లోకం ఎదురుచూస్తోంది.", sa: "भवतः कृते नवीनः श्लोकः प्रतीक्षते।" },
+  achievementUnlockedTitle: { en: "Achievement Unlocked!", hi: "उपलब्धि अनलॉक हुई!", te: "అచీవ్‌మెంట్ అన్‌లాక్ అయింది!", sa: "सिद्धिः विमोचितः!" },
+  achievementUnlockedBody: { en: "You've completed 7 days of reading.", hi: "आपने 7 दिनों का पठन पूरा किया है।", te: "మీరు 7 రోజులు చదవడం పూర్తి చేశారు.", sa: "भवता ७ दिनानां पठनं पूर्णम्।" },
+  upcomingReminderTitle: { en: "Upcoming Reminder", hi: "आगामी अनुस्मारक", te: "రాబోయే రిమైండర్", sa: "आगामी स्मरणम्" },
+  upcomingReminderBody: { en: "Get ready for your reading time tomorrow.", hi: "कल के पठन समय के लिए तैयार रहें।", te: "రేపటి పఠన సమయానికి సిద్ధంగా ఉండండి.", sa: "श्वः पठनसमयाय सज्जः भवतु।" },
+  chapterCompletedTitle: { en: "Chapter Completed", hi: "अध्याय पूर्ण हुआ", te: "అధ్యాయం పూర్తయింది", sa: "अध्यायः पूर्णः" },
+  chapterCompletedBody: { en: "Great job! You've completed Chapter 1.", hi: "शाबाश! आपने अध्याय 1 पूरा किया।", te: "బాగా చేసారు! మీరు అధ్యాయం 1 పూర్తి చేశారు.", sa: "साधु! भवता प्रथमः अध्यायः पूर्णः।" },
+  shareTheWisdomTitle: { en: "Share the Wisdom", hi: "ज्ञान साझा करें", te: "జ్ఞానాన్ని పంచండి", sa: "ज्ञानं साझां कुरुत" },
+  shareTheWisdomBody: { en: "Inspire others by sharing a verse.", hi: "एक श्लोक साझा करके दूसरों को प्रेरित करें।", te: "ఒక శ్లోకాన్ని పంచి ఇతరులకు ప్రేరణ ఇవ్వండి.", sa: "एकं श्लोकं साझां कृत्वा अन्यान् प्रेरयतु।" },
+  whatsNewTitle: { en: "What's New", hi: "क्या नया है", te: "కొత్తవి ఏమిటి", sa: "किं नवीनम्" },
+  whatsNewBody: { en: "Explore new features in Easy Gita.", hi: "Easy Gita में नई सुविधाएं देखें।", te: "Easy Gita లో కొత్త ఫీచర్లను చూడండి.", sa: "Easy Gita मध्ये नवीनविशेषतानि पश्यतु।" },
+  shareNowLink: { en: "Share Now", hi: "अभी साझा करें", te: "ఇప్పుడే పంచండి", sa: "इदानीं साझां कुरुत" },
+  keepGoingLink: { en: "Keep going!", hi: "जारी रखें!", te: "కొనసాగించండి!", sa: "अग्रे गच्छतु!" },
+  dailyAtTimeLink: { en: "Daily at 7:00 AM", hi: "प्रतिदिन सुबह 7:00 बजे", te: "ప్రతి రోజూ 7:00 AM", sa: "प्रतिदिनं प्रातः ७:०० वादने" },
+  accountSettingsTitle: {
+    en: "Account Settings",
+    hi: "खाता सेटिंग्स",
+    te: "ఖాతా సెట్టింగులు",
+    sa: "अकाउन्ट् संयोजनाः"
+  },
+  accountSettingsSub: {
+    en: "Customize your experience",
+    hi: "अपने अनुभव को अनुकूलित करें",
+    te: "మీ అనుభవాన్ని అనుకూలీకరించండి",
+    sa: "स्वानुभवं अनुकूलयतु"
+  },
+  emailNotifications: {
+    en: "Email Notifications",
+    hi: "ईमेल सूचनाएं",
+    te: "ఇమెయిల్ నోటిఫికేషన్‌లు",
+    sa: "ईमेल्-सूचनाः"
+  },
+  dailyDigest: {
+    en: "Daily Digest",
+    hi: "दैनिक सारांश",
+    te: "రోజువారీ సారాంశం",
+    sa: "दैनिक-सङ्ग्रहः"
+  },
+  dailyDigestDesc: {
+    en: "Get a verse each morning",
+    hi: "हर सुबह एक श्लोक प्राप्त करें",
+    te: "ప్రతి ఉదయం ఒక శ్లోకం పొందండి",
+    sa: "प्रत्यहं प्रातः एकं श्लोकं लभताम्"
+  },
+  weeklyDigest: {
+    en: "Weekly Digest",
+    hi: "साप्ताहिक सारांश",
+    te: "వారపు సారాంశం",
+    sa: "साप्ताहिक-सङ्ग्रहः"
+  },
+  weeklyDigestDesc: {
+    en: "One email every Sunday",
+    hi: "हर रविवार एक ईमेल",
+    te: "ప్రతి ఆదివారం ఒక ఇమెయిల్",
+    sa: "प्रत्येकं रविवासरं एकं ईमेल्"
+  },
+  monthlyDigest: {
+    en: "Monthly Digest",
+    hi: "मासिक सारांश",
+    te: "నెలవారీ సారాంశం",
+    sa: "मासिक-सङ्ग्रहः"
+  },
+  monthlyDigestDesc: {
+    en: "Curated highlights",
+    hi: "चयनित मुख्य अंश",
+    te: "ఎంచుకున్న ముఖ్యాంశాలు",
+    sa: "चयनित-मुख्यांशाः"
+  },
+  noEmails: {
+    en: "No Emails",
+    hi: "कोई ईमेल नहीं",
+    te: "ఇమెయిల్‌లు లేవు",
+    sa: "ईमेल् नास्ति"
+  },
+  noEmailsDesc: {
+    en: "Stay silent",
+    hi: "शांत रहें",
+    te: "నిశ్శబ్దంగా ఉండండి",
+    sa: "मौनं भवतु"
+  },
+  dangerZone: {
+    en: "Danger Zone",
+    hi: "खतरनाक क्षेत्र",
+    te: "డేంజర్ జోన్",
+    sa: "सावधान-प्रदेशः"
+  },
+  dangerZoneWarning: {
+    en: "This action cannot be undone. All your data will be permanently deleted.",
+    hi: "यह क्रिया वापस नहीं ली जा सकती। आपका सारा डेटा स्थायी रूप से हटा दिया जाएगा।",
+    te: "ఈ చర్యను తిరిగి మార్చలేరు. మీ డేటా అంతా శాశ్వతంగా తొలగించబడుతుంది.",
+    sa: "एषा क्रिया पुनः न स्थाप्यते। भवतः सर्वं दत्तांशं स्थायिरूपेण निष्कास्यते।"
+  },
+  deletingAccount: {
+    en: "Deleting Account...",
+    hi: "खाता हटाया जा रहा है...",
+    te: "ఖాతా తొలగించబడుతోంది...",
+    sa: "अकाउन्ट् निष्कास्यते..."
+  },
+  changesSavedNote: {
+    en: "Changes are saved automatically",
+    hi: "परिवर्तन स्वतः सहेजे जाते हैं",
+    te: "మార్పులు స్వయంచాలకంగా సేవ్ అవుతాయి",
+    sa: "परिवर्तनानि स्वयमेव रक्षितानि भवन्ति"
+  },
+  signOutTitle: {
+    en: "Sign Out",
+    hi: "साइन आउट",
+    te: "సైన్ అవుట్",
+    sa: "निर्गमनम्"
+  },
+  signingOut: {
+    en: "Signing out...",
+    hi: "साइन आउट किया जा रहा है...",
+    te: "సైన్ అవుట్ అవుతోంది...",
+    sa: "निर्गच्छति..."
+  },
+  todayLabel: {
+    en: "Today",
+    hi: "आज",
+    te: "ఈరోజు",
+    sa: "अद्य"
+  },
+  thisWeekLabel: {
+    en: "This Week",
+    hi: "इस सप्ताह",
+    te: "ఈ వారం",
+    sa: "इदानीन्तनसप्ताहः"
+  },
+  earlierLabel: {
+    en: "Earlier",
+    hi: "पहले",
+    te: "ముందు",
+    sa: "पूर्वम्"
+  },
+  allLabel: {
+    en: "All",
+    hi: "सभी",
+    te: "అన్నీ",
+    sa: "सर्वाणि"
+  },
+  remindersLabel: {
+    en: "Reminders",
+    hi: "अनुस्मारक",
+    te: "రిమైండర్‌లు",
+    sa: "स्मारकाणि"
+  },
+  updatesLabel: {
+    en: "Updates",
+    hi: "अपडेट्स",
+    te: "అప్‌డేట్లు",
+    sa: "नवीनताः"
+  },
+  quotesLabel: {
+    en: "Quotes",
+    hi: "उद्धरण",
+    te: "కోట్‌లు",
+    sa: "उद्धरणानि"
+  },
+  achievementsLabel: {
+    en: "Achievements",
+    hi: "उपलब्धियां",
+    te: "అచీవ్‌మెంట్‌లు",
+    sa: "सिद्धयः"
+  },
+  proceed: {
+    en: "Proceed",
+    hi: "आगे बढ़ें",
+    te: "కొనసాగించు",
+    sa: "प्रवर्तयतु"
+  },
+  overwriteExistingRecordsPrompt: {
+    en: "This will overwrite existing Gita records on Firestore with standard aggregated text. Proceed?",
+    hi: "यह Firestore पर मौजूद गीता रिकॉर्ड्स को मानक संकलित पाठ से बदल देगा। आगे बढ़ें?",
+    te: "ఇది Firestore లో ఉన్న Gita రికార్డులను ప్రామాణిక సమగ్ర పాఠంతో భర్తీ చేస్తుంది. కొనసాగించాలా?",
+    sa: "एतत् Firestore मध्ये विद्यमानं गीता-दत्तांशं मानकसमाहितपाठेन प्रतिस्थापयिष्यति। प्रवर्तयतु वा?"
   }
-};
+  
+  };
 
 export const additionalTranslations: Record<string, Partial<Record<SupportedLanguage, string>>> = {
   home: {

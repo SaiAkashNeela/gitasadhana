@@ -188,11 +188,11 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
 }
 
 const tabs = [
-  { to: "/home", label: "Home", icon: Home },
-  { to: "/chapters", label: "Chapters", icon: BookOpen },
-  { to: "/wisdom", label: "Wisdom", icon: Sparkles },
-  { to: "/bookmarks", label: "Saved", icon: Bookmark },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/home", label: "home", icon: Home },
+  { to: "/chapters", label: "chapters", icon: BookOpen },
+  { to: "/wisdom", label: "wisdom", icon: Sparkles },
+  { to: "/bookmarks", label: "saved", icon: Bookmark },
+  { to: "/profile", label: "profile", icon: User },
 ];
 
 export function BottomTabs() {
