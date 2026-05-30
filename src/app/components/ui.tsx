@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { ReactNode, ButtonHTMLAttributes } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, Home, BookOpen, Sparkles, Bookmark, User } from "lucide-react";
@@ -14,8 +15,8 @@ export function ScreenWrapper({
   pad?: boolean;
 }) {
   return (
-    <div className={cn("min-h-dvh bg-gradient-warm", className)}>
-      <div className={cn("mx-auto max-w-md min-h-dvh flex flex-col animate-page-in", pad && "pt-safe")}>
+    <div className={cn("h-dvh w-full bg-gradient-warm overflow-hidden flex flex-col", className)}>
+      <div className={cn("mx-auto max-w-md w-full h-full flex flex-col animate-page-in overflow-hidden relative", pad && "pt-safe")}>
         {children}
       </div>
     </div>
@@ -25,11 +26,13 @@ export function ScreenWrapper({
 export function Header({
   title,
   back = true,
+  backTo,
   right,
   subtitle,
 }: {
   title?: string;
   back?: boolean;
+  backTo?: string;
   right?: ReactNode;
   subtitle?: string;
 }) {
@@ -38,7 +41,7 @@ export function Header({
     <header className="flex items-center gap-3 px-5 pt-4 pb-3">
       {back && (
         <button
-          onClick={() => nav(-1)}
+          onClick={() => backTo ? nav(backTo) : nav(-1)}
           className="h-10 w-10 rounded-full bg-card/70 backdrop-blur shadow-card flex items-center justify-center text-foreground/70 hover:text-foreground transition"
           aria-label="Back"
         >
@@ -185,17 +188,17 @@ const tabs = [
 
 export function BottomTabs() {
   const { pathname } = useLocation();
-  const { bookmarks } = useUserProgress();
+  const { bookmarks, selectedLanguage } = useUserProgress();
   return (
     <nav className="sticky bottom-0 mt-auto bg-card/85 backdrop-blur-xl border-t border-border/60 pb-safe">
       <div className="grid grid-cols-5 px-2 pt-2">
-        {tabs.map((t) => {
-          const active = pathname.startsWith(t.to);
-          const Icon = t.icon;
+        {tabs.map((tabItem) => {
+          const active = pathname.startsWith(tabItem.to);
+          const Icon = tabItem.icon;
           return (
             <Link
-              key={t.to}
-              to={t.to}
+              key={tabItem.to}
+              to={tabItem.to}
               className="flex flex-col items-center gap-1 py-1.5 text-[10px]"
             >
               <span
@@ -206,12 +209,12 @@ export function BottomTabs() {
                     : "text-muted-foreground scale-100",
                 )}
               >
-                {t.to === "/bookmarks" && bookmarks.length > 0 && (
+                {tabItem.to === "/bookmarks" && bookmarks.length > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 px-0.5 rounded-full bg-destructive text-[7px] font-bold text-white flex items-center justify-center shadow-card animate-pulse">
                     {bookmarks.length}
                   </span>
                 )}
-                {t.to === "/wisdom" ? (
+                {tabItem.to === "/wisdom" ? (
                   <span className="font-devanagari text-lg leading-none font-bold">ॐ</span>
                 ) : (
                   <Icon size={18} strokeWidth={active ? 2.4 : 1.8} />
@@ -220,7 +223,7 @@ export function BottomTabs() {
               <span
                 className={cn(active ? "text-foreground font-medium" : "text-muted-foreground")}
               >
-                {t.label}
+                {t(tabItem.label.toLowerCase(), selectedLanguage)}
               </span>
             </Link>
           );
@@ -245,6 +248,7 @@ export function ChapterCard({
   progress: number;
   onClick?: () => void;
 }) {
+  const { selectedLanguage } = useUserProgress();
   return (
     <AppCard onClick={onClick} className="flex items-center gap-4">
       <div className="h-14 w-14 rounded-2xl bg-gradient-dawn flex items-center justify-center font-serif text-lg text-foreground/80 shadow-card shrink-0">
@@ -255,7 +259,7 @@ export function ChapterCard({
         <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
         <div className="mt-2 flex items-center gap-2">
           <ProgressBar value={progress} />
-          <span className="text-[10px] text-muted-foreground shrink-0">{verses} verses</span>
+          <span className="text-[10px] text-muted-foreground shrink-0">{verses} {t("verses", selectedLanguage).toLowerCase()}</span>
         </div>
       </div>
     </AppCard>
@@ -273,11 +277,12 @@ export function VerseCard({
   translation: string;
   onClick?: () => void;
 }) {
+  const { selectedLanguage } = useUserProgress();
   return (
     <AppCard onClick={onClick} className="space-y-3">
       <div className="flex items-center gap-2">
         <span className="text-[10px] uppercase tracking-widest text-primary font-medium">
-          Verse {number}
+          {t("verseLabel", selectedLanguage)} {number}
         </span>
         <span className="h-px flex-1 bg-border" />
       </div>

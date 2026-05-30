@@ -9,6 +9,7 @@ import {
   HomeScreen,
   ChaptersList,
   ChapterDetail,
+  ChapterVerses,
   VerseReading,
   VerseCommentary,
   VerseWords,
@@ -53,6 +54,7 @@ export default function App() {
               <Route path="/home" element={<HomeScreen />} />
               <Route path="/chapters" element={<ChaptersList />} />
               <Route path="/chapter/:id" element={<ChapterDetail />} />
+              <Route path="/chapter/:id/verses" element={<ChapterVerses />} />
               <Route path="/verse/:id" element={<VerseReading />} />
               <Route path="/verse/:id/commentary" element={<VerseCommentary />} />
               <Route path="/verse/:id/words" element={<VerseWords />} />

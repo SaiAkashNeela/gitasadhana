@@ -74,6 +74,7 @@ import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { auth, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "@/lib/firebase";
 import { seedGitaDatabase, SeedingProgress } from "@/lib/seeding";
 import { getReminderConfig, updateReminderSettings, formatTime12Hour } from "@/lib/notifications";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import gitaProcessedData from "@/app/gita-processed.json";
 
@@ -84,15 +85,6 @@ const supportedLanguages = [
   { code: "hi", name: "Hindi", native: "हिन्दी" },
   { code: "sa", name: "Sanskrit", native: "संस्कृतम्" },
   { code: "te", name: "Telugu", native: "తెలుగు" },
-  { code: "ta", name: "Tamil", native: "தமிழ்" },
-  { code: "kn", name: "Kannada", native: "ಕನ್ನಡ" },
-  { code: "ml", name: "Malayalam", native: "മലയാളം" },
-  { code: "mr", name: "Marathi", native: "मराठी" },
-  { code: "gu", name: "Gujarati", native: "ગુજરાતી" },
-  { code: "bn", name: "Bengali", native: "বাংলা" },
-  { code: "pa", name: "Punjabi", native: "ਪੰਜਾਬੀ" },
-  { code: "ne", name: "Nepali", native: "नेपाली" },
-  { code: "or", name: "Oriya", native: "ଓଡ଼ିଆ" },
 ];
 
 /* ───────────────────────── 1. Welcome ───────────────────────── */
@@ -217,8 +209,8 @@ export function LanguageSelect() {
   return (
     <ScreenWrapper>
       <Header
-        title="Choose your language"
-        subtitle="You can change this anytime in Settings"
+        title={t("chooseLanguageTitle", selectedLanguage)}
+        subtitle={t("chooseLanguageSub", selectedLanguage)}
         back={true}
       />
       <div className="px-5 flex-1 overflow-y-auto space-y-2 pb-4 scroll-hide">
@@ -248,7 +240,7 @@ export function LanguageSelect() {
       </div>
       <div className="px-5 pb-6 pt-2">
         <Link to="/home">
-          <PrimaryButton>Continue</PrimaryButton>
+          <PrimaryButton>{t("continueBtn", selectedLanguage)}</PrimaryButton>
         </Link>
       </div>
     </ScreenWrapper>
@@ -271,25 +263,22 @@ export function HomeScreen() {
     <ScreenWrapper>
       <div className="px-5 pt-5 flex items-center justify-between">
         <div>
-          <p className="text-xs text-muted-foreground">Hari Om, {profile.name}</p>
-          <h1 className="font-serif text-2xl text-foreground">Today's Verse</h1>
+          <p className="text-xs text-muted-foreground">{t("hariOm", selectedLanguage)}, {profile.name}</p>
+          <h1 className="font-serif text-2xl text-foreground">{t("todaysVerse", selectedLanguage)}</h1>
         </div>
         <div className="flex gap-2">
-          <IconButton onClick={() => nav("/search")}>
-            <Search size={18} />
-          </IconButton>
           <IconButton onClick={() => nav("/notifications")}>
             <Bell size={18} />
           </IconButton>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-4 scroll-hide">
+      <div className="flex-1 overflow-y-auto pb-44 scroll-hide">
         <div className="px-5 mt-5">
           <div onClick={() => nav("/verse/2.47")} className="cursor-pointer">
-            <ImageBanner src={DEMO_IMG} alt="Verse of the day" className="aspect-[5/6]">
+            <ImageBanner src={DEMO_IMG} alt={t("verseOfTheDay", selectedLanguage)} className="aspect-[5/6]">
               <span className="text-[10px] uppercase tracking-widest opacity-80">
-                Verse of the day
+                {t("verseOfTheDay", selectedLanguage)}
               </span>
               <p className="mt-2 font-serif text-2xl leading-snug text-balance">
                 "
@@ -306,11 +295,11 @@ export function HomeScreen() {
         <SectionTitle
           action={
             <Link to="/journey" className="text-xs text-primary font-medium">
-              View
+              {t("viewBtn", selectedLanguage)}
             </Link>
           }
         >
-          Your Journey
+          {t("yourJourney", selectedLanguage)}
         </SectionTitle>
         <div className="px-5">
           <AppCard className="flex items-center gap-4" onClick={() => nav("/journey")}>
@@ -318,9 +307,9 @@ export function HomeScreen() {
               <Flame size={22} />
             </div>
             <div className="flex-1">
-              <p className="font-serif text-lg text-foreground">{profile.streak} day streak</p>
+              <p className="font-serif text-lg text-foreground">{profile.streak} {t("dayStreak", selectedLanguage)}</p>
               <p className="text-xs text-muted-foreground">
-                {profile.versesRead} verses · {profile.minutes} min
+                {profile.versesRead} {t("verses", selectedLanguage).toLowerCase()} · {profile.minutes} {t("minutes", selectedLanguage).toLowerCase()}
               </p>
             </div>
             <ChevronRight className="text-muted-foreground" />
@@ -330,11 +319,11 @@ export function HomeScreen() {
         <SectionTitle
           action={
             <Link to="/chapters" className="text-xs text-primary font-medium">
-              All
+              {t("allBtn", selectedLanguage)}
             </Link>
           }
         >
-          Continue Reading
+          {t("continueReading", selectedLanguage)}
         </SectionTitle>
         <div className="px-5 space-y-3">
           {displayedChapters.map((c) => (
@@ -353,11 +342,11 @@ export function HomeScreen() {
         <SectionTitle
           action={
             <Link to="/wisdom" className="text-xs text-primary font-medium">
-              Explore
+              {t("exploreBtn", selectedLanguage)}
             </Link>
           }
         >
-          Wisdom for Today
+          {t("wisdomForToday", selectedLanguage)}
         </SectionTitle>
         <div className="px-5">
           <AppCard className="bg-gradient-dawn border-0" onClick={() => nav("/wisdom")}>
@@ -365,7 +354,7 @@ export function HomeScreen() {
             <p className="font-serif text-base text-foreground leading-relaxed">
               "{dailyQuote.text}"
             </p>
-            <p className="mt-2 text-xs text-muted-foreground">Bhagavad Gita</p>
+            <p className="mt-2 text-xs text-muted-foreground">{t("gitaQuote", selectedLanguage)}</p>
           </AppCard>
         </div>
         <div className="h-4" />
@@ -382,26 +371,142 @@ export function ChaptersList() {
   const nav = useNavigate();
   const { selectedLanguage } = useUserProgress();
   const { data: chapters, isLoading } = useChapters();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const filteredChapters = chapters?.filter((c) => {
+    const titleStr = (c.title[selectedLanguage] || c.title["en"] || "").toLowerCase();
+    const summaryStr = (c.summary[selectedLanguage] || c.summary["en"] || "").toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return titleStr.includes(query) || summaryStr.includes(query);
+  });
 
   return (
-    <ScreenWrapper>
-      <Header title="Chapters" subtitle="18 chapters · 700 verses" back={false} />
-      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-4 scroll-hide">
-        {isLoading
-          ? Array.from({ length: 5 }).map((_, idx) => (
-              <Skeleton key={idx} className="h-24 w-full" />
-            ))
-          : chapters?.map((c) => (
-              <ChapterCard
-                key={c.chapter_number}
-                id={c.chapter_number}
-                title={c.title[selectedLanguage] || c.title["en"]}
-                subtitle={c.summary[selectedLanguage] || c.summary["en"]}
-                verses={c.verseCount}
-                progress={c.chapter_number === 1 ? 0.6 : c.chapter_number === 2 ? 0.4 : 0}
-                onClick={() => nav(`/chapter/${c.chapter_number}`)}
+    <ScreenWrapper className="bg-[#FAF7EE]">
+      {/* 1. Header Hero with blended backdrop */}
+      <div className="relative pt-6 px-5 flex flex-col items-center overflow-hidden">
+        {/* Krishna & Arjuna chariot background image blend */}
+        <img 
+          src="/assets/images/lord_krishna.png" 
+          alt="Lord Krishna and Arjuna"
+          className="absolute top-0 right-0 h-44 w-auto object-cover opacity-[0.14] pointer-events-none mix-blend-multiply" 
+        />
+        
+        {/* Top Navigation circle back button */}
+        <div className="w-full flex justify-between items-center mb-1 z-10">
+          <button
+            onClick={() => nav(-1)}
+            className="h-10 w-10 rounded-full bg-white/70 backdrop-blur shadow-[0_2px_8px_rgba(188,169,140,0.15)] flex items-center justify-center text-[#4A3728]/70 hover:text-[#4A3728] transition"
+            aria-label="Back"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div className="w-10" />
+        </div>
+
+        {/* Top Gold Ornament */}
+        <div className="flex items-center gap-2.5 opacity-60">
+          <span className="h-[0.8px] w-8 bg-[#C69A3F]" />
+          <span className="font-devanagari text-xs text-[#C69A3F] font-bold">ॐ</span>
+          <span className="h-[0.8px] w-8 bg-[#C69A3F]" />
+        </div>
+
+        {/* Serif Chapters Title */}
+        <h1 className="font-serif text-3.5xl text-[#4A3728] font-bold tracking-wide mt-1">
+          {t("chapters", selectedLanguage)}
+        </h1>
+
+        {/* Subtitle description */}
+        <p className="text-xs font-serif text-[#8A7D65] mt-1 italic text-center text-balance max-w-[80%] leading-relaxed">
+          {t("exploreChaptersDesc", selectedLanguage)}
+        </p>
+
+        {/* Bottom Gold Ornament */}
+        <div className="flex items-center gap-2.5 opacity-60 mt-1.5">
+          <span className="h-[0.8px] w-8 bg-[#C69A3F]" />
+          <span className="font-devanagari text-xs text-[#C69A3F] font-bold">ॐ</span>
+          <span className="h-[0.8px] w-8 bg-[#C69A3F]" />
+        </div>
+      </div>
+
+      {/* 2. Search and Filter Bar */}
+      <div className="px-5 mt-5 flex gap-2.5 z-10 relative">
+        <div className="flex items-center gap-2 rounded-full bg-white border border-[#EFE9DB] px-4 h-11 shadow-[0_2px_6px_rgba(188,169,140,0.06)] flex-1">
+          <Search size={18} className="text-[#A69B85]" />
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t("searchChaptersPlaceholder", selectedLanguage)}
+            className="flex-1 bg-transparent outline-none text-sm text-[#4A3728] placeholder:text-[#A69B85]"
+          />
+        </div>
+        
+        <div className="relative">
+          <button 
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="bg-white border border-[#EFE9DB] px-4 h-11 rounded-full text-xs font-serif text-[#4A3728] flex items-center gap-1.5 shadow-[0_2px_6px_rgba(188,169,140,0.06)] hover:bg-[#FAF6EE] cursor-pointer"
+          >
+            <span>{t("allChapters", selectedLanguage)}</span>
+            <svg width={10} height={6} viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#4A3728]">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-1 w-32 bg-white border border-[#EFE9DB] rounded-xl shadow-lg z-20 py-1 text-xs text-[#4A3728] font-serif">
+              <button onClick={() => { setSearchQuery(""); setDropdownOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-[#FAF6EE]">{t("allChapters", selectedLanguage)}</button>
+              <button onClick={() => { setSearchQuery("Yoga"); setDropdownOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-[#FAF6EE]">{t("yogaOnly", selectedLanguage)}</button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 3. Premium Chapter List */}
+      <div className="px-5 flex-1 overflow-y-auto space-y-3.5 pb-44 mt-5 scroll-hide">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-24 w-full" />
+          ))
+        ) : filteredChapters && filteredChapters.length > 0 ? (
+          filteredChapters.map((c) => (
+            <div
+              key={c.chapter_number}
+              onClick={() => nav(`/chapter/${c.chapter_number}`)}
+              className="bg-white/95 border border-[#F4EFE3] hover:border-[#EADFCA] shadow-[0_2px_8px_rgba(188,169,140,0.06)] hover:shadow-[0_4px_12px_rgba(188,169,140,0.12)] rounded-2.5xl p-3 flex items-center gap-3.5 cursor-pointer active:scale-[0.99] transition-all duration-200"
+            >
+              {/* Rounded 4:3 chapter illustration */}
+              <img
+                src={`/assets/images/chapter_${((c.chapter_number - 1) % 13) + 1}.png`}
+                alt={c.title[selectedLanguage] || c.title["en"]}
+                className="h-20 w-24 rounded-xl object-cover shadow-soft shrink-0"
               />
-            ))}
+
+              {/* Gold circle chapter number */}
+              <div className="h-8 w-8 rounded-full bg-[#FAF5EA] border border-[#EFE9DB] flex items-center justify-center font-serif text-sm font-semibold text-[#B69550] shrink-0">
+                {c.chapter_number}
+              </div>
+
+              {/* Titles & Verse Info */}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-serif text-base text-[#4A3728] font-bold truncate">
+                  {c.title[selectedLanguage] || c.title["en"]}
+                </h3>
+                <p className="text-[11px] text-[#8A7D65] mt-0.5 truncate leading-relaxed">
+                  {c.summary[selectedLanguage] || c.summary["en"]}
+                </p>
+                <p className="text-[11px] text-[#C69A3F] font-serif font-semibold mt-2">
+                  {c.verseCount} {t("verses", selectedLanguage)}
+                </p>
+              </div>
+
+              {/* Gold Right Chevron indicator */}
+              <ChevronRight size={18} className="text-[#C5B396] shrink-0" />
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-12 text-[#8A7D65] font-serif text-sm">
+            {t("noMatchingChapters", selectedLanguage)}
+          </div>
+        )}
       </div>
       <MiniPlayer />
       <BottomTabs />
@@ -439,17 +544,18 @@ export function ChapterDetail() {
     <ScreenWrapper>
       <Header
         right={
-          <IconButton onClick={() => toast.success("Shared successfully")}>
+          <IconButton onClick={() => toast.success(t("sharedSuccessfullyToast", selectedLanguage))}>
             <Share2 size={18} />
           </IconButton>
         }
         back={true}
+        backTo="/chapters"
       />
-      <div className="flex-1 overflow-y-auto pb-6 scroll-hide">
+      <div className="flex-1 overflow-y-auto pb-44 scroll-hide">
         <div className="px-5">
           <ImageBanner src={DEMO_IMG} alt={title} className="aspect-[5/3]">
             <span className="text-[10px] uppercase tracking-widest opacity-80">
-              Chapter {chapter.chapter_number}
+              {t("chapterLabel", selectedLanguage)} {chapter.chapter_number}
             </span>
             <p className="font-serif text-2xl mt-1">{title}</p>
             <p className="text-xs opacity-80">{summary}</p>
@@ -460,24 +566,24 @@ export function ChapterDetail() {
           <div className="grid grid-cols-3 gap-3">
             <AppCard className="text-center">
               <p className="font-serif text-2xl text-foreground">{chapter.verseCount}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Verses</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t("verses", selectedLanguage)}</p>
             </AppCard>
             <AppCard className="text-center">
               <p className="font-serif text-2xl text-foreground">
                 {chapter.chapter_number === 1 ? "60%" : chapter.chapter_number === 2 ? "40%" : "0%"}
               </p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Read</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t("readLabel", selectedLanguage)}</p>
             </AppCard>
             <AppCard className="text-center">
               <p className="font-serif text-2xl text-foreground">
                 ~{Math.round(chapter.verseCount * 0.6)}m
               </p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Length</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t("lengthLabel", selectedLanguage)}</p>
             </AppCard>
           </div>
           <div className="space-y-3">
-            <PrimaryButton onClick={() => nav(`/verse/${chapter.chapter_number}.1`)}>
-              Begin Chapter
+            <PrimaryButton onClick={() => nav(`/chapter/${chapter.chapter_number}/verses`)}>
+              {t("beginChapterBtn", selectedLanguage)}
             </PrimaryButton>
 
             {isChapterDownloaded(chapter.chapter_number) ? (
@@ -490,14 +596,14 @@ export function ChapterDetail() {
                 className="text-primary hover:text-primary/95 border-primary/30"
               >
                 <CheckCircle2 size={16} className="fill-current text-primary mr-2 inline" />
-                Chapter Offline (Click to Delete)
+                {t("chapterOfflineBtn", selectedLanguage)}
               </GhostButton>
             ) : downloading[`chapter:${chapter.chapter_number}`] !== undefined ? (
               <GhostButton
                 disabled
                 className="text-primary animate-pulse border-primary/20 bg-gradient-dawn"
               >
-                Downloading Chapter Audio ({downloading[`chapter:${chapter.chapter_number}`]}%)
+                {t("downloadingChapterBtn", selectedLanguage)} ({downloading[`chapter:${chapter.chapter_number}`]}%)
               </GhostButton>
             ) : (
               <GhostButton
@@ -505,12 +611,184 @@ export function ChapterDetail() {
                 className="text-foreground border-border/80"
               >
                 <Download size={16} className="mr-2 inline text-primary" />
-                Download Chapter Audio
+                {t("downloadChapterBtn", selectedLanguage)}
               </GhostButton>
             )}
           </div>
         </div>
       </div>
+      <MiniPlayer />
+      <BottomTabs />
+    </ScreenWrapper>
+  );
+}
+
+/* ───────────── 7b. Chapter Verses Checklist ───────────── */
+export function ChapterVerses() {
+  const { id } = useParams();
+  const nav = useNavigate();
+  const {
+    selectedLanguage,
+    completedVerses,
+    toggleCompleted,
+    isCompleted,
+  } = useUserProgress();
+  const { data: chapters } = useChapters();
+  const { data: verses, isLoading } = useVersesInChapter(Number(id));
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const chapter = chapters?.find((c) => c.chapter_number === Number(id)) || {
+    chapter_number: Number(id),
+    title: { en: "Loading..." },
+    verseCount: 0,
+  };
+
+  const title = (chapter.title as Record<string, string>)[selectedLanguage] || (chapter.title as Record<string, string>)["en"];
+
+  // Filter verses in chapter
+  const filteredVerses = verses?.filter((v) => {
+    const translationText = v.translation[selectedLanguage]?.simple || v.translation["en"]?.simple || "";
+    const sanskritText = v.sanskrit || "";
+    const query = searchQuery.toLowerCase();
+    return (
+      `verse ${v.verse}`.includes(query) ||
+      `${v.verse}`.includes(query) ||
+      translationText.toLowerCase().includes(query) ||
+      sanskritText.toLowerCase().includes(query)
+    );
+  });
+
+  // Calculate completed progress in this chapter
+  const chapterVerses = verses || [];
+  const completedInChapter = chapterVerses.filter((v) => isCompleted(`${chapter.chapter_number}.${v.verse}`));
+  const completedCount = completedInChapter.length;
+  const totalCount = chapter.verseCount || chapterVerses.length || 1;
+  const progressRatio = completedCount / totalCount;
+
+  return (
+    <ScreenWrapper className="bg-[#FAF7EE]">
+      {/* Exquisite Top Reference Ornament */}
+      <div className="w-full flex justify-center pt-2 select-none">
+        <div className="flex items-center gap-1.5 opacity-60">
+          <span className="h-px w-6 bg-gradient-to-r from-transparent to-primary/45" />
+          <span className="font-devanagari text-xs text-primary font-semibold leading-none">ॐ</span>
+          <span className="h-px w-6 bg-gradient-to-l from-transparent to-primary/45" />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between px-5 pt-2 pb-2 relative">
+        <button
+          onClick={() => nav(`/chapter/${chapter.chapter_number}`)}
+          className="h-10 w-10 rounded-full bg-white/70 backdrop-blur shadow-[0_2px_8px_rgba(188,169,140,0.15)] flex items-center justify-center text-[#4A3728]/70 hover:text-[#4A3728] transition shrink-0"
+          aria-label="Back"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <div className="text-center flex-1 mx-2 min-w-0">
+          <h1 className="font-serif text-xl text-foreground font-bold leading-tight truncate">{title}</h1>
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-medium tracking-wide">
+            {t("chapterLabel", selectedLanguage)} {chapter.chapter_number} · {completedCount} / {totalCount} {t("readLabel", selectedLanguage).toLowerCase()}
+          </p>
+        </div>
+        <div className="w-10 shrink-0" />
+      </div>
+
+      {/* Progress Section */}
+      <div className="px-5 mt-2">
+        <AppCard className="bg-white border border-[#EFE9DB] shadow-[0_2px_6px_rgba(188,169,140,0.06)] p-3">
+          <div className="flex justify-between items-center text-xs text-[#8A7D65] font-serif mb-1.5">
+            <span>{t("yourJourney", selectedLanguage)}</span>
+            <span className="font-semibold text-primary">{Math.round(progressRatio * 100)}% {t("readLabel", selectedLanguage).toLowerCase()}</span>
+          </div>
+          <ProgressBar value={progressRatio} />
+        </AppCard>
+      </div>
+
+      {/* Search Input */}
+      <div className="px-5 mt-4">
+        <div className="flex items-center gap-2 rounded-full bg-white border border-[#EFE9DB] px-4 h-10.5 shadow-[0_2px_6px_rgba(188,169,140,0.06)]">
+          <Search size={16} className="text-[#A69B85]" />
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={t("searchPlaceholder", selectedLanguage)}
+            className="flex-1 bg-transparent outline-none text-xs text-[#4A3728] placeholder:text-[#A69B85]"
+          />
+        </div>
+      </div>
+
+      {/* Verses Checklist List */}
+      <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-24 mt-4 scroll-hide">
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-16 w-full" />
+          ))
+        ) : filteredVerses && filteredVerses.length > 0 ? (
+          filteredVerses.map((v) => {
+            const verseId = `${chapter.chapter_number}.${v.verse}`;
+            const completed = isCompleted(verseId);
+            const translationText = v.translation[selectedLanguage]?.simple || v.translation["en"]?.simple || "";
+            return (
+              <div
+                key={verseId}
+                className={cn(
+                  "bg-white/95 border shadow-[0_2px_8px_rgba(188,169,140,0.06)] rounded-2xl p-3 flex items-center gap-3 transition-all duration-150 cursor-pointer hover:border-[#EADFCA]",
+                  completed ? "border-primary/20 bg-emerald-50/5" : "border-[#F4EFE3]"
+                )}
+                onClick={() => nav(`/verse/${verseId}`)}
+              >
+                {/* Custom Checkbox Toggle Button */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleCompleted(verseId);
+                    if (!completed) {
+                      toast.success(`Marked Verse ${verseId} as Completed!`);
+                    } else {
+                      toast.info(`Unmarked Verse ${verseId}`);
+                    }
+                  }}
+                  className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 transition-transform active:scale-90"
+                  aria-label="Toggle Complete"
+                >
+                  {completed ? (
+                    <CheckCircle2 size={22} className="text-primary fill-primary/10 animate-scale-in" />
+                  ) : (
+                    <Circle size={22} className="text-[#C5B396]/60 hover:text-primary transition-colors" />
+                  )}
+                </button>
+
+                {/* Verse Info & Snippet */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-serif text-sm font-bold text-[#4A3728]">
+                      {t("verseLabel", selectedLanguage)} {v.verse}
+                    </span>
+                    {completed && (
+                      <span className="text-[9px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full leading-none">
+                        {t("readLabel", selectedLanguage)}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground truncate mt-0.5 leading-normal">
+                    {translationText}
+                  </p>
+                </div>
+
+                {/* Arrow indicator */}
+                <ChevronRight size={16} className="text-[#C5B396]/60 shrink-0" />
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-12 text-[#8A7D65] font-serif text-sm">
+            {t("nothingYet", selectedLanguage)}
+          </div>
+        )}
+      </div>
+
+      <MiniPlayer hasTabs={false} />
     </ScreenWrapper>
   );
 }
@@ -549,6 +827,9 @@ export function VerseReading() {
     downloadVerse,
     deleteVerseDownload,
     isVerseDownloaded,
+    completedVerses,
+    toggleCompleted,
+    isCompleted,
   } = useUserProgress();
   const {
     isPlaying,
@@ -578,6 +859,9 @@ export function VerseReading() {
   useEffect(() => {
     if (verse) {
       addHistory(chapterId, verseNumber);
+      if (!isCompleted(verseId)) {
+        toggleCompleted(verseId);
+      }
     }
   }, [verseId, verse]);
 
@@ -613,7 +897,7 @@ export function VerseReading() {
     if (verseNumber < maxVerses) {
       nav(`/verse/${chapterId}.${verseNumber + 1}`);
     } else {
-      toast.info("End of Chapter");
+      toast.info(t("endOfChapterToast", selectedLanguage));
     }
   };
 
@@ -621,7 +905,7 @@ export function VerseReading() {
     if (verseNumber > 1) {
       nav(`/verse/${chapterId}.${verseNumber - 1}`);
     } else {
-      toast.info("Start of Chapter");
+      toast.info(t("startOfChapterToast", selectedLanguage));
     }
   };
 
@@ -726,6 +1010,24 @@ export function VerseReading() {
                 <Download size={18} />
               </IconButton>
             )}
+            <IconButton
+              onClick={() => {
+                toggleCompleted(verseId);
+                if (!isCompleted(verseId)) {
+                  toast.success("Marked Verse as Completed!");
+                } else {
+                  toast.info("Unmarked Verse");
+                }
+              }}
+              title="Toggle Finished/Completed Status"
+            >
+              <CheckCircle2
+                size={18}
+                className={cn(
+                  isCompleted(verseId) ? "text-primary fill-primary/10" : "text-muted-foreground"
+                )}
+              />
+            </IconButton>
             <IconButton onClick={handleBookmarkToggle}>
               {saved ? (
                 <Bookmark size={18} className="text-primary fill-primary animate-bounce-once" />
@@ -752,7 +1054,7 @@ export function VerseReading() {
         {verse?.transliteration && (
           <div className="space-y-1.5 text-center bg-card/35 rounded-2xl p-4 border border-border/10">
             <p className="text-[10px] uppercase tracking-widest text-primary font-semibold font-sans">
-              {selectedLanguage === "hi" ? "लिप्यंतरण" : selectedLanguage === "te" ? "లిప్యంతరీకరణ" : "Transliteration"}
+              {t("transliteration", selectedLanguage)}
             </p>
             <p className="font-serif italic text-base leading-relaxed text-foreground/80 whitespace-pre-line select-all">
               {verse.transliteration.replace(/\n\s*\n/g, "\n").trim()}
@@ -764,14 +1066,14 @@ export function VerseReading() {
         <div className="space-y-2 bg-card/35 rounded-2xl p-5 border border-border/10 border-l-4 border-l-primary/60">
           <div className="flex justify-between items-center">
             <p className="text-[10px] uppercase tracking-widest text-primary font-semibold font-sans">
-              {selectedLanguage === "hi" ? "अनुवाद" : selectedLanguage === "te" ? "అనువాదం" : "Translation"}
+              {t("translation", selectedLanguage)}
             </p>
             {selectedLanguage === "en" && (
               <button
                 onClick={() => nav(`/verse/${chapterId}.${verseNumber}/words`)}
                 className="text-[10px] uppercase tracking-widest text-primary font-bold hover:underline active:scale-95 transition-transform cursor-pointer"
               >
-                Word meanings →
+                {t("wordMeaningsBtn", selectedLanguage)}
               </button>
             )}
           </div>
@@ -786,7 +1088,7 @@ export function VerseReading() {
             <div className="flex items-center gap-2 mb-1">
               <span className="font-devanagari text-base text-primary font-bold mr-0.5 select-none animate-pulse">ॐ</span>
               <p className="text-[10px] uppercase tracking-widest text-primary font-semibold font-sans">
-                {selectedLanguage === "hi" ? "गहन व्याख्या व सार" : selectedLanguage === "te" ? "వివరణ మరియు సారాంశం" : "Reflection & Essence"}
+                {t("reflectionAndEssence", selectedLanguage)}
               </p>
             </div>
             {deepReflection && (
@@ -941,7 +1243,7 @@ export function VerseCommentary() {
 
   return (
     <ScreenWrapper>
-      <Header title="Commentary" subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
+      <Header title={t("commentary", selectedLanguage)} subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
       <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-5 scroll-hide">
         <AppCard className="bg-gradient-dawn border-0">
           <p className="font-devanagari text-lg text-foreground text-center leading-loose whitespace-pre-line">
@@ -949,13 +1251,13 @@ export function VerseCommentary() {
           </p>
         </AppCard>
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-primary mb-2">Reflection</p>
+          <p className="text-[10px] uppercase tracking-widest text-primary mb-2">{t("reflection", selectedLanguage)}</p>
           <p className="font-serif text-lg text-foreground leading-relaxed whitespace-pre-line">
             {deepReflection}
           </p>
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-widest text-primary mb-2">A deeper look</p>
+          <p className="text-[10px] uppercase tracking-widest text-primary mb-2">{t("deeperLook", selectedLanguage)}</p>
           <p className="text-foreground leading-relaxed text-sm whitespace-pre-line">
             {essenceText}
           </p>
@@ -993,20 +1295,20 @@ export function VerseWords() {
   if (selectedLanguage !== "en") {
     return (
       <ScreenWrapper>
-        <Header title="Word Meanings" subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
+        <Header title={t("wordMeanings", selectedLanguage)} subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
         <div className="flex-1 flex flex-col items-center justify-center text-center px-8 py-16">
           <div className="h-20 w-20 rounded-full bg-gradient-dawn flex items-center justify-center text-primary mb-5 shadow-card">
             <Languages size={28} />
           </div>
-          <h3 className="font-serif text-xl text-foreground">Language Not Supported</h3>
+          <h3 className="font-serif text-xl text-foreground">{t("languageNotSupported", selectedLanguage)}</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-xs">
-            Word-by-word breakdowns are currently only available when your app reading language is set to English.
+            {t("wordBreakdownAvailableEnglish", selectedLanguage)}
           </p>
           <button
             onClick={() => nav("/language")}
             className="mt-6 px-6 h-10 rounded-full bg-gradient-gold text-primary-foreground text-xs font-bold shadow-soft active:scale-95 transition cursor-pointer"
           >
-            Switch to English
+            {t("switchToEnglish", selectedLanguage)}
           </button>
         </div>
       </ScreenWrapper>
@@ -1015,7 +1317,7 @@ export function VerseWords() {
 
   return (
     <ScreenWrapper>
-      <Header title="Word Meanings" subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
+      <Header title={t("wordMeanings", selectedLanguage)} subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
       <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-4 scroll-hide">
         <AppCard className="bg-gradient-dawn border-0">
           <p className="font-devanagari text-lg text-foreground text-center leading-loose whitespace-pre-line">
@@ -1047,7 +1349,7 @@ export function SearchScreen() {
   const [q, setQ] = useState("");
   return (
     <ScreenWrapper>
-      <Header title="Search" back={true} />
+      <Header title={t("searchTitle", selectedLanguage)} back={true} />
       <div className="px-5">
         <div className="flex items-center gap-2 rounded-full bg-card border border-border px-4 h-12 shadow-card">
           <Search size={18} className="text-muted-foreground" />
@@ -1057,13 +1359,13 @@ export function SearchScreen() {
             onKeyDown={(e) =>
               e.key === "Enter" && nav(`/search/results?q=${encodeURIComponent(q)}`)
             }
-            placeholder="Search verses, words, themes…"
+            placeholder={t("searchPlaceholder", selectedLanguage)}
             className="flex-1 bg-transparent outline-none text-sm"
           />
         </div>
       </div>
       <div className="px-5 mt-6">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Suggested</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">{t("suggestedLabel", selectedLanguage)}</p>
         <div className="flex flex-wrap gap-2">
           {["karma", "atman", "devotion", "fear", "meditation", "duty"].map((t) => (
             <button
@@ -1075,7 +1377,7 @@ export function SearchScreen() {
             </button>
           ))}
         </div>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3 mt-8">Recent</p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3 mt-8">{t("recentLabel", selectedLanguage)}</p>
         <div className="space-y-2">
           {["letting go", "steady mind"].map((t) => (
             <AppCard
@@ -1114,13 +1416,13 @@ export function SearchResults() {
 
   return (
     <ScreenWrapper>
-      <Header title={`"${q}"`} subtitle={`${searchResults.length} verses found`} back={true} />
+      <Header title={`"${q}"`} subtitle={`${searchResults.length} ${t("versesFound", selectedLanguage)}`} back={true} />
       <div className="flex-1 overflow-y-auto px-5 space-y-3 pb-8 scroll-hide">
         {searchResults.length === 0 ? (
           <EmptyState
             icon={<Search size={28} />}
-            title="Nothing yet"
-            body="Try a different word — perhaps a feeling or a theme."
+            title={t("nothingYet", selectedLanguage)}
+            body={t("tryDifferentWord", selectedLanguage)}
           />
         ) : (
           searchResults.map((v) => (
@@ -1150,17 +1452,17 @@ export function WisdomScreen() {
 
   return (
     <ScreenWrapper>
-      <Header title="Wisdom" back={false} />
+      <Header title={t("wisdom", selectedLanguage)} back={false} />
       <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 scroll-hide">
         <ImageBanner src={DEMO_IMG} alt="Daily wisdom" className="aspect-[5/3]">
-          <span className="text-[10px] uppercase tracking-widest opacity-80">Daily wisdom</span>
+          <span className="text-[10px] uppercase tracking-widest opacity-80">{t("dailyWisdom", selectedLanguage)}</span>
           <p className="mt-1 font-serif text-xl leading-snug text-balance">
             "
             {displayedQuotes[0]?.text ||
               "When meditation is mastered, the mind is unwavering like the flame of a lamp in a windless place."}
             "
           </p>
-          <p className="mt-2 text-xs opacity-80">Bhagavad Gita</p>
+          <p className="mt-2 text-xs opacity-80">{t("gitaQuote", selectedLanguage)}</p>
         </ImageBanner>
 
         <button onClick={() => nav("/wisdom/themes")} className="w-full">
@@ -1170,8 +1472,8 @@ export function WisdomScreen() {
                 <span className="font-devanagari text-lg leading-none font-bold">ॐ</span>
               </span>
               <div className="text-left">
-                <p className="font-serif text-base">Explore by theme</p>
-                <p className="text-xs text-muted-foreground">6 curated themes</p>
+                <p className="font-serif text-base">{t("exploreByTheme", selectedLanguage)}</p>
+                <p className="text-xs text-muted-foreground">{t("curatedThemesCount", selectedLanguage)}</p>
               </div>
             </div>
             <ChevronRight className="text-muted-foreground" />
@@ -1183,9 +1485,9 @@ export function WisdomScreen() {
             <AppCard key={idx}>
               <p className="font-serif text-base text-foreground leading-relaxed">"{w.text}"</p>
               <div className="mt-3 flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">Gita Quote</p>
+                <p className="text-xs text-muted-foreground">{t("gitaQuote", selectedLanguage)}</p>
                 <div className="flex gap-1">
-                  <IconButton onClick={() => toast.success("Added to favorites")}>
+                  <IconButton onClick={() => toast.success(t("addedToFavoritesToast", selectedLanguage))}>
                     <Heart size={16} />
                   </IconButton>
                   <IconButton onClick={() => toast.success("Shared successfully")}>
@@ -1197,7 +1499,6 @@ export function WisdomScreen() {
           ))}
         </div>
       </div>
-      <MiniPlayer />
       <BottomTabs />
     </ScreenWrapper>
   );
@@ -1245,26 +1546,27 @@ const wisdomThemes = [
 
 export function WisdomThemes() {
   const nav = useNavigate();
+  const { selectedLanguage } = useUserProgress();
   return (
     <ScreenWrapper>
-      <Header title="Themes" subtitle="Wisdom organised by what you seek" back={true} />
+      <Header title={t("wisdomThemesTitle", selectedLanguage)} subtitle={t("wisdomThemesSubtitle", selectedLanguage)} back={true} />
       <div className="flex-1 overflow-y-auto px-5 grid grid-cols-2 gap-3 pb-8 scroll-hide">
-        {wisdomThemes.map((t) => (
+        {wisdomThemes.map((themeItem) => (
           <button
-            key={t.id}
-            onClick={() => nav(`/wisdom/theme/${t.id}`)}
+            key={themeItem.id}
+            onClick={() => nav(`/wisdom/theme/${themeItem.id}`)}
             className="text-left active:scale-[0.98] transition"
           >
             <AppCard
               className={cn(
                 "aspect-square flex flex-col justify-between bg-gradient-to-br border-0 shadow-soft",
-                t.color,
+                themeItem.color,
               )}
             >
               <span className="font-devanagari text-xl text-foreground/70 font-bold select-none">ॐ</span>
               <div>
-                <p className="font-serif text-lg text-foreground">{t.title}</p>
-                <p className="text-xs text-foreground/70">{t.count} verses</p>
+                <p className="font-serif text-lg text-foreground">{t(themeItem.id, selectedLanguage)}</p>
+                <p className="text-xs text-foreground/70">{themeItem.count} {t("verses", selectedLanguage).toLowerCase()}</p>
               </div>
             </AppCard>
           </button>
@@ -1294,7 +1596,7 @@ export function WisdomThemeDetail() {
 
   return (
     <ScreenWrapper>
-      <Header title={theme.title} subtitle={`${theme.count} verses`} back={true} />
+      <Header title={t(theme.id, selectedLanguage)} subtitle={`${theme.count} ${t("verses", selectedLanguage).toLowerCase()}`} back={true} />
       <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-8 scroll-hide">
         <ImageBanner src={DEMO_IMG} alt={theme.title} className="aspect-[5/2]">
           <p className="font-serif text-xl">{theme.title}</p>
@@ -1345,7 +1647,7 @@ export function Bookmarks() {
   return (
     <ScreenWrapper>
       <Header
-        title="Saved Wisdom"
+        title={t("savedWisdom", selectedLanguage)}
         back={false}
       />
       <div className="px-5">
@@ -1357,7 +1659,7 @@ export function Bookmarks() {
               tab === "bookmarks" ? "bg-card shadow-card text-foreground" : "text-muted-foreground",
             )}
           >
-            Verse Saves ({bookmarkedVerses.length})
+            {t("verseSaves", selectedLanguage)} ({bookmarkedVerses.length})
           </button>
           <button
             onClick={() => setTab("favorites")}
@@ -1366,7 +1668,7 @@ export function Bookmarks() {
               tab === "favorites" ? "bg-card shadow-card text-foreground" : "text-muted-foreground",
             )}
           >
-            Wisdom Saves ({favoriteVerses.length})
+            {t("wisdomSaves", selectedLanguage)} ({favoriteVerses.length})
           </button>
         </div>
       </div>
@@ -1375,8 +1677,8 @@ export function Bookmarks() {
           bookmarkedVerses.length === 0 ? (
             <EmptyState
               icon={<Bookmark size={28} />}
-              title="No saved bookmarks"
-              body="Tap the bookmark icon on any verse to keep it close."
+              title={t("noSavedBookmarks", selectedLanguage)}
+              body={t("noSavedBookmarksSub", selectedLanguage)}
             />
           ) : (
             bookmarkedVerses.map((v) => {
@@ -1384,7 +1686,7 @@ export function Bookmarks() {
               return (
                 <AppCard key={vId} onClick={() => nav(`/verse/${vId}`)}>
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">Verse {vId}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">{t("verseLabel", selectedLanguage)} {vId}</p>
                     <Bookmark size={14} className="text-primary fill-primary animate-pulse" />
                   </div>
                   <p className="font-serif text-base mt-1.5 line-clamp-2 text-foreground leading-relaxed">
@@ -1398,8 +1700,8 @@ export function Bookmarks() {
           favoriteVerses.length === 0 ? (
             <EmptyState
               icon={<Heart size={28} className="text-destructive" />}
-              title="No favorites yet"
-              body="Tap the heart icon on any verse or player to add it here."
+              title={t("noFavorites", selectedLanguage)}
+              body={t("noFavoritesSub", selectedLanguage)}
             />
           ) : (
             favoriteVerses.map((v) => {
@@ -1407,7 +1709,7 @@ export function Bookmarks() {
               return (
                 <AppCard key={vId} onClick={() => nav(`/verse/${vId}`)}>
                   <div className="flex items-center justify-between">
-                    <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">Verse {vId}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">{t("verseLabel", selectedLanguage)} {vId}</p>
                     <Heart size={14} className="text-destructive fill-destructive" />
                   </div>
                   <p className="font-serif text-base mt-1.5 line-clamp-2 text-foreground leading-relaxed">
@@ -1419,7 +1721,6 @@ export function Bookmarks() {
           )
         )}
       </div>
-      <MiniPlayer />
       <BottomTabs />
     </ScreenWrapper>
   );
@@ -1441,16 +1742,16 @@ export function Favorites() {
   return (
     <ScreenWrapper>
       <Header
-        title="Favorites"
-        subtitle={`${favoriteVerses.length} verses`}
+        title={t("favorites", selectedLanguage)}
+        subtitle={`${favoriteVerses.length} ${t("verses", selectedLanguage).toLowerCase()}`}
         back={true}
       />
       <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-8 scroll-hide">
         {favoriteVerses.length === 0 ? (
           <EmptyState
             icon={<Heart size={28} className="text-destructive animate-pulse" />}
-            title="No favorites yet"
-            body="Tap the heart icon on any verse to add it here."
+            title={t("noFavorites", selectedLanguage)}
+            body={t("noFavoritesSub", selectedLanguage)}
           />
         ) : (
           favoriteVerses.map((v) => {
@@ -1475,25 +1776,25 @@ export function Favorites() {
 
 /* ───────────── 18. Notes ───────────── */
 export function Notes() {
-  const { notes, addNote, deleteNote } = useUserProgress();
+  const { notes, addNote, deleteNote, selectedLanguage } = useUserProgress();
   const [draft, setDraft] = useState("");
 
   const handleSave = () => {
     if (!draft.trim()) return;
     addNote("General", "Reflection", draft);
     setDraft("");
-    toast.success("Reflection saved");
+    toast.success(t("reflectionSavedToast", selectedLanguage));
   };
 
   return (
     <ScreenWrapper>
-      <Header title="Notes & Reflections" back={true} />
+      <Header title={t("notesAndReflections", selectedLanguage)} back={true} />
       <div className="px-5">
         <AppCard>
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="A thought, a feeling, a question…"
+            placeholder={t("writeReflectionPlaceholder", selectedLanguage)}
             rows={3}
             className="w-full bg-transparent outline-none text-sm resize-none placeholder:text-muted-foreground"
           />
@@ -1502,7 +1803,7 @@ export function Notes() {
               onClick={handleSave}
               className="px-4 h-9 rounded-full bg-gradient-gold text-primary-foreground text-sm font-medium active:scale-[0.97] transition"
             >
-              Save
+              {t("saveBtn", selectedLanguage)}
             </button>
           </div>
         </AppCard>
@@ -1511,8 +1812,8 @@ export function Notes() {
         {notes.length === 0 ? (
           <EmptyState
             icon={<FileText size={28} />}
-            title="No reflections yet"
-            body="Write your first thought above — even one line is enough."
+            title={t("noReflections", selectedLanguage)}
+            body={t("noReflectionsSub", selectedLanguage)}
           />
         ) : (
           notes.map((n) => (
@@ -1521,13 +1822,13 @@ export function Notes() {
                 <div className="flex-1">
                   <p className="font-serif text-base text-foreground">{n.title}</p>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
-                    {n.date} · Verse {n.verseId}
+                    {n.date} · {t("verseLabel", selectedLanguage)} {n.verseId}
                   </p>
                 </div>
                 <button
                   onClick={() => {
                     deleteNote(n.id);
-                    toast.success("Deleted note");
+                    toast.success(t("deletedNoteToast", selectedLanguage));
                   }}
                   className="text-muted-foreground active:scale-[0.9]"
                 >
@@ -1548,15 +1849,15 @@ export function Notes() {
 /* ───────────── 19. Reading History ───────────── */
 export function HistoryScreen() {
   const nav = useNavigate();
-  const { history } = useUserProgress();
+  const { history, selectedLanguage } = useUserProgress();
 
   return (
     <ScreenWrapper>
-      <Header title="Reading History" back={true} />
+      <Header title={t("readingHistory", selectedLanguage)} back={true} />
       <div className="flex-1 overflow-y-auto px-5 space-y-3 pb-8 scroll-hide">
         {history.length === 0 ? (
           <div className="text-center py-8 text-sm text-muted-foreground">
-            Your history is clear. Begin reading a verse!
+            {t("historyEmpty", selectedLanguage)}
           </div>
         ) : (
           history.map((h) => (
@@ -1570,7 +1871,7 @@ export function HistoryScreen() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-foreground truncate">
-                  Chapter {h.chapter}, verse {h.verse}
+                  {t("chapterLabel", selectedLanguage)} {h.chapter}, {t("verseLabel", selectedLanguage).toLowerCase()} {h.verse}
                 </p>
                 <p className="text-xs text-muted-foreground">{h.date}</p>
               </div>
@@ -1735,7 +2036,7 @@ export function Player() {
 }
 
 /* Mini player overlay state — always visible; defaults to verse 1.1 for new users */
-export function MiniPlayer() {
+export function MiniPlayer({ hasTabs = true }: { hasTabs?: boolean }) {
   const nav = useNavigate();
   const { isPlaying, currentVerse, pause, resume, play, currentLanguage } = useAudioPlayer();
   const { downloadVerse, isVerseDownloaded, downloading, selectedLanguage } = useUserProgress();
@@ -1765,7 +2066,12 @@ export function MiniPlayer() {
     "Sanskrit Recitation";
 
   return (
-    <div className="sticky bottom-0 mx-3 mb-2 rounded-2xl bg-card/96 backdrop-blur-xl border border-border shadow-soft px-3 py-2.5 flex items-center gap-3 transition-transform">
+    <div
+      className={cn(
+        "absolute left-0 right-0 z-40 mx-3 rounded-2xl bg-card/96 backdrop-blur-xl border border-border shadow-soft px-3 py-2.5 flex items-center gap-3 transition-transform",
+        hasTabs ? "bottom-[calc(92px+env(safe-area-inset-bottom))]" : "bottom-[calc(16px+env(safe-area-inset-bottom))]"
+      )}
+    >
       <img
         src={DEMO_IMG}
         alt=""
@@ -1777,8 +2083,8 @@ export function MiniPlayer() {
         onClick={() => nav(`/verse/${displayVerse.chapter}.${displayVerse.verse}`)}
       >
         <p className="text-sm font-medium text-foreground truncate">
-          Chapter {displayVerse.chapter} · Verse {displayVerse.verse}
-          {!isLoaded && <span className="text-[10px] text-primary font-semibold ml-1.5">UP NEXT</span>}
+          {t("chapterLabel", selectedLanguage)} {displayVerse.chapter} · {t("verseLabel", selectedLanguage)} {displayVerse.verse}
+          {!isLoaded && <span className="text-[10px] text-primary font-semibold ml-1.5">{t("upNext", selectedLanguage)}</span>}
         </p>
         <p className="text-[10px] text-muted-foreground truncate">{translationText}</p>
       </div>
@@ -1803,7 +2109,7 @@ export function MiniPlayer() {
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); downloadVerse(verseId); }}
-            title="Download for offline"
+            title={t("downloadForOffline", selectedLanguage)}
             className="h-8 w-8 rounded-full border border-border/50 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground bg-card active:scale-90 transition"
           >
             <Download size={14} />
@@ -1824,33 +2130,34 @@ export function MiniPlayer() {
 
 /* ───────────── 22. Daily Journey / Streak ───────────── */
 export function Journey() {
-  const { profile } = useUserProgress();
+  const { profile, selectedLanguage } = useUserProgress();
+  const reminderConfig = getReminderConfig();
   const days = Array.from({ length: 14 }, (_, i) => i);
   return (
     <ScreenWrapper>
-      <Header title="Your Journey" back={true} />
+      <Header title={t("yourJourney", selectedLanguage)} back={true} />
       <div className="flex-1 overflow-y-auto px-5 space-y-4 pb-8 scroll-hide">
         <AppCard className="bg-gradient-gold text-primary-foreground border-0 text-center py-6 shadow-soft">
           <Flame size={28} className="mx-auto animate-pulse" />
           <p className="font-serif text-4xl mt-2">{profile.streak}</p>
-          <p className="text-xs uppercase tracking-widest opacity-90">Day streak</p>
+          <p className="text-xs uppercase tracking-widest opacity-90">{t("streak", selectedLanguage)}</p>
         </AppCard>
         <div className="grid grid-cols-3 gap-3">
           <AppCard className="text-center">
             <p className="font-serif text-2xl">{profile.versesRead}</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Verses</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("verses", selectedLanguage)}</p>
           </AppCard>
           <AppCard className="text-center">
             <p className="font-serif text-2xl">{profile.minutes}m</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Read time</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("readTime", selectedLanguage)}</p>
           </AppCard>
           <AppCard className="text-center">
             <p className="font-serif text-2xl">{profile.bookmarks}</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Saved</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("saved", selectedLanguage)}</p>
           </AppCard>
         </div>
         <AppCard>
-          <p className="font-serif text-base mb-3">Last 14 days</p>
+          <p className="font-serif text-base mb-3">{t("last14Days", selectedLanguage)}</p>
           <div className="grid grid-cols-7 gap-2">
             {days.map((d) => (
               <div
@@ -1871,8 +2178,12 @@ export function Journey() {
           <div className="flex items-center gap-3">
             <Bell className="text-primary" size={18} />
             <div className="flex-1">
-              <p className="font-serif text-base">Daily reminder</p>
-              <p className="text-xs text-muted-foreground">Every morning at 07:00</p>
+              <p className="font-serif text-base">{t("dailyReminder", selectedLanguage)}</p>
+              <p className="text-xs text-muted-foreground">
+                {reminderConfig.enabled 
+                  ? `${t("everyMorningAt", selectedLanguage)} ${formatTime12Hour(reminderConfig.time)}` 
+                  : t("disabled", selectedLanguage)}
+              </p>
             </div>
           </div>
         </AppCard>
@@ -1883,6 +2194,7 @@ export function Journey() {
 
 /* ───────────── 23. Reminders ───────────── */
 export function Reminders() {
+  const { selectedLanguage } = useUserProgress();
   const [config] = useState(() => getReminderConfig());
   const [enabled, setEnabled] = useState(config.enabled);
   const [picked, setPicked] = useState(config.time);
@@ -1894,12 +2206,12 @@ export function Reminders() {
 
   return (
     <ScreenWrapper>
-      <Header title="Daily Reminder" back={true} />
+      <Header title={t("dailyReminder", selectedLanguage)} back={true} />
       <div className="px-5 flex-1 overflow-y-auto space-y-4 pb-8 scroll-hide">
         <AppCard className="flex items-center justify-between">
           <div>
-            <p className="font-serif text-base">Gentle reminder</p>
-            <p className="text-xs text-muted-foreground">A daily nudge to read one verse</p>
+            <p className="font-serif text-base">{t("gentleReminder", selectedLanguage)}</p>
+            <p className="text-xs text-muted-foreground">{t("dailyNudge", selectedLanguage)}</p>
           </div>
           <button
             onClick={() => {
@@ -1921,7 +2233,7 @@ export function Reminders() {
         {enabled && (
           <>
             <div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 mt-2">Time</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 mt-2">{t("timeLabel", selectedLanguage)}</p>
               <div className="grid grid-cols-3 gap-2">
                 {times.map((t) => (
                   <button
@@ -1940,9 +2252,9 @@ export function Reminders() {
               </div>
             </div>
             <AppCard className="bg-gradient-dawn border border-primary/10">
-              <p className="font-serif text-sm text-foreground mb-1">Daily Commitment</p>
+              <p className="font-serif text-sm text-foreground mb-1">{t("dailyCommitmentTitle", selectedLanguage)}</p>
               <p className="text-[10px] text-muted-foreground leading-relaxed">
-                Your daily reminder will trigger every day to help you build a consistent meditation streak.
+                {t("dailyCommitmentSub", selectedLanguage)}
               </p>
               <div className="flex justify-between mt-3 px-1">
                 {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
@@ -1958,7 +2270,7 @@ export function Reminders() {
           </>
         )}
         <PrimaryButton onClick={handleSave}>
-          Save reminder
+          {t("saveReminderBtn", selectedLanguage)}
         </PrimaryButton>
       </div>
     </ScreenWrapper>
@@ -2165,8 +2477,8 @@ export function Notifications() {
           <ChevronLeft size={20} />
         </button>
         <div className="text-center flex-1 mx-2">
-          <h1 className="font-serif text-2xl text-foreground leading-tight">Notifications</h1>
-          <p className="text-[10px] text-muted-foreground mt-0.5 font-medium tracking-wide">Stay updated on your spiritual journey</p>
+          <h1 className="font-serif text-2xl text-foreground leading-tight">{t("notifications", selectedLanguage)}</h1>
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-medium tracking-wide">{t("stayUpdatedJourney", selectedLanguage)}</p>
         </div>
         <button
           onClick={() => nav("/reminders")}
@@ -2201,8 +2513,8 @@ export function Notifications() {
         {filteredNotifications.length === 0 ? (
           <EmptyState
             icon={<Bell size={28} />}
-            title="All caught up!"
-            body={`You have no notifications in the ${activeCategory} category.`}
+            title={t("allCaughtUp", selectedLanguage)}
+            body={t("noNotificationsInCategory", selectedLanguage)}
           />
         ) : (
           groups.map(group => {
@@ -2321,7 +2633,7 @@ export function Downloads() {
 
   return (
     <ScreenWrapper>
-      <Header title="Offline Library" subtitle="Read & listen without internet" back={true} />
+      <Header title={t("offlineLibrary", selectedLanguage)} subtitle={t("offlineLibrarySub", selectedLanguage)} back={true} />
 
       <div className="px-5 pb-3">
         {/* Statistics Panel */}
@@ -2331,14 +2643,14 @@ export function Downloads() {
               <RefreshCw size={18} className="animate-spin-slow text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Local Storage</p>
-              <p className="font-serif text-lg text-foreground">{totalSpace} MB used</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("localStorageTitle", selectedLanguage)}</p>
+              <p className="font-serif text-lg text-foreground">{totalSpace} MB {t("usedSpace", selectedLanguage)}</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-xs text-muted-foreground">{downloadedVerses.length} / 700 verses</p>
+            <p className="text-xs text-muted-foreground">{downloadedVerses.length} / 700 {t("verses", selectedLanguage).toLowerCase()}</p>
             <p className="text-[10px] text-primary uppercase font-bold tracking-widest mt-0.5">
-              {isGitaDownloaded ? "Full Gita Offline" : `${downloadedChapters.length} chapters`}
+              {isGitaDownloaded ? t("fullGitaOffline", selectedLanguage) : `${downloadedChapters.length} ${t("chapters", selectedLanguage).toLowerCase()}`}
             </p>
           </div>
         </AppCard>
@@ -2352,7 +2664,7 @@ export function Downloads() {
               activeTab === "library" ? "bg-card shadow-card text-foreground" : "text-muted-foreground",
             )}
           >
-            My Library ({downloadedChapters.length + individualDownloadedVerses.length})
+            {t("myLibrary", selectedLanguage)} ({downloadedChapters.length + individualDownloadedVerses.length})
           </button>
           <button
             onClick={() => setActiveTab("download")}
@@ -2361,7 +2673,7 @@ export function Downloads() {
               activeTab === "download" ? "bg-card shadow-card text-foreground" : "text-muted-foreground",
             )}
           >
-            Browse & Download
+            {t("browseAndDownload", selectedLanguage)}
           </button>
         </div>
       </div>
@@ -2372,8 +2684,8 @@ export function Downloads() {
           downloadedChapters.length === 0 && individualDownloadedVerses.length === 0 ? (
             <EmptyState
               icon={<Headphones size={28} />}
-              title="Your library is empty"
-              body="Switch to the 'Browse & Download' tab or click the download button on any verse to download recitations."
+              title={t("yourLibraryIsEmpty", selectedLanguage)}
+              body={t("libraryIsEmptySub", selectedLanguage)}
             />
           ) : (
             <div className="space-y-3">
@@ -2383,13 +2695,13 @@ export function Downloads() {
                   <div className="flex items-center gap-3">
                     <span className="font-devanagari text-2xl font-bold select-none text-primary-foreground/90">ॐ</span>
                     <div>
-                      <p className="font-serif text-lg">Complete Bhagavad Gita</p>
-                      <p className="text-xs opacity-90">All 18 Chapters · 700 Verses offline</p>
+                      <p className="font-serif text-lg">{t("completeBhagavadGita", selectedLanguage)}</p>
+                      <p className="text-xs opacity-90">{t("all18ChaptersOffline", selectedLanguage)}</p>
                     </div>
                   </div>
                   <IconButton
                     onClick={() => {
-                      if (window.confirm("Clear all offline downloads? This action is permanent.")) {
+                      if (window.confirm(t("clearAllDownloadsConfirm", selectedLanguage))) {
                         deleteWholeGita();
                       }
                     }}
@@ -2406,7 +2718,7 @@ export function Downloads() {
                   const ch = chapters?.find((c) => c.chapter_number === chNum);
                   const titleStr = ch
                     ? ch.title[selectedLanguage] || ch.title["en"]
-                    : `Chapter ${chNum}`;
+                    : `${t("chapterLabel", selectedLanguage)} ${chNum}`;
                   return (
                     <AppCard key={`lib-ch-${chNum}`} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -2415,12 +2727,12 @@ export function Downloads() {
                         </div>
                         <div>
                           <p className="font-serif text-base">{titleStr}</p>
-                          <p className="text-xs text-muted-foreground">Complete Chapter Recitation</p>
+                          <p className="text-xs text-muted-foreground">{t("completeChapterRecitation", selectedLanguage)}</p>
                         </div>
                       </div>
                       <IconButton
                         onClick={() => {
-                          if (window.confirm(`Delete offline audio for Chapter ${chNum}?`)) {
+                          if (window.confirm(`${t("deleteChapterConfirm", selectedLanguage)} ${chNum}?`)) {
                             deleteChapterDownload(chNum);
                           }
                         }}
@@ -2441,8 +2753,8 @@ export function Downloads() {
                         <Headphones size={16} />
                       </div>
                       <div>
-                        <p className="font-serif text-base">Verse {vId}</p>
-                        <p className="text-xs text-muted-foreground">Individual Verse Recitation</p>
+                        <p className="font-serif text-base">{t("verseLabel", selectedLanguage)} {vId}</p>
+                        <p className="text-xs text-muted-foreground">{t("individualVerseRecitation", selectedLanguage)}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
@@ -2454,7 +2766,7 @@ export function Downloads() {
                       </IconButton>
                       <IconButton
                         onClick={() => {
-                          if (window.confirm(`Delete offline audio for Verse ${vId}?`)) {
+                          if (window.confirm(`${t("deleteVerseConfirm", selectedLanguage)} ${vId}?`)) {
                             deleteVerseDownload(vId);
                           }
                         }}
@@ -2476,22 +2788,21 @@ export function Downloads() {
               <span className="font-devanagari text-3xl font-bold mb-1.5 block select-none text-primary-foreground/90">
                 ॐ
               </span>
-              <h3 className="font-serif text-xl">Full Bhagavad Gita Audio</h3>
+              <h3 className="font-serif text-xl">{t("fullGitaAudioTitle", selectedLanguage)}</h3>
               <p className="text-xs opacity-90 mt-1 leading-relaxed">
-                Download the complete audio recitation of all 18 chapters and 700 verses in Sanskrit
-                (approx. 175 MB) for complete offline meditation.
+                {t("fullGitaAudioDesc", selectedLanguage)}
               </p>
 
               <div className="mt-4">
                 {isGitaDownloaded ? (
-                  <div className="flex items-center gap-2 text-xs font-semibold bg-white/20 px-3 py-2 rounded-full w-fit">
+                   <div className="flex items-center gap-2 text-xs font-semibold bg-white/20 px-3 py-2 rounded-full w-fit">
                     <CheckCircle2 size={14} className="fill-current text-white" />
-                    Offline Ready
+                    {t("offlineReady", selectedLanguage)}
                   </div>
                 ) : downloading["gita"] !== undefined ? (
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs font-semibold">
-                      <span>Downloading entire Gita...</span>
+                      <span>{t("downloadingEntireGita", selectedLanguage)}</span>
                       <span>{downloading["gita"]}%</span>
                     </div>
                     <ProgressBar value={downloading["gita"] / 100} />
@@ -2499,10 +2810,10 @@ export function Downloads() {
                 ) : (
                   <button
                     onClick={downloadWholeGita}
-                    className="px-5 h-10 rounded-full bg-white text-primary text-xs font-bold shadow-soft flex items-center gap-1.5 active:scale-95 transition hover:bg-white/95"
+                    className="px-5 h-10 rounded-full bg-white text-primary text-xs font-bold shadow-soft flex items-center gap-1.5 active:scale-95 transition hover:bg-white/95 cursor-pointer"
                   >
                     <Download size={14} />
-                    Download Complete Gita
+                    {t("downloadCompleteGita", selectedLanguage)}
                   </button>
                 )}
               </div>
@@ -2511,7 +2822,7 @@ export function Downloads() {
             {/* Chapters list */}
             <div>
               <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold mb-2.5 px-0.5">
-                Chapters Recitations
+                {t("chaptersRecitations", selectedLanguage)}
               </p>
               <div className="space-y-3">
                 {chaptersLoading ? (
@@ -2531,10 +2842,10 @@ export function Downloads() {
                       >
                         <div className="flex-1 min-w-0">
                           <p className="font-serif text-base truncate">
-                            Chapter {ch.chapter_number} — {chTitle}
+                            {t("chapterLabel", selectedLanguage)} {ch.chapter_number} — {chTitle}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {ch.verseCount} verses · ~{(ch.verseCount * 0.25).toFixed(1)} MB
+                            {ch.verseCount} {t("verses", selectedLanguage).toLowerCase()} · ~{(ch.verseCount * 0.25).toFixed(1)} MB
                           </p>
 
                           {isChDownloading && (
@@ -2548,13 +2859,13 @@ export function Downloads() {
                           {isChDownloaded ? (
                             <div className="flex items-center gap-1">
                               <span className="text-[10px] text-primary uppercase font-bold tracking-widest mr-1">
-                                Offline
+                                {t("offline", selectedLanguage)}
                               </span>
                               <IconButton
                                 onClick={() => {
                                   if (
                                     window.confirm(
-                                      `Delete offline audio for Chapter ${ch.chapter_number}?`,
+                                      `${t("deleteChapterConfirm", selectedLanguage)} ${ch.chapter_number}?`,
                                     )
                                   ) {
                                     deleteChapterDownload(ch.chapter_number);
@@ -2631,7 +2942,9 @@ export function Profile() {
     } else {
       document.documentElement.classList.remove("dark");
     }
-    toast.success(`${nextDark ? "Dark" : "Light"} mode enabled`);
+    const modeName = nextDark ? t("darkMode", selectedLanguage) : t("lightMode", selectedLanguage);
+    const enabledStr = t("themeChangedToast", selectedLanguage);
+    toast.success(`${modeName} ${enabledStr}`);
   };
 
   const handleSeedDatabase = async () => {
@@ -2724,7 +3037,7 @@ export function Profile() {
   return (
     <ScreenWrapper>
       <Header
-        title="Dashboard & Settings"
+        title={t("dashboardAndSettings", selectedLanguage)}
         back={false}
       />
       <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-6 scroll-hide pt-4">
@@ -2749,14 +3062,14 @@ export function Profile() {
           </AppCard>
         ) : (
           <AppCard className="bg-gradient-dawn border border-primary/10 p-5 shadow-soft">
-            <h2 className="font-serif text-lg text-foreground mb-1">Backup your progress</h2>
+            <h2 className="font-serif text-lg text-foreground mb-1">{t("backupProgressTitle", selectedLanguage)}</h2>
             <p className="text-xs text-muted-foreground mb-4">
-              Sign in to back up your streaks, bookmarks, and reflections to the cloud.
+              {t("backupProgressSub", selectedLanguage)}
             </p>
             <div className="space-y-2">
               <button
                 onClick={handleGoogleSignIn}
-                className="w-full h-11 rounded-full bg-card border border-border text-foreground font-semibold flex items-center justify-center gap-2 text-sm shadow-card active:scale-[0.98] transition"
+                className="w-full h-11 rounded-full bg-card border border-border text-foreground font-semibold flex items-center justify-center gap-2 text-sm shadow-card active:scale-[0.98] transition cursor-pointer"
               >
                 <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
                   <path
@@ -2776,17 +3089,17 @@ export function Profile() {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continue with Google
+                {t("continueWithGoogle", selectedLanguage)}
               </button>
               {(Capacitor.getPlatform() === "ios" || !Capacitor.isNativePlatform()) && (
                 <button
                   onClick={handleAppleSignIn}
-                  className="w-full h-11 rounded-full bg-foreground text-background font-semibold flex items-center justify-center gap-2 text-sm shadow-soft active:scale-[0.98] transition"
+                  className="w-full h-11 rounded-full bg-foreground text-background font-semibold flex items-center justify-center gap-2 text-sm shadow-soft active:scale-[0.98] transition cursor-pointer"
                 >
                   <svg className="h-4 w-4 shrink-0 fill-current" viewBox="0 0 24 24">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.51-.62.71-1.16 1.85-1.01 2.96 1.1.09 2.24-.57 2.96-1.41" />
                   </svg>
-                  Sign in with Apple
+                  {t("continueWithApple", selectedLanguage)}
                 </button>
               )}
             </div>
@@ -2797,48 +3110,48 @@ export function Profile() {
         <div className="grid grid-cols-3 gap-3">
           <AppCard className="text-center bg-card/40">
             <p className="font-serif text-2xl text-primary font-bold">{profile.streak}</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Streak</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("streak", selectedLanguage)}</p>
           </AppCard>
           <AppCard className="text-center bg-card/40">
             <p className="font-serif text-2xl text-primary font-bold">{profile.versesRead}</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Verses</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("verses", selectedLanguage)}</p>
           </AppCard>
           <AppCard className="text-center bg-card/40">
             <p className="font-serif text-2xl text-primary font-bold">{profile.minutes}m</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Minutes</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("minutes", selectedLanguage)}</p>
           </AppCard>
         </div>
 
         {/* Reading Settings */}
         <div>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">
-            Reading Settings
+            {t("readingSettings", selectedLanguage)}
           </p>
           <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
             <button
               onClick={() => nav("/language")}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
               <Languages size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Language</span>
+              <span className="flex-1 text-sm text-foreground">{t("language", selectedLanguage)}</span>
               <span className="text-xs text-muted-foreground">{activeLanguageObj?.name || "English"}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
             <button
               onClick={toggleTheme}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
               {dark ? <Moon size={18} className="text-primary" /> : <Sun size={18} className="text-primary" />}
-              <span className="flex-1 text-sm text-foreground">Theme</span>
-              <span className="text-xs text-muted-foreground">{dark ? "Dark" : "Light"}</span>
+              <span className="flex-1 text-sm text-foreground">{t("theme", selectedLanguage)}</span>
+              <span className="text-xs text-muted-foreground">{dark ? t("darkMode", selectedLanguage) : t("lightMode", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
             <button
               onClick={() => nav("/reminders")}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
               <Bell size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Daily reminder</span>
+              <span className="flex-1 text-sm text-foreground">{t("dailyReminder", selectedLanguage)}</span>
               <span className="text-xs text-muted-foreground">
                 {reminderConfig.enabled ? formatTime12Hour(reminderConfig.time) : "Disabled"}
               </span>
@@ -2850,40 +3163,40 @@ export function Profile() {
         {/* Practice Tools */}
         <div>
           <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">
-            Practice & Tools
+            {t("practiceTools", selectedLanguage)}
           </p>
           <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
             <button
               onClick={() => nav("/notes")}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
               <FileText size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Notes & Reflections</span>
+              <span className="flex-1 text-sm text-foreground">{t("notesAndReflections", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
             <button
               onClick={() => nav("/history")}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
               <HistoryIcon size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Reading history</span>
+              <span className="flex-1 text-sm text-foreground">{t("readingHistory", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
             <button
               onClick={() => nav("/downloads")}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
               <Download size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Downloads</span>
-              <span className="text-xs text-muted-foreground">{downloadedVerses.length} tracks</span>
+              <span className="flex-1 text-sm text-foreground">{t("downloads", selectedLanguage)}</span>
+              <span className="text-xs text-muted-foreground">{downloadedVerses.length} {t("tracks", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
             <button
               onClick={() => nav("/journey")}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition"
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
               <Flame size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">Daily journey</span>
+              <span className="flex-1 text-sm text-foreground">{t("dailyJourney", selectedLanguage)}</span>
               <span className="text-xs text-muted-foreground">{profile.streak} days</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
@@ -2896,13 +3209,12 @@ export function Profile() {
         {user && (
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center justify-center gap-2 h-12 rounded-full bg-card border border-border text-destructive font-medium active:scale-[0.98] transition hover:bg-destructive/5"
+            className="w-full flex items-center justify-center gap-2 h-12 rounded-full bg-card border border-border text-destructive font-medium active:scale-[0.98] transition hover:bg-destructive/5 cursor-pointer"
           >
-            <LogOut size={16} /> Sign out
+            <LogOut size={16} /> {t("signOut", selectedLanguage)}
           </button>
         )}
       </div>
-      <MiniPlayer />
       <BottomTabs />
     </ScreenWrapper>
   );
