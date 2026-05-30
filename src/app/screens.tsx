@@ -42,6 +42,7 @@ import {
   ArrowUp,
   ArrowDownToLine,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
@@ -1880,6 +1881,27 @@ export function Notes() {
 }
 
 /* ───────────── 19. Reading History ───────────── */
+function formatHistoryDate(dateStr: string): string {
+  if (!dateStr) return "";
+  if (dateStr === "Today" || dateStr === "Yesterday") return dateStr;
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const today = new Date();
+    if (d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear()) {
+      return "Today";
+    }
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    if (d.getDate() === yesterday.getDate() && d.getMonth() === yesterday.getMonth() && d.getFullYear() === yesterday.getFullYear()) {
+      return "Yesterday";
+    }
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  } catch {
+    return dateStr;
+  }
+}
+
 export function HistoryScreen() {
   const nav = useNavigate();
   const { history, selectedLanguage } = useUserProgress();
@@ -1887,7 +1909,7 @@ export function HistoryScreen() {
   return (
     <ScreenWrapper>
       <Header title={t("readingHistory", selectedLanguage)} back={true} />
-      <div className="flex-1 overflow-y-auto px-5 space-y-3 pb-8 scroll-hide">
+      <div className="flex-1 overflow-y-auto px-5 space-y-3 pb-8 scroll-hide text-left">
         {history.length === 0 ? (
           <div className="text-center py-8 text-sm text-muted-foreground">
             {t("historyEmpty", selectedLanguage)}
@@ -1902,11 +1924,11 @@ export function HistoryScreen() {
               <div className="h-10 w-10 rounded-full bg-gradient-dawn flex items-center justify-center text-primary text-xs font-medium shrink-0">
                 {h.chapter}.{h.verse}
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 text-left">
                 <p className="text-sm text-foreground truncate">
                   {t("chapterLabel", selectedLanguage)} {h.chapter}, {t("verseLabel", selectedLanguage).toLowerCase()} {h.verse}
                 </p>
-                <p className="text-xs text-muted-foreground">{h.date}</p>
+                <p className="text-xs text-muted-foreground">{formatHistoryDate(h.date)}</p>
               </div>
               <HistoryIcon size={16} className="text-muted-foreground" />
             </AppCard>
@@ -2094,6 +2116,7 @@ export function MiniPlayer({ hasTabs = true }: { hasTabs?: boolean }) {
   };
 
   const translationText =
+    displayVerse.translation[selectedLanguage]?.simple ||
     displayVerse.translation[currentLanguage]?.simple ||
     displayVerse.translation["en"]?.simple ||
     "Sanskrit Recitation";
@@ -2158,51 +2181,377 @@ export function MiniPlayer({ hasTabs = true }: { hasTabs?: boolean }) {
 }
 
 /* ───────────── 22. Daily Journey / Streak ───────────── */
+const getLocalDateString = (date: Date): string => {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
 export function Journey() {
-  const { profile, selectedLanguage } = useUserProgress();
+  const { profile, readDates, selectedLanguage } = useUserProgress();
   const reminderConfig = getReminderConfig();
-  const days = Array.from({ length: 14 }, (_, i) => i);
+  const [durationFilter, setDurationFilter] = useState<"week" | "month" | "custom" | "all">("week");
+
+  // Stateful offsets and selections
+  const [offset7Days, setOffset7Days] = useState(0);
+  const [selectedMonthDate, setSelectedMonthDate] = useState(() => new Date());
+  const [customStartDate, setCustomStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 6);
+    return getLocalDateString(d);
+  });
+  const [customEndDate, setCustomEndDate] = useState(() => {
+    return getLocalDateString(new Date());
+  });
+
+  // Helper to format date range for Week
+  const getWeekDateRange = () => {
+    const today = new Date();
+    const start = new Date();
+    start.setDate(today.getDate() - 6 - offset7Days);
+    const end = new Date();
+    end.setDate(today.getDate() - offset7Days);
+    
+    const startMonth = start.toLocaleDateString(undefined, { month: "short" });
+    const endMonth = end.toLocaleDateString(undefined, { month: "short" });
+    
+    if (startMonth === endMonth) {
+      return `${startMonth} ${start.getDate()} - ${end.getDate()}`;
+    }
+    return `${startMonth} ${start.getDate()} - ${endMonth} ${end.getDate()}`;
+  };
+
+  // Helper to format current Month & Year
+  const getCurrentMonthLabel = () => {
+    return selectedMonthDate.toLocaleDateString(undefined, { month: "short", year: "2-digit" });
+  };
+
+  // Helper to format All Time range (Since creation)
+  const getAllTimeLabel = () => {
+    const start = profile.createdAt ? new Date(profile.createdAt) : new Date();
+    return `Since ${start.toLocaleDateString(undefined, { month: "short", year: "2-digit" })}`;
+  };
+
+  // Calculate 7 days of the week chronologically based on offset
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i) - offset7Days);
+    const dateStr = getLocalDateString(d);
+    const isRead = readDates.includes(dateStr);
+    return {
+      dateStr,
+      isRead,
+      dayNum: d.getDate(),
+      dayName: d.toLocaleDateString(undefined, { weekday: "short" }).substring(0, 3),
+    };
+  });
+
+  // Calculate current month grid cells
+  const getMonthGrid = (date = new Date()) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    const monthName = date.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    
+    const cells = [];
+    for (let i = 0; i < firstDayIndex; i++) {
+      cells.push({ dateStr: `empty-${i}`, dayNum: null, isRead: false, isFuture: false });
+    }
+    for (let day = 1; day <= totalDays; day++) {
+      const d = new Date(year, month, day);
+      const dateStr = getLocalDateString(d);
+      const isRead = readDates.includes(dateStr);
+      const isFuture = d > new Date();
+      cells.push({ dateStr, dayNum: day, isRead, isFuture });
+    }
+    return { monthName, cells };
+  };
+
+  // Calculate custom range grid cells
+  const getCustomRangeDays = () => {
+    if (!customStartDate || !customEndDate) return [];
+    const start = new Date(customStartDate);
+    const end = new Date(customEndDate);
+    if (start > end) return [];
+    
+    const days = [];
+    const current = new Date(start);
+    let iterations = 0;
+    while (current <= end && iterations < 90) {
+      iterations++;
+      const dateStr = getLocalDateString(current);
+      const isRead = readDates.includes(dateStr);
+      days.push({
+        dateStr,
+        isRead,
+        dayNum: current.getDate(),
+        dayName: current.toLocaleDateString(undefined, { weekday: "short" }).substring(0, 3),
+      });
+      current.setDate(current.getDate() + 1);
+    }
+    return days;
+  };
+
+  // Calculate list of months since creation date (all-time history)
+  const getAllMonthsList = () => {
+    const start = profile.createdAt ? new Date(profile.createdAt) : new Date();
+    start.setDate(1);
+    const end = new Date();
+    end.setDate(1);
+    
+    const months = [];
+    const current = new Date(end);
+    let iterations = 0;
+    while (current >= start && iterations < 36) {
+      iterations++;
+      months.push(new Date(current));
+      current.setMonth(current.getMonth() - 1);
+    }
+    if (months.length === 0) {
+      months.push(new Date());
+    }
+    return months;
+  };
+
   return (
     <ScreenWrapper>
       <Header title={t("yourJourney", selectedLanguage)} back={true} />
-      <div className="flex-1 overflow-y-auto px-5 space-y-4 pb-8 scroll-hide">
+      <div className="flex-1 overflow-y-auto px-5 space-y-4 pb-8 scroll-hide pt-4">
+        {/* Streak & Stats Header */}
         <AppCard className="bg-gradient-gold text-primary-foreground border-0 text-center py-6 shadow-soft">
           <Flame size={28} className="mx-auto animate-pulse" />
           <p className="font-serif text-4xl mt-2">{profile.streak}</p>
           <p className="text-xs uppercase tracking-widest opacity-90">{t("streak", selectedLanguage)}</p>
         </AppCard>
+
+        {/* Stats Summary Grid */}
         <div className="grid grid-cols-3 gap-3">
           <AppCard className="text-center">
-            <p className="font-serif text-2xl">{profile.versesRead}</p>
+            <p className="font-serif text-2xl text-primary font-bold">{profile.versesRead}</p>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("verses", selectedLanguage)}</p>
           </AppCard>
           <AppCard className="text-center">
-            <p className="font-serif text-2xl">{profile.minutes}m</p>
+            <p className="font-serif text-2xl text-primary font-bold">{profile.minutes}m</p>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("readTime", selectedLanguage)}</p>
           </AppCard>
           <AppCard className="text-center">
-            <p className="font-serif text-2xl">{profile.bookmarks}</p>
+            <p className="font-serif text-2xl text-primary font-bold">{profile.bookmarks}</p>
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("saved", selectedLanguage)}</p>
           </AppCard>
         </div>
-        <AppCard>
-          <p className="font-serif text-base mb-3">{t("last14Days", selectedLanguage)}</p>
-          <div className="grid grid-cols-7 gap-2">
-            {days.map((d) => (
-              <div
-                key={d}
-                className={cn(
-                  "aspect-square rounded-lg flex items-center justify-center text-[10px]",
-                  d % 4 === 3
-                    ? "bg-muted text-muted-foreground"
-                    : "bg-gradient-gold text-primary-foreground font-semibold",
-                )}
-              >
-                {d + 1}
+
+        {/* Duration Filter Pill Control */}
+        <div className="flex bg-muted/40 p-1.5 rounded-2xl border border-border/40 gap-1.5 shrink-0">
+          {[
+            { value: "week", label: "Week", subLabel: getWeekDateRange() },
+            { value: "month", label: "Month", subLabel: getCurrentMonthLabel() },
+            { value: "custom", label: "Custom", subLabel: "Select Dates" },
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setDurationFilter(tab.value as any)}
+              className={cn(
+                "flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all duration-200 cursor-pointer active:scale-95",
+                durationFilter === tab.value
+                  ? "bg-gradient-gold text-primary-foreground shadow-sm font-bold animate-fade-in"
+                  : "text-muted-foreground hover:text-foreground bg-transparent"
+              )}
+            >
+              <span className="text-[11px] font-bold tracking-wide whitespace-nowrap">{tab.label}</span>
+              <span className={cn(
+                "text-[8px] mt-0.5 font-medium opacity-80 whitespace-nowrap",
+                durationFilter === tab.value ? "text-primary-foreground" : "text-muted-foreground/80"
+              )}>
+                {tab.subLabel}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Week View */}
+        {durationFilter === "week" && (
+          <AppCard className="space-y-4">
+            <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setOffset7Days(prev => prev + 7)}
+                  className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition shrink-0"
+                >
+                  <ChevronLeft size={14} className="text-foreground" />
+                </button>
+                <p className="font-serif text-sm text-foreground font-medium text-center px-1">
+                  {getWeekDateRange()}
+                </p>
+                <button
+                  onClick={() => setOffset7Days(prev => Math.max(0, prev - 7))}
+                  disabled={offset7Days === 0}
+                  className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                >
+                  <ChevronRight size={14} className="text-foreground" />
+                </button>
               </div>
-            ))}
-          </div>
-        </AppCard>
+              <span className="text-[10px] uppercase tracking-widest text-primary font-bold bg-primary/10 px-2.5 py-1 rounded-full">
+                {weekDays.filter(d => d.isRead).length} / 7 Days Active
+              </span>
+            </div>
+            <div className="grid grid-cols-7 gap-2">
+              {weekDays.map((d) => (
+                <div
+                  key={d.dateStr}
+                  className="flex flex-col items-center gap-1.5 p-1 rounded-xl bg-card border border-border/40"
+                >
+                  <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">{d.dayName}</span>
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center text-xs transition duration-300",
+                      d.isRead
+                        ? "bg-gradient-gold text-primary-foreground font-bold shadow-md shadow-amber-500/10 scale-105"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {d.dayNum}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </AppCard>
+        )}
+
+        {/* Month View */}
+        {durationFilter === "month" && (() => {
+          const { monthName, cells } = getMonthGrid(selectedMonthDate);
+          const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
+          const readCount = cells.filter(c => c.dayNum && c.isRead).length;
+          return (
+            <AppCard className="space-y-4">
+              <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => {
+                      const prev = new Date(selectedMonthDate);
+                      prev.setMonth(prev.getMonth() - 1);
+                      setSelectedMonthDate(prev);
+                    }}
+                    className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition shrink-0"
+                  >
+                    <ChevronLeft size={14} className="text-foreground" />
+                  </button>
+                  <p className="font-serif text-sm text-foreground font-medium min-w-[84px] text-center">
+                    {monthName}
+                  </p>
+                  <button 
+                    onClick={() => {
+                      const next = new Date(selectedMonthDate);
+                      next.setMonth(next.getMonth() + 1);
+                      setSelectedMonthDate(next);
+                    }}
+                    className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition shrink-0"
+                  >
+                    <ChevronRight size={14} className="text-foreground" />
+                  </button>
+                </div>
+                <span className="text-[10px] uppercase tracking-widest text-primary font-bold bg-primary/10 px-2.5 py-1 rounded-full">
+                  {readCount} {readCount === 1 ? "Session" : "Sessions"}
+                </span>
+              </div>
+              <div className="grid grid-cols-7 gap-y-2.5 gap-x-2 text-center">
+                {weekdays.map((w, idx) => (
+                  <span key={idx} className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                    {w}
+                  </span>
+                ))}
+                {cells.map((cell) => {
+                  if (!cell.dayNum) {
+                    return <div key={cell.dateStr} className="aspect-square" />;
+                  }
+                  return (
+                    <div
+                      key={cell.dateStr}
+                      className={cn(
+                        "aspect-square rounded-full flex items-center justify-center text-xs transition duration-300 font-medium",
+                        cell.isRead
+                          ? "bg-gradient-gold text-primary-foreground font-bold shadow-md shadow-amber-500/10 scale-105"
+                          : cell.isFuture
+                          ? "bg-transparent text-muted-foreground/30 cursor-not-allowed"
+                          : "bg-muted/60 text-muted-foreground hover:bg-muted"
+                      )}
+                    >
+                      {cell.dayNum}
+                    </div>
+                  );
+                })}
+              </div>
+            </AppCard>
+          );
+        })()}
+
+        {/* Custom Range Date Selector View */}
+        {durationFilter === "custom" && (() => {
+          const customRangeDays = getCustomRangeDays();
+          const customActiveCount = customRangeDays.filter(d => d.isRead).length;
+          return (
+            <AppCard className="space-y-4">
+              <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                <p className="font-serif text-base text-foreground font-medium">Custom Range</p>
+                <span className="text-[10px] uppercase tracking-widest text-primary font-bold bg-primary/10 px-2.5 py-1 rounded-full">
+                  {customActiveCount} Days Active
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">From</label>
+                  <input 
+                    type="date" 
+                    value={customStartDate} 
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    className="w-full h-10 rounded-xl border border-border/60 bg-muted/30 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">To</label>
+                  <input 
+                    type="date" 
+                    value={customEndDate} 
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    className="w-full h-10 rounded-xl border border-border/60 bg-muted/30 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+              </div>
+
+              {customRangeDays.length > 0 ? (
+                <div className="grid grid-cols-7 gap-2 max-h-[220px] overflow-y-auto pr-1 pt-1 scroll-hide">
+                  {customRangeDays.map((d) => (
+                    <div
+                      key={d.dateStr}
+                      className="flex flex-col items-center gap-1 p-1 rounded-xl bg-card border border-border/20 shadow-sm"
+                    >
+                      <span className="text-[8px] uppercase tracking-wider text-muted-foreground font-medium">{d.dayName}</span>
+                      <div
+                        className={cn(
+                          "w-7 h-7 rounded-full flex items-center justify-center text-[10px] transition duration-200",
+                          d.isRead
+                            ? "bg-gradient-gold text-primary-foreground font-bold shadow-md shadow-amber-500/10 scale-105"
+                            : "bg-muted text-muted-foreground/60"
+                        )}
+                      >
+                        {d.dayNum}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-4">
+                  Select a valid date range to view your study calendar
+                </p>
+              )}
+            </AppCard>
+          );
+        })()}
+
+
+        {/* Daily Reminder Settings Link Card */}
         <AppCard>
           <div className="flex items-center gap-3">
             <Bell className="text-primary" size={18} />
@@ -2678,7 +3027,7 @@ export function Downloads() {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-xs text-muted-foreground">{downloadedVerses.length} / 700 {t("verses", selectedLanguage).toLowerCase()}</p>
+            <p className="text-xs text-muted-foreground">{downloadedVerses.length} / 701 {t("verses", selectedLanguage).toLowerCase()}</p>
             <p className="text-[10px] text-primary uppercase font-bold tracking-widest mt-0.5">
               {isGitaDownloaded ? t("fullGitaOffline", selectedLanguage) : `${downloadedChapters.length} ${t("chapters", selectedLanguage).toLowerCase()}`}
             </p>
@@ -2948,6 +3297,7 @@ export function Profile() {
     bookmarks,
     triggerSync,
     signOutUser,
+    deleteAccountAndData,
     selectedLanguage,
     downloadedVerses,
     autoPlayOnOpen,
@@ -2961,6 +3311,7 @@ export function Profile() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [newsletterPref, setNewsletterPref] = useState("daily");
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Cache profile photo as base64 data URL for 24h — avoids repeated Google image fetches
   const [cachedPhotoURL, setCachedPhotoURL] = useState<string | null>(() => {
@@ -3462,11 +3813,10 @@ export function Profile() {
                 <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 space-y-3">
                   <p className="text-xs text-destructive/80">{t("dangerZoneWarning", selectedLanguage)}</p>
                   <button
-                    onClick={() => setIsDeletingAccount(true)}
-                    disabled={isDeletingAccount}
-                    className="w-full h-11 rounded-full bg-destructive text-white font-semibold text-sm border border-destructive/50 transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-destructive/20"
+                    onClick={() => setShowDeleteModal(true)}
+                    className="w-full h-11 rounded-full bg-destructive text-white font-semibold text-sm border border-destructive/50 transition active:scale-[0.98] hover:shadow-lg hover:shadow-destructive/20"
                   >
-                    {isDeletingAccount ? t("deletingAccount", selectedLanguage) : t("deleteAccount", selectedLanguage)}
+                    {t("deleteAccount", selectedLanguage)}
                   </button>
                 </div>
               </div>
@@ -3475,6 +3825,62 @@ export function Profile() {
             {/* Footer note */}
             <div className="px-6 py-4 border-t border-primary/5 bg-muted/30 text-center">
                 <p className="text-xs text-muted-foreground">{t("changesSavedNote", selectedLanguage)}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" onClick={() => !isDeletingAccount && setShowDeleteModal(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
+          <div className="relative w-full max-w-sm bg-card rounded-3xl shadow-2xl border border-destructive/20 scale-up" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
+              <span className="font-serif text-base text-destructive font-semibold flex items-center gap-2">
+                <AlertTriangle size={18} className="text-destructive animate-bounce" />
+                {t("dangerZone", selectedLanguage)}
+              </span>
+              <button onClick={() => !isDeletingAccount && setShowDeleteModal(false)} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-6 py-6 space-y-4">
+              <p className="text-sm text-foreground/90 font-medium">
+                {t("dangerZoneWarning", selectedLanguage) || "This action cannot be undone. All your data will be permanently deleted."}
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                This will delete your registered profile, all your notes/reflections, reading history, custom bookmarks, completed verses list, and favorites from our secure servers and this device.
+              </p>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => !isDeletingAccount && setShowDeleteModal(false)}
+                  disabled={isDeletingAccount}
+                  className="flex-1 h-11 rounded-full bg-muted text-foreground font-semibold flex items-center justify-center transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+                >
+                  {t("cancel", selectedLanguage) || "Cancel"}
+                </button>
+                <button
+                  onClick={async () => {
+                    setIsDeletingAccount(true);
+                    try {
+                      await deleteAccountAndData();
+                      setShowDeleteModal(false);
+                      setShowSettingsModal(false);
+                      toast.success("Your account and all study progress have been permanently deleted.");
+                      nav("/");
+                    } catch (e: any) {
+                      console.error("Account deletion failed:", e);
+                      toast.error("Failed to delete account. Please try again.");
+                    } finally {
+                      setIsDeletingAccount(false);
+                    }
+                  }}
+                  disabled={isDeletingAccount}
+                  className="flex-1 h-11 rounded-full bg-destructive text-white font-semibold flex items-center justify-center transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed hover:bg-destructive/95 text-sm shadow-md shadow-destructive/20"
+                >
+                  {isDeletingAccount ? t("deletingAccount", selectedLanguage) : t("delete", selectedLanguage) || "Delete"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

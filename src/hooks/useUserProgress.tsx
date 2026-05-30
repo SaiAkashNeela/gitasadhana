@@ -27,6 +27,7 @@ export interface UserProfile {
   versesRead: number;
   bookmarks: number;
   minutes: number;
+  createdAt?: string; // registration/installation timestamp
 }
 
 interface UserProgressContextType {
@@ -37,6 +38,7 @@ interface UserProgressContextType {
   notes: UserNote[];
   history: HistoryItem[];
   favorites: string[]; // List of favorite verse IDs
+  readDates: string[]; // List of unique read dates YYYY-MM-DD
   selectedLanguage: string;
   setLanguage: (lang: string) => void;
   addBookmark: (verseId: string) => void;
@@ -92,6 +94,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   const [favorites, setFavorites] = useState<string[]>([]);
   const [completedVerses, setCompletedVerses] = useState<string[]>([]);
   const [readVerses, setReadVerses] = useState<string[]>([]);
+  const [readDates, setReadDates] = useState<string[]>([]);
   const [profile, setProfile] = useState<UserProfile>({
     name: "Seeker",
     email: "offline@easygita.app",
@@ -131,19 +134,24 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
       setFavorites(JSON.parse(localStorage.getItem("gita_favorites") || "[]"));
       setCompletedVerses(JSON.parse(localStorage.getItem("gita_completed") || "[]"));
       setReadVerses(JSON.parse(localStorage.getItem("gita_read_verses") || "[]"));
-      setProfile(
-        JSON.parse(
-          localStorage.getItem("gita_profile") ||
-            JSON.stringify({
-              name: "Seeker",
-              email: "guest@easygita.app",
-              streak: 1,
-              versesRead: 0,
-              bookmarks: 0,
-              minutes: 0,
-            }),
-        ),
+      setReadDates(JSON.parse(localStorage.getItem("gita_read_dates") || "[]"));
+      
+      const savedProfile = JSON.parse(
+        localStorage.getItem("gita_profile") ||
+          JSON.stringify({
+            name: "Seeker",
+            email: "guest@easygita.app",
+            streak: 1,
+            versesRead: 0,
+            bookmarks: 0,
+            minutes: 0,
+            createdAt: new Date().toISOString(),
+          }),
       );
+      if (!savedProfile.createdAt) {
+        savedProfile.createdAt = new Date().toISOString();
+      }
+      setProfile(savedProfile);
     }
   }, [user]);
 
@@ -156,7 +164,8 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     localStorage.setItem("gita_profile", JSON.stringify(profile));
     localStorage.setItem("gita_completed", JSON.stringify(completedVerses));
     localStorage.setItem("gita_read_verses", JSON.stringify(readVerses));
-  }, [bookmarks, notes, history, favorites, profile, completedVerses, readVerses]);
+    localStorage.setItem("gita_read_dates", JSON.stringify(readDates));
+  }, [bookmarks, notes, history, favorites, profile, completedVerses, readVerses, readDates]);
 
   // App open tracking for streak
   useEffect(() => {
@@ -250,6 +259,12 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
                 return combined;
               });
 
+              setReadDates((prev) => {
+                const combined = Array.from(new Set([...prev, ...(data.readDates || [])]));
+                if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
+                return combined;
+              });
+
               setDownloadedVerses((prev) => {
                 const combined = Array.from(new Set([...prev, ...(data.downloadedVerses || [])]));
                 if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
@@ -293,6 +308,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
                 const versesRead = Math.max(prev.versesRead, data.readVerses?.length || data.versesRead || 0);
                 const bookmarksCount = Math.max(prev.bookmarks, data.bookmarks?.length || 0);
                 const minutes = Math.max(prev.minutes, data.minutes || 0);
+                const createdAt = data.createdAt || prev.createdAt || currentUser.metadata.creationTime || new Date().toISOString();
 
                 if (
                   prev.name === name &&
@@ -300,11 +316,12 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
                   prev.streak === streak &&
                   prev.versesRead === versesRead &&
                   prev.bookmarks === bookmarksCount &&
-                  prev.minutes === minutes
+                  prev.minutes === minutes &&
+                  prev.createdAt === createdAt
                 ) {
                   return prev;
                 }
-                return { name, email, streak, versesRead, bookmarks: bookmarksCount, minutes };
+                return { name, email, streak, versesRead, bookmarks: bookmarksCount, minutes, createdAt };
               });
 
               if (data.language) {
@@ -328,6 +345,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
               const localDownloadedVerses = JSON.parse(localStorage.getItem("gita_downloaded_verses") || "[]");
               const localDownloadedChapters = JSON.parse(localStorage.getItem("gita_downloaded_chapters") || "[]");
               const localIsGitaDownloaded = localStorage.getItem("gita_is_gita_downloaded") === "true";
+              const localReadDates = JSON.parse(localStorage.getItem("gita_read_dates") || "[]");
 
               await setDoc(userDocRef, {
                 name: currentUser.displayName || "Seeker",
@@ -344,6 +362,8 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
                 downloadedVerses: localDownloadedVerses,
                 downloadedChapters: localDownloadedChapters,
                 isGitaDownloaded: localIsGitaDownloaded,
+                readDates: localReadDates,
+                createdAt: localProfile.createdAt || currentUser.metadata.creationTime || new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
               });
             }
@@ -386,6 +406,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     force = false,
     updatedCompleted = completedVerses,
     updatedReadVerses = readVerses,
+    updatedReadDates = readDates,
   ) => {
     if (!user) return;
 
@@ -423,6 +444,8 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
           isGitaDownloaded: updatedIsGitaDownloaded,
           completedVerses: updatedCompleted,
           readVerses: updatedReadVerses,
+          readDates: updatedReadDates,
+          createdAt: updatedProfile.createdAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
         { merge: true },
@@ -481,11 +504,12 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   };
 
   const addHistory = (chapter: number, verse: number) => {
+    const today = new Date();
     const newItem: HistoryItem = {
       id: Math.random().toString(36).substring(2, 9),
       chapter,
       verse,
-      date: "Today",
+      date: today.toISOString(),
     };
     // Ensure no rapid duplicates in history
     if (history[0]?.chapter === chapter && history[0]?.verse === verse) return;
@@ -501,13 +525,26 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
       setReadVerses(newReadVerses);
     }
 
+    // Local timezone date string format: YYYY-MM-DD
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    let newReadDates = readDates;
+    if (!readDates.includes(todayStr)) {
+      newReadDates = [...readDates, todayStr];
+      setReadDates(newReadDates);
+    }
+
     const updatedProfile = {
       ...profile,
       versesRead: newReadVerses.length,
+      createdAt: profile.createdAt || today.toISOString(),
     };
     setProfile(updatedProfile);
 
-    syncStateToCloud(bookmarks, notes, updated, favorites, updatedProfile, selectedLanguage, downloadedVerses, downloadedChapters, isGitaDownloaded, false, completedVerses, newReadVerses);
+    syncStateToCloud(bookmarks, notes, updated, favorites, updatedProfile, selectedLanguage, downloadedVerses, downloadedChapters, isGitaDownloaded, false, completedVerses, newReadVerses, newReadDates);
   };
 
   const toggleFavorite = (verseId: string) => {
@@ -549,6 +586,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     setDownloadedVerses([]);
     setDownloadedChapters([]);
     setIsGitaDownloaded(false);
+    setReadDates([]);
     setProfile({
       name: "Seeker",
       email: "guest@easygita.app",
@@ -556,6 +594,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
       versesRead: 0,
       bookmarks: 0,
       minutes: 0,
+      createdAt: new Date().toISOString(),
     });
   };
 
@@ -574,9 +613,20 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     setHistory([]);
     setFavorites([]);
     setCompletedVerses([]);
+    setReadVerses([]);
     setDownloadedVerses([]);
     setDownloadedChapters([]);
     setIsGitaDownloaded(false);
+    setReadDates([]);
+    setProfile({
+      name: "Seeker",
+      email: "guest@easygita.app",
+      streak: 1,
+      versesRead: 0,
+      bookmarks: 0,
+      minutes: 0,
+      createdAt: new Date().toISOString(),
+    });
   };
 
   const triggerSync = async () => {
@@ -706,6 +756,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         notes,
         history,
         favorites,
+        readDates,
         selectedLanguage,
         setLanguage,
         addBookmark,
