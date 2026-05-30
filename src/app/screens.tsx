@@ -76,7 +76,7 @@ import {
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { auth, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "@/lib/firebase";
 import { seedGitaDatabase, SeedingProgress } from "@/lib/seeding";
-import { getReminderConfig, updateReminderSettings, formatTime12Hour } from "@/lib/notifications";
+import { getReminderConfig, updateReminderSettings, formatTime12Hour, localizedReminders } from "@/lib/notifications";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import gitaProcessedData from "@/app/gita-processed.json";
@@ -266,7 +266,7 @@ export function LanguageSelect() {
 /* ───────────── 5. Home ───────────── */
 export function HomeScreen() {
   const nav = useNavigate();
-  const { profile, selectedLanguage } = useUserProgress();
+  const { profile, selectedLanguage, notifications } = useUserProgress();
   const { data: chaptersData } = useChapters();
   const { data: verse } = useVerseDetail(2, 47);
   const { data: quotes } = useQuotes(selectedLanguage);
@@ -274,6 +274,8 @@ export function HomeScreen() {
   const displayedChapters = chaptersData ? chaptersData.slice(0, 3) : [];
   const dailyQuote =
     quotes && quotes.length > 0 ? quotes[0] : { text: "The soul is eternal.", ref: "Gita 2.20" };
+
+  const hasUnread = notifications.some(n => !n.read);
 
   return (
     <ScreenWrapper>
@@ -283,8 +285,11 @@ export function HomeScreen() {
           <h1 className="font-serif text-2xl text-foreground">{t("todaysVerse", selectedLanguage)}</h1>
         </div>
         <div className="flex gap-2">
-          <IconButton onClick={() => nav("/notifications")}>
+          <IconButton onClick={() => nav("/notifications")} className="relative">
             <Bell size={18} />
+            {hasUnread && (
+              <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-background animate-pulse" />
+            )}
           </IconButton>
         </div>
       </div>
@@ -2671,116 +2676,68 @@ interface AppNotification {
 
 export function Notifications() {
   const nav = useNavigate();
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-  const { selectedLanguage } = useUserProgress();
-  const [notifications, setNotifications] = useState<AppNotification[]>([
-    {
-      id: "n1",
-      category: "reminders",
-      title: "Daily Reminder",
-      body: "Time to read your Gita for today.",
-      time: "7:00 AM",
-      dateGroup: "Today",
-      read: false,
-      linkText: "Continue Reading",
-      linkTo: "/home",
-      iconType: "bell"
-    },
-    {
-      id: "n2",
-      category: "quotes",
-      title: "New Verse of Wisdom",
-      body: "A new verse is waiting for you.",
-      time: "6:30 AM",
-      dateGroup: "Today",
-      read: false,
-      linkText: "Bhagavad Gita 2.47",
-      linkTo: "/verse/2.47",
-      iconType: "lotus"
-    },
-    {
-      id: "n3",
-      category: "achievements",
-      title: "Achievement Unlocked!",
-      body: "You've completed 7 days of reading.",
-      time: "Yesterday",
-      dateGroup: "Today",
-      read: false,
-      linkText: "Keep going!",
-      linkTo: "/journey",
-      iconType: "trophy"
-    },
-    {
-      id: "n4",
-      category: "reminders",
-      title: "Upcoming Reminder",
-      body: "Get ready for your reading time tomorrow.",
-      time: "May 19, 2026",
-      dateGroup: "This Week",
-      read: true,
-      linkText: "Daily at 7:00 AM",
-      linkTo: "/reminders",
-      iconType: "calendar"
-    },
-    {
-      id: "n5",
-      category: "updates",
-      title: "Chapter Completed",
-      body: "Great job! You've completed Chapter 1.",
-      time: "May 18, 2026",
-      dateGroup: "This Week",
-      read: true,
-      linkText: "Arjuna Viṣāda Yoga",
-      linkTo: "/chapter/1",
-      iconType: "chapter"
-    },
-    {
-      id: "n6",
-      category: "updates",
-      title: "Share the Wisdom",
-      body: "Inspire others by sharing a verse.",
-      time: "May 17, 2026",
-      dateGroup: "This Week",
-      read: true,
-      linkText: "Share Now",
-      linkTo: "/verse/2.47",
-      iconType: "share"
-    },
-    {
-      id: "n7",
-      category: "updates",
-      title: "What's New",
-      body: "Explore new features in Easy Gita.",
-      time: "May 15, 2026",
-      dateGroup: "Earlier",
-      read: true,
-      linkText: "See what's new",
-      linkTo: "/home",
-      iconType: "megaphone"
-    }
-  ]);
-
-  const categories = [
-    { id: "all", label: t("allBtn", selectedLanguage) || "All" },
-    { id: "reminders", label: t("remindersTitle", selectedLanguage) || "Reminders" },
-    { id: "updates", label: t("updatesTitle", selectedLanguage) || "Updates" },
-    { id: "quotes", label: t("quotesTitle", selectedLanguage) || "Quotes" },
-    { id: "achievements", label: t("achievementsTitle", selectedLanguage) || "Achievements" }
-  ];
+  const {
+    selectedLanguage,
+    notifications,
+    clearNotifications,
+    deleteNotification,
+    markNotificationAsRead
+  } = useUserProgress();
 
   const handleNotificationClick = (n: AppNotification) => {
-    // Mark as read locally
-    setNotifications(prev =>
-      prev.map(item => item.id === n.id ? { ...item, read: true } : item)
-    );
+    markNotificationAsRead(n.id);
     if (n.linkTo) {
       nav(n.linkTo);
     }
   };
 
-  const filteredNotifications = notifications.filter(
-    n => activeCategory === "all" || n.category === activeCategory
-  );
+  const getNotificationText = (n: AppNotification) => {
+    const lang = selectedLanguage || "en";
+    const dict = localizedReminders[lang] || localizedReminders["en"];
+
+    if (
+      n.title === "DailyReminderTitle" ||
+      n.title === "DailyReminder" ||
+      n.title.toLowerCase().includes("daily")
+    ) {
+      return {
+        title: dict.dailyTitle,
+        body: dict.dailyBody,
+        linkText: t("readNow", lang) || "Read Now"
+      };
+    }
+
+    if (
+      n.title === "ContinueReadingTitle" ||
+      n.title === "ContinueReading" ||
+      n.title.toLowerCase().includes("continue")
+    ) {
+      const verseId = n.linkTo ? n.linkTo.split("/verse/")[1] || "1.1" : "1.1";
+      return {
+        title: dict.continueTitle,
+        body: dict.continueBody.replace("{verse}", verseId),
+        linkText: t("continueReading", lang) || "Continue Reading"
+      };
+    }
+
+    if (
+      n.title === "StreakReminderTitle" ||
+      n.title === "StreakReminder" ||
+      n.title.toLowerCase().includes("streak")
+    ) {
+      return {
+        title: dict.streakTitle,
+        body: dict.streakBody,
+        linkText: t("keepGoing", lang) || "Keep Going"
+      };
+    }
+
+    return {
+      title: t(n.title.replace(/[^a-zA-Z0-9]/g, ""), lang) || n.title,
+      body: t(n.body.replace(/[^a-zA-Z0-9]/g, ""), lang) || n.body,
+      linkText: n.linkText ? t(n.linkText.replace(/[^a-zA-Z0-9]/g, ""), lang) || n.linkText : undefined
+    };
+  };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -2859,98 +2816,102 @@ export function Notifications() {
           <h1 className="font-serif text-2xl text-foreground leading-tight">{t("notifications", selectedLanguage)}</h1>
           <p className="text-[10px] text-muted-foreground mt-0.5 font-medium tracking-wide">{t("stayUpdatedJourney", selectedLanguage)}</p>
         </div>
-        <button
-          onClick={() => nav("/reminders")}
-          className="h-10 w-10 rounded-full bg-card/75 backdrop-blur shadow-card flex items-center justify-center text-foreground/75 hover:text-foreground active:scale-95 transition shrink-0"
-        >
-          <SettingsIcon size={18} />
-        </button>
-      </div>
-
-      {/* Categories Horizontal Pills Scroll */}
-      <div className="flex gap-2.5 px-5 py-3 overflow-x-auto scroll-hide select-none shrink-0">
-        {categories.map((cat) => {
-          const active = activeCategory === cat.id;
-          return (
+        <div className="flex gap-2 shrink-0">
+          {notifications.length > 0 && (
             <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={cn(
-                "px-4.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition active:scale-95 border",
-                active
-                  ? "bg-gradient-gold text-primary-foreground border-transparent shadow-soft"
-                  : "bg-card border-border/50 text-muted-foreground hover:text-foreground",
-              )}
+              onClick={clearNotifications}
+              className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-500 hover:bg-red-500/20 active:scale-95 transition flex items-center gap-1 border border-red-500/20 shadow-sm shrink-0"
+              title="Clear All"
             >
-              {cat.label}
+              {t("clearAll", selectedLanguage) || "Clear All"}
             </button>
-          );
-        })}
+          )}
+          <button
+            onClick={() => nav("/reminders")}
+            className="h-10 w-10 rounded-full bg-card/75 backdrop-blur shadow-card flex items-center justify-center text-foreground/75 hover:text-foreground active:scale-95 transition shrink-0"
+          >
+            <SettingsIcon size={18} />
+          </button>
+        </div>
       </div>
 
-      <div className="px-5 flex-1 overflow-y-auto space-y-4 pb-8 scroll-hide">
-        {filteredNotifications.length === 0 ? (
+      <div className="px-5 flex-1 overflow-y-auto space-y-4 pb-8 scroll-hide pt-4">
+        {notifications.length === 0 ? (
           <EmptyState
             icon={<Bell size={28} />}
             title={t("allCaughtUp", selectedLanguage)}
-            body={t("noNotificationsInCategory", selectedLanguage)}
+            body={t("noNotifications", selectedLanguage)}
           />
         ) : (
           groups.map(group => {
-            const groupNotifications = filteredNotifications.filter(n => n.dateGroup === group);
+            const groupNotifications = notifications.filter(n => n.dateGroup === group);
             if (groupNotifications.length === 0) return null;
 
             return (
               <div key={group} className="space-y-2.5">
                 <p className="font-serif text-base text-foreground/80 mt-2 mb-1 px-0.5">{t(group.replace(/[^a-zA-Z0-9]/g, ""), selectedLanguage) || group}</p>
                 <div className="space-y-3">
-                  {groupNotifications.map(n => (
-                    <AppCard
-                      key={n.id}
-                      onClick={() => handleNotificationClick(n)}
-                      className={cn(
-                        "flex items-start gap-3.5 p-3.5 transition-all border border-border/30 hover:border-primary/10 active:scale-[0.99]",
-                        !n.read ? "bg-card/95 border-l-3 border-l-primary/70" : "bg-card/50",
-                      )}
-                    >
-                      {getNotificationIcon(n.iconType)}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="font-sans text-sm font-semibold text-foreground truncate">
-                            {t(n.title.replace(/[^a-zA-Z0-9]/g, ""), selectedLanguage) || n.title}
-                          </p>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-[9px] text-muted-foreground font-medium">
-                              {n.time}
-                            </span>
-                            {!n.read && (
-                              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-xs text-muted-foreground/90 mt-0.5 leading-relaxed">
-                          {t(n.body.replace(/[^a-zA-Z0-9]/g, ""), selectedLanguage) || n.body}
-                        </p>
-
-                        {n.linkText && (
-                          <div className="mt-2 flex items-center gap-1 text-[10px] text-primary font-bold hover:underline select-none">
-                            {n.iconType === "bell" || n.iconType === "lotus" || n.iconType === "chapter" ? (
-                              <BookOpen size={11} />
-                            ) : n.iconType === "trophy" ? (
-                              <Sparkles size={11} />
-                            ) : n.iconType === "calendar" ? (
-                              <Calendar size={11} />
-                            ) : n.iconType === "share" ? (
-                              <Share2 size={11} />
-                            ) : (
-                              <ChevronRight size={11} />
-                            )}
-                            {t(n.linkText.replace(/[^a-zA-Z0-9]/g, ""), selectedLanguage) || n.linkText}
-                          </div>
+                  {groupNotifications.map(n => {
+                    const displayTexts = getNotificationText(n);
+                    return (
+                      <AppCard
+                        key={n.id}
+                        onClick={() => handleNotificationClick(n)}
+                        className={cn(
+                          "flex items-start gap-3.5 p-3.5 transition-all border border-border/30 hover:border-primary/10 active:scale-[0.99] relative",
+                          !n.read ? "bg-card/95 border-l-3 border-l-primary/70" : "bg-card/50",
                         )}
-                      </div>
-                    </AppCard>
-                  ))}
+                      >
+                        {getNotificationIcon(n.iconType)}
+                        <div className="flex-1 min-w-0 pr-6">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="font-sans text-sm font-semibold text-foreground truncate pr-2">
+                              {displayTexts.title}
+                            </p>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span className="text-[9px] text-muted-foreground font-medium">
+                                {n.time}
+                              </span>
+                              {!n.read && (
+                                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground/90 mt-0.5 leading-relaxed">
+                            {displayTexts.body}
+                          </p>
+
+                          {displayTexts.linkText && (
+                            <div className="mt-2 flex items-center gap-1 text-[10px] text-primary font-bold hover:underline select-none">
+                              {n.iconType === "bell" || n.iconType === "lotus" || n.iconType === "chapter" ? (
+                                <BookOpen size={11} />
+                              ) : n.iconType === "trophy" ? (
+                                <Sparkles size={11} />
+                              ) : n.iconType === "calendar" ? (
+                                <Calendar size={11} />
+                              ) : n.iconType === "share" ? (
+                                <Share2 size={11} />
+                              ) : (
+                                <ChevronRight size={11} />
+                              )}
+                              {displayTexts.linkText}
+                            </div>
+                          )}
+                        </div>
+                        {/* Individual Close/Clear Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteNotification(n.id);
+                          }}
+                          className="absolute top-3.5 right-3.5 text-muted-foreground/45 hover:text-red-500 transition p-1.5 rounded-full hover:bg-red-500/10 active:scale-90"
+                          title="Delete"
+                        >
+                          <X size={13} />
+                        </button>
+                      </AppCard>
+                    );
+                  })}
                 </div>
               </div>
             );

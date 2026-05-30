@@ -5,6 +5,19 @@ import { auth, db } from "@/lib/firebase";
 import { toast } from "sonner";
 import gitaProcessedData from "@/app/gita-processed.json";
 
+export interface AppNotification {
+  id: string;
+  category: "reminders" | "quotes" | "achievements" | "updates";
+  title: string;
+  body: string;
+  time: string;
+  dateGroup: "Today" | "This Week" | "Earlier";
+  read: boolean;
+  linkText?: string;
+  linkTo?: string;
+  iconType: "bell" | "lotus" | "trophy" | "calendar" | "chapter" | "share" | "megaphone";
+}
+
 export interface UserNote {
   id: string;
   verseId: string;
@@ -39,6 +52,10 @@ interface UserProgressContextType {
   history: HistoryItem[];
   favorites: string[]; // List of favorite verse IDs
   readDates: string[]; // List of unique read dates YYYY-MM-DD
+  notifications: AppNotification[];
+  clearNotifications: () => void;
+  deleteNotification: (id: string) => void;
+  markNotificationAsRead: (id: string) => void;
   selectedLanguage: string;
   setLanguage: (lang: string) => void;
   addBookmark: (verseId: string) => void;
@@ -95,6 +112,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   const [completedVerses, setCompletedVerses] = useState<string[]>([]);
   const [readVerses, setReadVerses] = useState<string[]>([]);
   const [readDates, setReadDates] = useState<string[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [profile, setProfile] = useState<UserProfile>({
     name: "Seeker",
     email: "offline@easygita.app",
@@ -155,6 +173,79 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     }
   }, [user]);
 
+  // Load In-App Notifications on startup and sync dynamic linkTo
+  useEffect(() => {
+    const raw = localStorage.getItem("gita_in_app_notifications");
+    if (raw === "[]") {
+      setNotifications([]);
+      return;
+    }
+
+    let parsed: AppNotification[] = [];
+    if (raw) {
+      try {
+        parsed = JSON.parse(raw);
+      } catch {}
+    }
+
+    let lastReadStr = "1.1";
+    if (history && history.length > 0) {
+      lastReadStr = `${history[0].chapter}.${history[0].verse}`;
+    }
+
+    if (parsed.length > 0) {
+      // Just keep dynamic linkTo fresh
+      setNotifications(
+        parsed.map((n) =>
+          n.title === "ContinueReadingTitle" || n.title === "ContinueReading"
+            ? { ...n, linkTo: `/verse/${lastReadStr}` }
+            : n
+        )
+      );
+    } else if (raw === null) {
+      const initial: AppNotification[] = [
+        {
+          id: "n1",
+          category: "reminders",
+          title: "DailyReminderTitle",
+          body: "DailyReminderBody",
+          time: "7:00 AM",
+          dateGroup: "Today",
+          read: false,
+          linkText: "ReadNow",
+          linkTo: "/home",
+          iconType: "bell",
+        },
+        {
+          id: "n2",
+          category: "reminders",
+          title: "ContinueReadingTitle",
+          body: "ContinueReadingBody",
+          time: "9:00 AM",
+          dateGroup: "Today",
+          read: false,
+          linkText: "ContinueReading",
+          linkTo: `/verse/${lastReadStr}`,
+          iconType: "chapter",
+        },
+        {
+          id: "n3",
+          category: "reminders",
+          title: "StreakReminderTitle",
+          body: "StreakReminderBody",
+          time: "1:00 PM",
+          dateGroup: "Today",
+          read: false,
+          linkText: "KeepGoing",
+          linkTo: "/journey",
+          iconType: "trophy",
+        },
+      ];
+      setNotifications(initial);
+      localStorage.setItem("gita_in_app_notifications", JSON.stringify(initial));
+    }
+  }, [history]);
+
   // 2. Write to LocalStorage on changes (always, as local cache)
   useEffect(() => {
     localStorage.setItem("gita_bookmarks", JSON.stringify(bookmarks));
@@ -165,7 +256,8 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     localStorage.setItem("gita_completed", JSON.stringify(completedVerses));
     localStorage.setItem("gita_read_verses", JSON.stringify(readVerses));
     localStorage.setItem("gita_read_dates", JSON.stringify(readDates));
-  }, [bookmarks, notes, history, favorites, profile, completedVerses, readVerses, readDates]);
+    localStorage.setItem("gita_in_app_notifications", JSON.stringify(notifications));
+  }, [bookmarks, notes, history, favorites, profile, completedVerses, readVerses, readDates, notifications]);
 
   // App open tracking for streak
   useEffect(() => {
@@ -573,6 +665,20 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     syncStateToCloud(bookmarks, notes, history, favorites, updatedProfile);
   };
 
+  const clearNotifications = () => {
+    setNotifications([]);
+  };
+
+  const deleteNotification = (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const markNotificationAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
+
   const signOutUser = async () => {
     await auth.signOut();
     setUser(null);
@@ -757,6 +863,10 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         history,
         favorites,
         readDates,
+        notifications,
+        clearNotifications,
+        deleteNotification,
+        markNotificationAsRead,
         selectedLanguage,
         setLanguage,
         addBookmark,
