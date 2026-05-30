@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { onAuthStateChanged, User, deleteUser } from "firebase/auth";
+import { doc, getDoc, setDoc, onSnapshot, deleteDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { toast } from "sonner";
 import gitaProcessedData from "@/app/gita-processed.json";
@@ -52,6 +52,7 @@ interface UserProgressContextType {
   isCompleted: (verseId: string) => boolean;
   updateStreak: (days: number) => void;
   signOutUser: () => Promise<void>;
+  deleteAccountAndData: () => Promise<void>;
   triggerSync: () => Promise<void>;
   autoPlayOnOpen: boolean;
   setAutoPlayOnOpen: (val: boolean) => void;
@@ -503,6 +504,26 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     });
   };
 
+  const deleteAccountAndData = async () => {
+    if (!user) return;
+    try {
+      await deleteDoc(doc(db, "users", user.uid));
+    } catch {}
+    try {
+      await deleteUser(user);
+    } catch {}
+    localStorage.clear();
+    setUser(null);
+    setBookmarks([]);
+    setNotes([]);
+    setHistory([]);
+    setFavorites([]);
+    setCompletedVerses([]);
+    setDownloadedVerses([]);
+    setDownloadedChapters([]);
+    setIsGitaDownloaded(false);
+  };
+
   const triggerSync = async () => {
     if (!user) return;
     await syncStateToCloud(bookmarks, notes, history, favorites, profile, selectedLanguage, downloadedVerses, downloadedChapters, isGitaDownloaded, true);
@@ -512,7 +533,6 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
   const downloadVerse = async (verseId: string) => {
     if (downloadedVerses.includes(verseId)) {
-      toast.info(`Verse ${verseId} is already offline`);
       return;
     }
     const taskKey = `verse:${verseId}`;
@@ -529,7 +549,6 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
           return next;
         });
         setDownloadedVerses((prev) => Array.from(new Set([...prev, verseId])));
-        toast.success(`Verse ${verseId} recitation saved offline!`);
       } else {
         setDownloading((prev) => ({ ...prev, [taskKey]: prog }));
       }
@@ -546,7 +565,6 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
   const downloadChapter = async (chapterNum: number) => {
     if (downloadedChapters.includes(chapterNum)) {
-      toast.info(`Chapter ${chapterNum} is already offline`);
       return;
     }
     const taskKey = `chapter:${chapterNum}`;
@@ -570,7 +588,6 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         });
         setDownloadedVerses((prev) => Array.from(new Set([...prev, ...chapterVerses])));
         setDownloadedChapters((prev) => Array.from(new Set([...prev, chapterNum])));
-        toast.success(`Chapter ${chapterNum} offline recitation loaded!`);
       } else {
         setDownloading((prev) => ({ ...prev, [taskKey]: prog }));
       }
@@ -586,7 +603,6 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
   const downloadWholeGita = async () => {
     if (isGitaDownloaded) {
-      toast.info("Complete Gita is already offline");
       return;
     }
     const taskKey = "gita";
@@ -609,7 +625,6 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         setDownloadedVerses(allVerseIds);
         setDownloadedChapters(allChapters);
         setIsGitaDownloaded(true);
-        toast.success("All 18 chapters & 700 verses downloaded successfully!");
       } else {
         setDownloading((prev) => ({ ...prev, [taskKey]: prog }));
       }
@@ -648,6 +663,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         isFavorite,
         updateStreak,
         signOutUser,
+        deleteAccountAndData,
         triggerSync,
         autoPlayOnOpen,
         setAutoPlayOnOpen,

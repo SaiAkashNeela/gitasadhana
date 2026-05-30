@@ -5,6 +5,7 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager,
 } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: "***REMOVED***",
@@ -28,4 +29,7 @@ const db = initializeFirestore(app, {
 // Initialize Auth
 const auth = getAuth(app);
 
-export { app, db, auth, GoogleAuthProvider, OAuthProvider, signInWithCredential };
+// Initialize Cloud Functions
+const functions = getFunctions(app, "us-central1");
+
+export { app, db, auth, functions, GoogleAuthProvider, OAuthProvider, signInWithCredential };

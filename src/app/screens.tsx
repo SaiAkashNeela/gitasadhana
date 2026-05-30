@@ -41,6 +41,7 @@ import {
   Megaphone,
   ArrowUp,
   ArrowDownToLine,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
@@ -2955,6 +2956,11 @@ export function Profile() {
 
   // Dark theme toggle state
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [newsletterPref, setNewsletterPref] = useState("daily");
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   
   // Seeding state
   const [seedingProgress, setSeedingProgress] = useState<SeedingProgress>({
@@ -3000,24 +3006,20 @@ export function Profile() {
   };
 
   const handleSignOut = () => {
-    toast(t("signOutConfirm", selectedLanguage) || "Are you sure you want to sign out?", {
-      action: {
-        label: "Yes",
-        onClick: async () => {
-          try {
-            await signOutUser();
-            toast.success(t("signedOutSuccessToast", selectedLanguage));
-            nav("/");
-          } catch {
-            toast.error(t("signedOutFailToast", selectedLanguage));
-          }
-        },
-      },
-      cancel: {
-        label: "No",
-        onClick: () => {},
-      },
-    });
+    setShowSignOutModal(true);
+  };
+
+  const confirmSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOutUser();
+      setShowSignOutModal(false);
+      toast.success(t("signedOutSuccessToast", selectedLanguage) || "Signed out successfully");
+      nav("/");
+    } catch {
+      setIsSigningOut(false);
+      toast.error(t("signedOutFailToast", selectedLanguage) || "Failed to sign out");
+    }
   };
 
   const handleGoogleSignIn = async () => {
@@ -3083,26 +3085,32 @@ export function Profile() {
         back={false}
       />
       <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-6 scroll-hide pt-4">
-        {/* Dynamic User Profile card */}
-        {user ? (
-          <AppCard className="flex items-center gap-4 border border-primary/10">
-            {user.photoURL ? (
-              <img
-                src={user.photoURL}
-                alt={profile.name}
-                className="h-16 w-16 rounded-full object-cover shadow-card shrink-0"
-              />
-            ) : (
-              <div className="h-16 w-16 rounded-full bg-gradient-dawn flex items-center justify-center text-primary font-bold text-xl shadow-card shrink-0">
-                {profile.name.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="font-serif text-xl text-foreground truncate">{profile.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
-            </div>
-          </AppCard>
-        ) : (
+         {/* Dynamic User Profile card */}
+          {user ? (
+            <AppCard className="flex items-center gap-4 border border-primary/10">
+              {user.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={profile.name}
+                  className="h-16 w-16 rounded-full object-cover shadow-card shrink-0"
+                />
+              ) : (
+                <div className="h-16 w-16 rounded-full bg-gradient-dawn flex items-center justify-center text-primary font-bold text-xl shadow-card shrink-0">
+                  {profile.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+               <div className="flex-1 min-w-0">
+                 <p className="font-serif text-xl text-foreground truncate">{profile.name}</p>
+                 <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+               </div>
+                <button
+                  onClick={() => setShowSettingsModal(true)}
+                  className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition active:scale-90 shrink-0"
+                >
+                  <SettingsIcon size={16} />
+                </button>
+             </AppCard>
+         ) : (
           <AppCard className="bg-gradient-dawn border border-primary/10 p-5 shadow-soft">
             <h2 className="font-serif text-lg text-foreground mb-1">{t("backupProgressTitle", selectedLanguage)}</h2>
             <p className="text-xs text-muted-foreground mb-4">
@@ -3156,7 +3164,7 @@ export function Profile() {
           </AppCard>
           <AppCard className="text-center bg-card/40">
             <p className="font-serif text-2xl text-primary font-bold">{profile.versesRead}</p>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("verses", selectedLanguage)}</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("versesReadSub", selectedLanguage)}</p>
           </AppCard>
           <AppCard className="text-center bg-card/40">
             <p className="font-serif text-2xl text-primary font-bold">{profile.minutes}m</p>
@@ -3184,7 +3192,7 @@ export function Profile() {
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
               <Volume2 size={18} className="text-primary" />
-              <span className="flex-1 text-sm text-foreground">{t("autoPlayAudio", selectedLanguage) || "Auto-play Audio"}</span>
+              <span className="flex-1 text-sm text-foreground">{t("Audio Auto Play", selectedLanguage) || "Auto-play Audio"}</span>
               <span className={`text-xs ${autoPlayOnOpen ? "text-primary" : "text-muted-foreground"}`}>
                 {autoPlayOnOpen ? "On" : "Off"}
               </span>
@@ -3297,6 +3305,130 @@ export function Profile() {
           </button>
         )}
       </div>
+
+      {/* Sign Out Modal */}
+      {showSignOutModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => !isSigningOut && setShowSignOutModal(false)}>
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative w-full max-w-sm bg-card rounded-3xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
+              <span className="font-serif text-base text-foreground">Sign Out</span>
+              <button onClick={() => !isSigningOut && setShowSignOutModal(false)} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-6 py-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                {t("signOutConfirmMessage", selectedLanguage) || "Are you sure you want to sign out? You can always sign back in to access your bookmarks, notes, and progress."}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => !isSigningOut && setShowSignOutModal(false)}
+                  disabled={isSigningOut}
+                  className="flex-1 h-11 rounded-full bg-muted text-foreground font-semibold flex items-center justify-center transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmSignOut}
+                  disabled={isSigningOut}
+                  className="flex-1 h-11 rounded-full bg-destructive text-white font-semibold flex items-center justify-center transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSigningOut ? "Signing out..." : "Sign Out"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+       )}
+
+      {/* Settings Modal */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => !isDeletingAccount && setShowSettingsModal(false)}>
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative w-full max-w-sm bg-gradient-to-b from-card via-card to-card/95 rounded-3xl shadow-2xl max-h-[85vh] overflow-y-auto border border-primary/10" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-primary/5 sticky top-0 bg-gradient-to-b from-card to-card/90 backdrop-blur-sm">
+              <div>
+                <span className="font-serif text-lg text-foreground block">Account Settings</span>
+                <p className="text-xs text-muted-foreground mt-0.5">Customize your experience</p>
+              </div>
+              <button onClick={() => !isDeletingAccount && setShowSettingsModal(false)} className="h-9 w-9 rounded-full bg-muted/60 flex items-center justify-center hover:bg-muted transition text-muted-foreground hover:text-foreground">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="px-6 py-8 space-y-8">
+              {/* Newsletter Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Bell size={18} className="text-primary" />
+                  <label className="text-sm font-semibold text-foreground">Email Notifications</label>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { value: "daily", label: "Daily Digest", desc: "Get a verse each morning" },
+                    { value: "weekly", label: "Weekly Digest", desc: "One email every Sunday" },
+                    { value: "monthly", label: "Monthly Digest", desc: "Curated highlights" },
+                    { value: "none", label: "No Emails", desc: "Stay silent" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setNewsletterPref(option.value)}
+                      className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-2xl border-2 transition duration-200 ${
+                        newsletterPref === option.value
+                          ? "border-primary bg-primary/8 shadow-md shadow-primary/10"
+                          : "border-border/40 bg-muted/30 hover:border-primary/30 hover:bg-muted/50"
+                      }`}
+                    >
+                      <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition ${
+                        newsletterPref === option.value
+                          ? "border-primary bg-primary"
+                          : "border-muted-foreground/40 bg-transparent"
+                      }`}>
+                        {newsletterPref === option.value && <div className="h-2 w-2 bg-card rounded-full" />}
+                      </div>
+                      <div className="text-left flex-1">
+                        <p className={`text-sm font-medium ${newsletterPref === option.value ? "text-foreground" : "text-foreground/80"}`}>
+                          {option.label}
+                        </p>
+                        <p className="text-xs text-muted-foreground/70 mt-0.5">{option.desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
+
+              {/* Delete Account Section */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <Trash2 size={18} className="text-destructive" />
+                  <label className="text-sm font-semibold text-foreground">Danger Zone</label>
+                </div>
+                <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 space-y-3">
+                  <p className="text-xs text-destructive/80">This action cannot be undone. All your data will be permanently deleted.</p>
+                  <button
+                    onClick={() => setIsDeletingAccount(true)}
+                    disabled={isDeletingAccount}
+                    className="w-full h-11 rounded-full bg-destructive text-white font-semibold text-sm border border-destructive/50 transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-destructive/20"
+                  >
+                    {isDeletingAccount ? "Deleting Account..." : "Delete Account"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer note */}
+            <div className="px-6 py-4 border-t border-primary/5 bg-muted/30 text-center">
+              <p className="text-xs text-muted-foreground">Changes are saved automatically</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <BottomTabs />
     </ScreenWrapper>
   );
@@ -3349,6 +3481,31 @@ export function HelpContact() {
           >
             Submit
           </button>
+        </div>
+
+        <div className="rounded-2xl bg-card border border-border/60 shadow-card p-4 flex items-center gap-3">
+          <Share2 size={20} className="text-primary shrink-0" />
+          <div className="flex-1">
+            <p className="text-xs text-muted-foreground">Share your wisdom</p>
+            <button
+              onClick={() => {
+                const shareText = `I'm exploring the Bhagavad Gita on Gita Sadhana - a beautiful spiritual study companion app!`;
+                if (navigator.share) {
+                  navigator.share({
+                    title: "Gita Sadhana",
+                    text: shareText,
+                    url: "https://gitasadhana.com",
+                  });
+                } else {
+                  navigator.clipboard.writeText(shareText);
+                  toast.success("Copied to clipboard!");
+                }
+              }}
+              className="text-sm text-primary font-medium hover:underline"
+            >
+              Share the app
+            </button>
+          </div>
         </div>
       </div>
     </ScreenWrapper>
