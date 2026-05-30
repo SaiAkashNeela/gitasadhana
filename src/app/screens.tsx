@@ -85,10 +85,19 @@ const supportedLanguages = [
   { code: "hi", name: "Hindi", native: "हिन्दी" },
   { code: "sa", name: "Sanskrit", native: "संस्कृतम्" },
   { code: "te", name: "Telugu", native: "తెలుగు" },
+  { code: "ta", name: "Tamil", native: "தமிழ்" },
+  { code: "kn", name: "Kannada", native: "ಕನ್ನಡ" },
+  { code: "ml", name: "Malayalam", native: "മലയാളം" },
+  { code: "bn", name: "Bengali", native: "বাংলা" },
+  { code: "gu", name: "Gujarati", native: "ગુજરાતી" },
+  { code: "mr", name: "Marathi", native: "मराठी" },
+  { code: "pa", name: "Punjabi", native: "ਪੰਜਾਬੀ" },
+  { code: "ne", name: "Nepali", native: "नेपाली" },
 ];
 
 /* ───────────────────────── 1. Welcome ───────────────────────── */
 export function Welcome() {
+  const { selectedLanguage } = useUserProgress();
   return (
     <ScreenWrapper className="bg-gradient-dawn">
       <div className="flex-1 flex flex-col px-6 pt-8 pb-8 overflow-hidden">
@@ -102,7 +111,7 @@ export function Welcome() {
         <div className="mt-6 flex-1 min-h-0 animate-scale-in delay-75">
           <ImageBanner src="/assets/welcome_journey.png" alt="Bhagavad Gita" className="h-full max-h-[42vh]">
             <p className="font-serif text-2xl leading-tight text-balance">
-              The eternal song, made simple.
+              {t("welcomeHeroText", selectedLanguage)}
             </p>
           </ImageBanner>
         </div>
@@ -110,20 +119,20 @@ export function Welcome() {
         {/* Text block */}
         <div className="mt-6 animate-fade-up delay-150">
           <h1 className="font-serif text-3xl leading-tight text-foreground text-balance">
-            Welcome to a quieter<br />way to read the Gita.
+            {t("welcomeTitle", selectedLanguage)}
           </h1>
           <p className="mt-2.5 text-muted-foreground leading-relaxed text-sm">
-            Verse by verse. Word by word. A daily practice in your pocket.
+            {t("welcomeSub", selectedLanguage)}
           </p>
         </div>
 
         {/* CTAs */}
         <div className="mt-6 space-y-3 animate-fade-up delay-250">
           <Link to="/onboarding/2">
-            <PrimaryButton>Begin Journey</PrimaryButton>
+            <PrimaryButton>{t("beginJourneyBtn", selectedLanguage)}</PrimaryButton>
           </Link>
           <Link to="/language" className="block">
-            <GhostButton>Choose Language</GhostButton>
+            <GhostButton>{t("chooseLanguageBtn", selectedLanguage)}</GhostButton>
           </Link>
         </div>
       </div>
@@ -147,9 +156,13 @@ const slides = [
 
 export function Onboarding() {
   const { step } = useParams();
+  const { selectedLanguage } = useUserProgress();
   const i = Math.max(0, Math.min(slides.length - 1, parseInt(step ?? "2") - 2));
   const s = slides[i];
   const next = i === slides.length - 1 ? "/language" : `/onboarding/${i + 3}`;
+
+  const slideTitle = t(`onboardingSlideTitle${i + 1}`, selectedLanguage);
+  const slideBody = t(`onboardingSlideBody${i + 1}`, selectedLanguage);
 
   return (
     <ScreenWrapper className="bg-gradient-dawn">
@@ -157,10 +170,10 @@ export function Onboarding() {
         {/* Nav row */}
         <div className="flex justify-between items-center animate-fade-up">
           <Link to="/" className="text-sm text-muted-foreground active:opacity-60 transition-opacity">
-            Back
+            {t("back", selectedLanguage)}
           </Link>
           <Link to="/language" className="text-sm text-primary font-medium active:opacity-60 transition-opacity">
-            Skip
+            {t("skip", selectedLanguage)}
           </Link>
         </div>
 
@@ -169,7 +182,7 @@ export function Onboarding() {
           key={`img-${i}`}
           className="mt-5 flex-1 min-h-0 animate-scale-in"
         >
-          <ImageBanner src={s.img} alt={s.title} className="h-full max-h-[42vh]" />
+          <ImageBanner src={s.img} alt={slideTitle} className="h-full max-h-[42vh]" />
         </div>
 
         {/* Dot indicators */}
@@ -187,14 +200,14 @@ export function Onboarding() {
 
         {/* Text — keyed so it re-animates */}
         <div key={`text-${i}`} className="mt-5 animate-fade-up delay-150">
-          <h2 className="font-serif text-3xl text-foreground text-balance">{s.title}</h2>
-          <p className="mt-2.5 text-muted-foreground leading-relaxed text-sm">{s.body}</p>
+          <h2 className="font-serif text-3xl text-foreground text-balance">{slideTitle}</h2>
+          <p className="mt-2.5 text-muted-foreground leading-relaxed text-sm">{slideBody}</p>
         </div>
 
         {/* CTA */}
         <div className="mt-6 animate-fade-up delay-250">
           <Link to={next}>
-            <PrimaryButton>{i === slides.length - 1 ? "Continue" : "Next"}</PrimaryButton>
+            <PrimaryButton>{i === slides.length - 1 ? t("continueBtn", selectedLanguage) : t("next", selectedLanguage)}</PrimaryButton>
           </Link>
         </div>
       </div>
@@ -744,9 +757,9 @@ export function ChapterVerses() {
                     e.stopPropagation();
                     toggleCompleted(verseId);
                     if (!completed) {
-                      toast.success(`Marked Verse ${verseId} as Completed!`);
+                      toast.success(`${t("verseMarkedCompleted", selectedLanguage)} (${verseId})`);
                     } else {
-                      toast.info(`Unmarked Verse ${verseId}`);
+                      toast.info(`${t("verseUnmarked", selectedLanguage)} (${verseId})`);
                     }
                   }}
                   className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 transition-transform active:scale-90"
@@ -868,19 +881,19 @@ export function VerseReading() {
   const handleBookmarkToggle = () => {
     if (saved) {
       removeBookmark(verseId);
-      toast.success("Bookmark removed");
+      toast.success(t("bookmarkRemovedToast", selectedLanguage));
     } else {
       addBookmark(verseId);
-      toast.success("Bookmark saved");
+      toast.success(t("bookmarkSavedToast", selectedLanguage));
     }
   };
 
   const handleFavoriteToggle = () => {
     toggleFavorite(verseId);
     if (favorited) {
-      toast.success("Removed from Favorites");
+      toast.success(t("removedFromFavoritesToast", selectedLanguage));
     } else {
-      toast.success("Added to Favorites");
+      toast.success(t("addedToFavoritesToast", selectedLanguage));
     }
   };
 
@@ -927,7 +940,7 @@ export function VerseReading() {
     const nextIdx = (activeSpeedIdx + 1) % speeds.length;
     setActiveSpeedIdx(nextIdx);
     setRate(speeds[nextIdx]);
-    toast.info(`Playback speed set to ${speeds[nextIdx]}x`);
+    toast.info(`${t("playbackSpeedSetToast", selectedLanguage)} ${speeds[nextIdx]}x`);
   };
 
   const handleShare = async () => {
@@ -943,7 +956,7 @@ export function VerseReading() {
         });
       } else {
         await navigator.clipboard.writeText(msg);
-        toast.success("Link copied to clipboard!");
+        toast.success(t("linkCopiedToast", selectedLanguage));
       }
     } catch (e) {
       console.log("Share failed:", e);
@@ -1014,9 +1027,9 @@ export function VerseReading() {
               onClick={() => {
                 toggleCompleted(verseId);
                 if (!isCompleted(verseId)) {
-                  toast.success("Marked Verse as Completed!");
+                  toast.success(t("verseMarkedCompleted", selectedLanguage));
                 } else {
-                  toast.info("Unmarked Verse");
+                  toast.info(t("verseUnmarked", selectedLanguage));
                 }
               }}
               title="Toggle Finished/Completed Status"
@@ -1140,7 +1153,7 @@ export function VerseReading() {
           <button
             onClick={() => {
               toggleLooping();
-              toast.info(isLooping ? "Repeat disabled" : "Repeat enabled");
+              toast.info(t(isLooping ? "repeatDisabledToast" : "repeatEnabledToast", selectedLanguage));
             }}
             className="p-2 transition-all duration-200 hover:scale-105 active:scale-95"
             style={{ color: isLooping ? "var(--color-primary)" : "var(--color-muted-foreground)" }}
@@ -1347,6 +1360,7 @@ export function VerseWords() {
 export function SearchScreen() {
   const nav = useNavigate();
   const [q, setQ] = useState("");
+  const { selectedLanguage } = useUserProgress();
   return (
     <ScreenWrapper>
       <Header title={t("searchTitle", selectedLanguage)} back={true} />
@@ -1490,7 +1504,7 @@ export function WisdomScreen() {
                   <IconButton onClick={() => toast.success(t("addedToFavoritesToast", selectedLanguage))}>
                     <Heart size={16} />
                   </IconButton>
-                  <IconButton onClick={() => toast.success("Shared successfully")}>
+                  <IconButton onClick={() => toast.success(t("sharedSuccessfullyToast", selectedLanguage))}>
                     <Share2 size={16} />
                   </IconButton>
                 </div>
@@ -1887,7 +1901,7 @@ export function HistoryScreen() {
 /* ───────────── 20. Audio Player ───────────── */
 export function Player() {
   const nav = useNavigate();
-  const { isFavorite, toggleFavorite } = useUserProgress();
+  const { isFavorite, toggleFavorite, selectedLanguage } = useUserProgress();
   const {
     isPlaying,
     currentTime,
@@ -1915,7 +1929,7 @@ export function Player() {
     const nextIdx = (activeSpeedIdx + 1) % speeds.length;
     setActiveSpeedIdx(nextIdx);
     setRate(speeds[nextIdx]);
-    toast.info(`Playback speed set to ${speeds[nextIdx]}x`);
+    toast.info(`${t("playbackSpeedSetToast", selectedLanguage)} ${speeds[nextIdx]}x`);
   };
 
   if (!currentVerse) {
@@ -1949,9 +1963,9 @@ export function Player() {
   const handleFavoriteToggle = () => {
     toggleFavorite(verseId);
     if (favorited) {
-      toast.success("Removed from Favorites");
+      toast.success(t("removedFromFavoritesToast", selectedLanguage));
     } else {
-      toast.success("Added to Favorites");
+      toast.success(t("addedToFavoritesToast", selectedLanguage));
     }
   };
 
@@ -1961,8 +1975,8 @@ export function Player() {
         <IconButton onClick={() => nav(-1)}>
           <ChevronLeft size={18} />
         </IconButton>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Now Playing</p>
-        <IconButton onClick={() => toast.success("Shared successfully")}>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">{t("nowPlaying", selectedLanguage)}</p>
+        <IconButton onClick={() => toast.success(t("sharedSuccessfullyToast", selectedLanguage))}>
           <Share2 size={18} />
         </IconButton>
       </div>
@@ -2294,6 +2308,7 @@ interface AppNotification {
 export function Notifications() {
   const nav = useNavigate();
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const { selectedLanguage } = useUserProgress();
   const [notifications, setNotifications] = useState<AppNotification[]>([
     {
       id: "n1",
@@ -2971,10 +2986,10 @@ export function Profile() {
   const handleSignOut = async () => {
     try {
       await signOutUser();
-      toast.success("Signed out successfully");
+      toast.success(t("signedOutSuccessToast", selectedLanguage));
       nav("/");
     } catch (e) {
-      toast.error("Failed to sign out");
+      toast.error(t("signedOutFailToast", selectedLanguage));
     }
   };
 
@@ -2984,19 +2999,19 @@ export function Profile() {
         const nativeUser = await GoogleAuth.signIn();
         const credential = GoogleAuthProvider.credential(nativeUser.authentication.idToken);
         await signInWithCredential(auth, credential);
-        toast.success("Signed in with Google successfully!");
+        toast.success(t("googleSignInSuccessToast", selectedLanguage));
       } catch (e: any) {
         console.error("Native Google sign-in failed:", e);
-        toast.error(`Sign-in failed: ${e.message || e}`);
+        toast.error(`${t("signInFailToast", selectedLanguage)}: ${e.message || e}`);
       }
     } else {
       try {
         const { signInWithPopup } = await import("firebase/auth");
         await signInWithPopup(auth, new GoogleAuthProvider());
-        toast.success("Signed in with Google successfully!");
+        toast.success(t("googleSignInSuccessToast", selectedLanguage));
       } catch (e: any) {
         console.error("Web Google sign-in failed:", e);
-        toast.error(`Sign-in failed: ${e.message || e}`);
+        toast.error(`${t("signInFailToast", selectedLanguage)}: ${e.message || e}`);
       }
     }
   };
@@ -3007,27 +3022,27 @@ export function Profile() {
         const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
         const result = await SignInWithApple.authorize({
           clientId: "com.gitachapters.app",
-          redirectUri: "https://gita-1fe63.firebaseapp.com/__/auth/handler",
+          redirectURI: "https://gita-1fe63.firebaseapp.com/__/auth/handler",
           scopes: "email name",
         });
         const credential = new OAuthProvider("apple.com").credential({
           idToken: result.response.identityToken,
-          rawNonce: result.response.nonce,
+          rawNonce: (result.response as any).nonce,
         });
         await signInWithCredential(auth, credential);
-        toast.success("Signed in with Apple successfully!");
+        toast.success(t("appleSignInSuccessToast", selectedLanguage));
       } catch (e: any) {
         console.error("Apple sign-in failed:", e);
-        toast.error(`Apple Sign-In failed: ${e.message || e}`);
+        toast.error(`${t("appleSignInFailToast", selectedLanguage)}: ${e.message || e}`);
       }
     } else {
       try {
         const { signInWithPopup } = await import("firebase/auth");
         await signInWithPopup(auth, new OAuthProvider("apple.com"));
-        toast.success("Signed in with Apple successfully!");
+        toast.success(t("appleSignInSuccessToast", selectedLanguage));
       } catch (e: any) {
         console.error("Web Apple sign-in failed:", e);
-        toast.error(`Apple Sign-In failed: ${e.message || e}`);
+        toast.error(`${t("appleSignInFailToast", selectedLanguage)}: ${e.message || e}`);
       }
     }
   };
