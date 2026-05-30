@@ -91,6 +91,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [completedVerses, setCompletedVerses] = useState<string[]>([]);
+  const [readVerses, setReadVerses] = useState<string[]>([]);
   const [profile, setProfile] = useState<UserProfile>({
     name: "Seeker",
     email: "offline@easygita.app",
@@ -129,6 +130,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
       setHistory(JSON.parse(localStorage.getItem("gita_history") || "[]"));
       setFavorites(JSON.parse(localStorage.getItem("gita_favorites") || "[]"));
       setCompletedVerses(JSON.parse(localStorage.getItem("gita_completed") || "[]"));
+      setReadVerses(JSON.parse(localStorage.getItem("gita_read_verses") || "[]"));
       setProfile(
         JSON.parse(
           localStorage.getItem("gita_profile") ||
@@ -153,7 +155,43 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     localStorage.setItem("gita_favorites", JSON.stringify(favorites));
     localStorage.setItem("gita_profile", JSON.stringify(profile));
     localStorage.setItem("gita_completed", JSON.stringify(completedVerses));
-  }, [bookmarks, notes, history, favorites, profile, completedVerses]);
+    localStorage.setItem("gita_read_verses", JSON.stringify(readVerses));
+  }, [bookmarks, notes, history, favorites, profile, completedVerses, readVerses]);
+
+  // App open tracking for streak
+  useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString();
+    const lastOpenedStr = localStorage.getItem("gita_last_opened_date");
+    
+    setProfile(prev => {
+      let streak = prev.streak || 1;
+      if (lastOpenedStr) {
+        const lastOpened = new Date(lastOpenedStr);
+        lastOpened.setHours(0, 0, 0, 0);
+        const diffDays = Math.round((today.getTime() - lastOpened.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) {
+          streak += 1;
+        } else if (diffDays > 1) {
+          streak = 1;
+        }
+      }
+      return { ...prev, streak };
+    });
+    localStorage.setItem("gita_last_opened_date", todayStr);
+  }, []);
+
+  // Background interval for minutes read tracking
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        setProfile(prev => ({ ...prev, minutes: prev.minutes + 1 }));
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("gita_downloaded_verses", JSON.stringify(downloadedVerses));
@@ -206,6 +244,12 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
                 return combined;
               });
 
+              setReadVerses((prev) => {
+                const combined = Array.from(new Set([...prev, ...(data.readVerses || [])]));
+                if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
+                return combined;
+              });
+
               setDownloadedVerses((prev) => {
                 const combined = Array.from(new Set([...prev, ...(data.downloadedVerses || [])]));
                 if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
@@ -246,7 +290,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
                 const name = currentUser.displayName || data.name || "Seeker";
                 const email = currentUser.email || data.email || "";
                 const streak = data.streak ?? 1;
-                const versesRead = Math.max(prev.versesRead, data.versesRead || 0);
+                const versesRead = Math.max(prev.versesRead, data.readVerses?.length || data.versesRead || 0);
                 const bookmarksCount = Math.max(prev.bookmarks, data.bookmarks?.length || 0);
                 const minutes = Math.max(prev.minutes, data.minutes || 0);
 
@@ -278,6 +322,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
               const localHistory = JSON.parse(localStorage.getItem("gita_history") || "[]");
               const localFavorites = JSON.parse(localStorage.getItem("gita_favorites") || "[]");
               const localCompleted = JSON.parse(localStorage.getItem("gita_completed") || "[]");
+              const localReadVerses = JSON.parse(localStorage.getItem("gita_read_verses") || "[]");
               const localProfile = JSON.parse(localStorage.getItem("gita_profile") || `{"streak": 1, "versesRead": 0, "bookmarks": 0, "minutes": 0}`);
               const localLang = localStorage.getItem("gita_language") || "en";
               const localDownloadedVerses = JSON.parse(localStorage.getItem("gita_downloaded_verses") || "[]");
@@ -294,6 +339,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
                 history: localHistory,
                 favorites: localFavorites,
                 completedVerses: localCompleted,
+                readVerses: localReadVerses,
                 language: localLang,
                 downloadedVerses: localDownloadedVerses,
                 downloadedChapters: localDownloadedChapters,
@@ -339,6 +385,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     updatedIsGitaDownloaded = isGitaDownloaded,
     force = false,
     updatedCompleted = completedVerses,
+    updatedReadVerses = readVerses,
   ) => {
     if (!user) return;
 
@@ -375,6 +422,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
           downloadedChapters: updatedDownloadedChapters,
           isGitaDownloaded: updatedIsGitaDownloaded,
           completedVerses: updatedCompleted,
+          readVerses: updatedReadVerses,
           updatedAt: new Date().toISOString(),
         },
         { merge: true },
@@ -445,15 +493,21 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     const updated = [newItem, ...history.slice(0, 49)]; // Cap history at 50 items
     setHistory(updated);
 
-    // Increment verses read
-    const uniqueRead = new Set(updated.map((h) => `${h.chapter}.${h.verse}`));
+    // Track verses read
+    const verseId = `${chapter}.${verse}`;
+    let newReadVerses = readVerses;
+    if (!readVerses.includes(verseId)) {
+      newReadVerses = [...readVerses, verseId];
+      setReadVerses(newReadVerses);
+    }
+
     const updatedProfile = {
       ...profile,
-      versesRead: Math.max(profile.versesRead, uniqueRead.size),
+      versesRead: newReadVerses.length,
     };
     setProfile(updatedProfile);
 
-    syncStateToCloud(bookmarks, notes, updated, favorites, updatedProfile);
+    syncStateToCloud(bookmarks, notes, updated, favorites, updatedProfile, selectedLanguage, downloadedVerses, downloadedChapters, isGitaDownloaded, false, completedVerses, newReadVerses);
   };
 
   const toggleFavorite = (verseId: string) => {
@@ -491,6 +545,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     setHistory([]);
     setFavorites([]);
     setCompletedVerses([]);
+    setReadVerses([]);
     setDownloadedVerses([]);
     setDownloadedChapters([]);
     setIsGitaDownloaded(false);

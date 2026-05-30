@@ -1,6 +1,177 @@
 export type SupportedLanguage = "en" | "hi" | "te" | "sa" | "ml" | "kn" | "ne" | "bn" | "gu" | "mr" | "pa" | "ta";
 
 export const translations: Record<string, Partial<Record<SupportedLanguage, string>>> = {
+  "remindersTitle": {
+      "en": "Reminders",
+      "hi": "अनुस्मारक",
+      "te": "రిమైండర్‌లు",
+      "sa": "स्मरणानि"
+  },
+  "updatesTitle": {
+      "en": "Updates",
+      "hi": "अपडेट",
+      "te": "నవీకరణలు",
+      "sa": "अद्यतनानि"
+  },
+  "quotesTitle": {
+      "en": "Quotes",
+      "hi": "सुविचार",
+      "te": "సుభాషితాలు",
+      "sa": "वचनानि"
+  },
+  "achievementsTitle": {
+      "en": "Achievements",
+      "hi": "उपलब्धियां",
+      "te": "విజయాలు",
+      "sa": "प्राप्तयः"
+  },
+  "DailyReminder": {
+      "en": "Daily Reminder",
+      "hi": "दैनिक अनुस्मारक",
+      "te": "రోజువారీ రిమైండర్",
+      "sa": "दैनिक स्मरणम्"
+  },
+  "TimetoreadyourGitafortoday": {
+      "en": "Time to read your Gita for today.",
+      "hi": "आज के लिए अपनी गीता पढ़ने का समय आ गया है।",
+      "te": "ఈరోజు మీ గీతను చదివే సమయం ఆసన్నమైంది.",
+      "sa": "अद्यतन गीता पठनस्य समयः जातः।"
+  },
+  "ContinueReading": {
+      "en": "Continue Reading",
+      "hi": "पठन जारी रखें",
+      "te": "పఠనం కొనసాగించండి",
+      "sa": "पठनम् अनुवर्तताम्"
+  },
+  "NewVerseofWisdom": {
+      "en": "New Verse of Wisdom",
+      "hi": "ज्ञान का नया श्लोक",
+      "te": "కొత్త జ్ఞాన శ్లోకం",
+      "sa": "नूतन ज्ञान श्लोकः"
+  },
+  "Anewverseiswaitingforyou": {
+      "en": "A new verse is waiting for you.",
+      "hi": "एक नया श्लोक आपकी प्रतीक्षा कर रहा है।",
+      "te": "ఒక కొత్త శ్లోకం మీకోసం వేచి ఉంది.",
+      "sa": "एकः नूतनः श्लोकः भवतः प्रतीक्षां करोति।"
+  },
+  "BhagavadGita247": {
+      "en": "Bhagavad Gita 2.47",
+      "hi": "भगवद गीता २.४७",
+      "te": "భగవద్గీత 2.47",
+      "sa": "भगवद्गीता २.४७"
+  },
+  "AchievementUnlocked": {
+      "en": "Achievement Unlocked!",
+      "hi": "उपलब्धि हासिल की!",
+      "te": "విజయం సాధించారు!",
+      "sa": "प्राप्तिः सिद्धा!"
+  },
+  "Youvecompleted7daysofreading": {
+      "en": "You've completed 7 days of reading.",
+      "hi": "आपने 7 दिन का पठन पूरा कर लिया है।",
+      "te": "మీరు 7 రోజుల పఠనాన్ని పూర్తి చేసారు.",
+      "sa": "भवता ७ दिनानां पठनं पूर्णं कृतम्।"
+  },
+  "Keepgoing": {
+      "en": "Keep going!",
+      "hi": "जारी रखें!",
+      "te": "కొనసాగించండి!",
+      "sa": "अग्रे सरतु!"
+  },
+  "UpcomingReminder": {
+      "en": "Upcoming Reminder",
+      "hi": "आगामी अनुस्मारक",
+      "te": "రాబోయే రిమైండర్",
+      "sa": "आगामि स्मरणम्"
+  },
+  "Getreadyforyourreadingtimetomorrow": {
+      "en": "Get ready for your reading time tomorrow.",
+      "hi": "कल अपने पठन के समय के लिए तैयार रहें।",
+      "te": "రేపు మీ పఠన సమయానికి సిద్ధంగా ఉండండి.",
+      "sa": "श्वः पठनार्थं सज्जः भवतु।"
+  },
+  "Dailyat700AM": {
+      "en": "Daily at 7:00 AM",
+      "hi": "प्रतिदिन सुबह 7:00 बजे",
+      "te": "ప్రతిరోజూ ఉదయం 7:00 గంటలకు",
+      "sa": "प्रतिदिनं प्रातः ७:०० वादने"
+  },
+  "ChapterCompleted": {
+      "en": "Chapter Completed",
+      "hi": "अध्याय पूरा हुआ",
+      "te": "అధ్యాయం పూర్తయింది",
+      "sa": "अध्यायः पूर्णः"
+  },
+  "GreatjobYouvecompletedChapter1": {
+      "en": "Great job! You've completed Chapter 1.",
+      "hi": "बहुत बढ़िया! आपने अध्याय 1 पूरा कर लिया है।",
+      "te": "చాలా బాగుంది! మీరు అధ్యాయం 1 పూర్తి చేసారు.",
+      "sa": "उत्तमम्! भवता प्रथमः अध्यायः पूर्णः कृतः।"
+  },
+  "ArjunaViadaYoga": {
+      "en": "Arjuna Viṣāda Yoga",
+      "hi": "अर्जुन विषाद योग",
+      "te": "అర్జున విషాద యోగం",
+      "sa": "अर्जुन विषाद योगः"
+  },
+  "SharetheWisdom": {
+      "en": "Share the Wisdom",
+      "hi": "ज्ञान साझा करें",
+      "te": "జ్ఞానాన్ని పంచుకోండి",
+      "sa": "ज्ञानं प्रसारयन्तु"
+  },
+  "Inspireothersbysharingaverse": {
+      "en": "Inspire others by sharing a verse.",
+      "hi": "एक श्लोक साझा करके दूसरों को प्रेरित करें।",
+      "te": "ఒక శ్లోకాన్ని పంచుకోవడం ద్వారా ఇతరులకు స్ఫూర్తినివ్వండి.",
+      "sa": "एकं श्लोकं प्रसार्य अन्यान् प्रेरयन्तु।"
+  },
+  "ShareNow": {
+      "en": "Share Now",
+      "hi": "अभी साझा करें",
+      "te": "ఇప్పుడే పంచుకోండి",
+      "sa": "अधुना प्रसारयन्तु"
+  },
+  "WhatsNew": {
+      "en": "What's New",
+      "hi": "नया क्या है",
+      "te": "కొత్తగా ఏముంది",
+      "sa": "नूतनम् किम्"
+  },
+  "ExplorenewfeaturesinEasyGita": {
+      "en": "Explore new features in Gita Sadhana.",
+      "hi": "गीता साधना में नई सुविधाएँ खोजें।",
+      "te": "గీతా సాధనలో కొత్త ఫీచర్లను అన్వేషించండి.",
+      "sa": "गीता साधनायां नूतनानि अङ्गानि अन्वेषयन्तु।"
+  },
+  "Seewhatsnew": {
+      "en": "See what's new",
+      "hi": "देखें नया क्या है",
+      "te": "కొత్తగా ఏముందో చూడండి",
+      "sa": "नूतनम् किं पश्यन्तु"
+  },
+
+  "allFieldsRequired": {
+      "en": "All fields are required.",
+      "hi": "सभी फ़ील्ड आवश्यक हैं।",
+      "te": "అన్ని ఫీల్డ్‌లు తప్పనిసరి.",
+      "sa": "सर्वाणि क्षेत्राणि आवश्यकानि सन्ति।"
+  },
+
+  "Audio Auto Play": {
+      "en": "Audio Auto Play",
+      "hi": "ऑडियो स्वतः प्ले",
+      "te": "ఆడియో ఆటో ప్లే",
+      "sa": "स्वतः स्वर पठनम्"
+  },
+  "deleteAccount": {
+      "en": "Delete Account",
+      "hi": "खाता हटाएँ",
+      "te": "ఖాతాను తొలగించండి",
+      "sa": "खातां निष्कासयन्तु"
+  },
+
   // Navigation Tabs
   home: {
     en: "Home",
@@ -1174,12 +1345,7 @@ export const translations: Record<string, Partial<Record<SupportedLanguage, stri
     te: "ఈ శ్లోకానికి పదాల విభజన అందుబాటులో లేదు.",
     sa: "एतस्मै श्लोकाय शब्दविभागः उपलब्धः नास्ति।"
   },
-  recitationAndCommentary: {
-    en: "Sanskrit Recitation & Commentary",
-    hi: "संस्कृत पाठ और व्याख्या",
-    te: "సంస్కృత పఠనం & వ్యాఖ్యానం",
-    sa: "संस्कृत पठनं च व्याख्या"
-  },
+
   savedOfflineLabel: {
     en: "Saved offline",
     hi: "ऑफ़लाइन सहेजा गया",
@@ -1348,13 +1514,7 @@ export const translations: Record<string, Partial<Record<SupportedLanguage, stri
     te: "సవరణ సమర్పించబడింది. ధన్యవాదాలు!",
     sa: "संशोधनं प्रेषितम्। धन्यवादः!"
   },
-  autoPlayAudioLabel: { en: "Auto-play Audio", hi: "ऑटो-प्ले ऑडियो", te: "ఆటో-ప్లే ఆడియో", sa: "स्वतः-वादनं स्वरः" },
-  onLabel: { en: "On", hi: "चालू", te: "ఆన్", sa: "सक्रियम्" },
-  offLabel: { en: "Off", hi: "बंद", te: "ఆఫ్", sa: "निष्क्रियम्" },
-  disabledStatus: { en: "Disabled", hi: "निष्क्रिय", te: "నిలిపివేయబడింది", sa: "निष्क्रियम्" },
-  helpSupportTitle: { en: "Help & Support", hi: "सहायता और समर्थन", te: "సహాయం & మద్దతు", sa: "सहायता च समर्थनम्" },
-  shareWisdom: { en: "Share the Wisdom", hi: "ज्ञान साझा करें", te: "జ్ఞానాన్ని పంచండి", sa: "ज्ञानं साझां कुरुत" },
-  copiedToClipboardToast: { en: "Copied to clipboard!", hi: "क्लिपबोर्ड पर कॉपी किया गया!", te: "క్లిప్‌బోర్డ్‌కి కాపీ చేయబడింది!", sa: "क्लिप्बोर्ड् मध्ये प्रतिलिपीकृतम्!" },
+
   notificationsToday: { en: "Today", hi: "आज", te: "ఈరోజు", sa: "अद्य" },
   notificationsThisWeek: { en: "This Week", hi: "इस सप्ताह", te: "ఈ వారం", sa: "इदानीन्तनसप्ताहः" },
   notificationsEarlier: { en: "Earlier", hi: "पहले", te: "ముందు", sa: "पूर्वम्" },
@@ -1547,6 +1707,261 @@ export const translations: Record<string, Partial<Record<SupportedLanguage, stri
   };
 
 export const additionalTranslations: Record<string, Partial<Record<SupportedLanguage, string>>> = {
+  "remindersTitle": {
+      "kn": "Reminders",
+      "ml": "Reminders",
+      "bn": "Reminders",
+      "gu": "Reminders",
+      "mr": "Reminders",
+      "pa": "Reminders",
+      "ta": "Reminders"
+  },
+  "updatesTitle": {
+      "kn": "Updates",
+      "ml": "Updates",
+      "bn": "Updates",
+      "gu": "Updates",
+      "mr": "Updates",
+      "pa": "Updates",
+      "ta": "Updates"
+  },
+  "quotesTitle": {
+      "kn": "Quotes",
+      "ml": "Quotes",
+      "bn": "Quotes",
+      "gu": "Quotes",
+      "mr": "Quotes",
+      "pa": "Quotes",
+      "ta": "Quotes"
+  },
+  "achievementsTitle": {
+      "kn": "Achievements",
+      "ml": "Achievements",
+      "bn": "Achievements",
+      "gu": "Achievements",
+      "mr": "Achievements",
+      "pa": "Achievements",
+      "ta": "Achievements"
+  },
+  "DailyReminder": {
+      "kn": "Daily Reminder",
+      "ml": "Daily Reminder",
+      "bn": "Daily Reminder",
+      "gu": "Daily Reminder",
+      "mr": "Daily Reminder",
+      "pa": "Daily Reminder",
+      "ta": "Daily Reminder"
+  },
+  "TimetoreadyourGitafortoday": {
+      "kn": "Time to read your Gita for today.",
+      "ml": "Time to read your Gita for today.",
+      "bn": "Time to read your Gita for today.",
+      "gu": "Time to read your Gita for today.",
+      "mr": "Time to read your Gita for today.",
+      "pa": "Time to read your Gita for today.",
+      "ta": "Time to read your Gita for today."
+  },
+  "ContinueReading": {
+      "kn": "Continue Reading",
+      "ml": "Continue Reading",
+      "bn": "Continue Reading",
+      "gu": "Continue Reading",
+      "mr": "Continue Reading",
+      "pa": "Continue Reading",
+      "ta": "Continue Reading"
+  },
+  "NewVerseofWisdom": {
+      "kn": "New Verse of Wisdom",
+      "ml": "New Verse of Wisdom",
+      "bn": "New Verse of Wisdom",
+      "gu": "New Verse of Wisdom",
+      "mr": "New Verse of Wisdom",
+      "pa": "New Verse of Wisdom",
+      "ta": "New Verse of Wisdom"
+  },
+  "Anewverseiswaitingforyou": {
+      "kn": "A new verse is waiting for you.",
+      "ml": "A new verse is waiting for you.",
+      "bn": "A new verse is waiting for you.",
+      "gu": "A new verse is waiting for you.",
+      "mr": "A new verse is waiting for you.",
+      "pa": "A new verse is waiting for you.",
+      "ta": "A new verse is waiting for you."
+  },
+  "BhagavadGita247": {
+      "kn": "Bhagavad Gita 2.47",
+      "ml": "Bhagavad Gita 2.47",
+      "bn": "Bhagavad Gita 2.47",
+      "gu": "Bhagavad Gita 2.47",
+      "mr": "Bhagavad Gita 2.47",
+      "pa": "Bhagavad Gita 2.47",
+      "ta": "Bhagavad Gita 2.47"
+  },
+  "AchievementUnlocked": {
+      "kn": "Achievement Unlocked!",
+      "ml": "Achievement Unlocked!",
+      "bn": "Achievement Unlocked!",
+      "gu": "Achievement Unlocked!",
+      "mr": "Achievement Unlocked!",
+      "pa": "Achievement Unlocked!",
+      "ta": "Achievement Unlocked!"
+  },
+  "Youvecompleted7daysofreading": {
+      "kn": "You've completed 7 days of reading.",
+      "ml": "You've completed 7 days of reading.",
+      "bn": "You've completed 7 days of reading.",
+      "gu": "You've completed 7 days of reading.",
+      "mr": "You've completed 7 days of reading.",
+      "pa": "You've completed 7 days of reading.",
+      "ta": "You've completed 7 days of reading."
+  },
+  "Keepgoing": {
+      "kn": "Keep going!",
+      "ml": "Keep going!",
+      "bn": "Keep going!",
+      "gu": "Keep going!",
+      "mr": "Keep going!",
+      "pa": "Keep going!",
+      "ta": "Keep going!"
+  },
+  "UpcomingReminder": {
+      "kn": "Upcoming Reminder",
+      "ml": "Upcoming Reminder",
+      "bn": "Upcoming Reminder",
+      "gu": "Upcoming Reminder",
+      "mr": "Upcoming Reminder",
+      "pa": "Upcoming Reminder",
+      "ta": "Upcoming Reminder"
+  },
+  "Getreadyforyourreadingtimetomorrow": {
+      "kn": "Get ready for your reading time tomorrow.",
+      "ml": "Get ready for your reading time tomorrow.",
+      "bn": "Get ready for your reading time tomorrow.",
+      "gu": "Get ready for your reading time tomorrow.",
+      "mr": "Get ready for your reading time tomorrow.",
+      "pa": "Get ready for your reading time tomorrow.",
+      "ta": "Get ready for your reading time tomorrow."
+  },
+  "Dailyat700AM": {
+      "kn": "Daily at 7:00 AM",
+      "ml": "Daily at 7:00 AM",
+      "bn": "Daily at 7:00 AM",
+      "gu": "Daily at 7:00 AM",
+      "mr": "Daily at 7:00 AM",
+      "pa": "Daily at 7:00 AM",
+      "ta": "Daily at 7:00 AM"
+  },
+  "ChapterCompleted": {
+      "kn": "Chapter Completed",
+      "ml": "Chapter Completed",
+      "bn": "Chapter Completed",
+      "gu": "Chapter Completed",
+      "mr": "Chapter Completed",
+      "pa": "Chapter Completed",
+      "ta": "Chapter Completed"
+  },
+  "GreatjobYouvecompletedChapter1": {
+      "kn": "Great job! You've completed Chapter 1.",
+      "ml": "Great job! You've completed Chapter 1.",
+      "bn": "Great job! You've completed Chapter 1.",
+      "gu": "Great job! You've completed Chapter 1.",
+      "mr": "Great job! You've completed Chapter 1.",
+      "pa": "Great job! You've completed Chapter 1.",
+      "ta": "Great job! You've completed Chapter 1."
+  },
+  "ArjunaViadaYoga": {
+      "kn": "Arjuna Viṣāda Yoga",
+      "ml": "Arjuna Viṣāda Yoga",
+      "bn": "Arjuna Viṣāda Yoga",
+      "gu": "Arjuna Viṣāda Yoga",
+      "mr": "Arjuna Viṣāda Yoga",
+      "pa": "Arjuna Viṣāda Yoga",
+      "ta": "Arjuna Viṣāda Yoga"
+  },
+  "SharetheWisdom": {
+      "kn": "Share the Wisdom",
+      "ml": "Share the Wisdom",
+      "bn": "Share the Wisdom",
+      "gu": "Share the Wisdom",
+      "mr": "Share the Wisdom",
+      "pa": "Share the Wisdom",
+      "ta": "Share the Wisdom"
+  },
+  "Inspireothersbysharingaverse": {
+      "kn": "Inspire others by sharing a verse.",
+      "ml": "Inspire others by sharing a verse.",
+      "bn": "Inspire others by sharing a verse.",
+      "gu": "Inspire others by sharing a verse.",
+      "mr": "Inspire others by sharing a verse.",
+      "pa": "Inspire others by sharing a verse.",
+      "ta": "Inspire others by sharing a verse."
+  },
+  "ShareNow": {
+      "kn": "Share Now",
+      "ml": "Share Now",
+      "bn": "Share Now",
+      "gu": "Share Now",
+      "mr": "Share Now",
+      "pa": "Share Now",
+      "ta": "Share Now"
+  },
+  "WhatsNew": {
+      "kn": "What's New",
+      "ml": "What's New",
+      "bn": "What's New",
+      "gu": "What's New",
+      "mr": "What's New",
+      "pa": "What's New",
+      "ta": "What's New"
+  },
+  "ExplorenewfeaturesinEasyGita": {
+      "kn": "Explore new features in Gita Sadhana.",
+      "ml": "Explore new features in Gita Sadhana.",
+      "bn": "Explore new features in Gita Sadhana.",
+      "gu": "Explore new features in Gita Sadhana.",
+      "mr": "Explore new features in Gita Sadhana.",
+      "pa": "Explore new features in Gita Sadhana.",
+      "ta": "Explore new features in Gita Sadhana."
+  },
+  "Seewhatsnew": {
+      "kn": "See what's new",
+      "ml": "See what's new",
+      "bn": "See what's new",
+      "gu": "See what's new",
+      "mr": "See what's new",
+      "pa": "See what's new",
+      "ta": "See what's new"
+  },
+
+  "allFieldsRequired": {
+      "kn": "All fields are required.",
+      "ml": "All fields are required.",
+      "bn": "All fields are required.",
+      "gu": "All fields are required.",
+      "mr": "All fields are required.",
+      "pa": "All fields are required.",
+      "ta": "All fields are required."
+  },
+
+  "Audio Auto Play": {
+      "kn": "Audio Auto Play",
+      "ml": "Audio Auto Play",
+      "bn": "Audio Auto Play",
+      "gu": "Audio Auto Play",
+      "mr": "Audio Auto Play",
+      "pa": "Audio Auto Play",
+      "ta": "Audio Auto Play"
+  },
+  "deleteAccount": {
+      "kn": "Delete Account",
+      "ml": "Delete Account",
+      "bn": "Delete Account",
+      "gu": "Delete Account",
+      "mr": "Delete Account",
+      "pa": "Delete Account",
+      "ta": "Delete Account"
+  },
+
   home: {
     ta: "முகப்பு", kn: "ಮನೆ", ml: "ഹോം", bn: "হোম", gu: "હોમ", mr: "मुख्यपृष्ठ", pa: "ਹੋਮ", ne: "गृहपृष्ठ"
   },

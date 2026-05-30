@@ -461,7 +461,7 @@ export function ChaptersList() {
             >
               {/* Rounded 4:3 chapter illustration */}
               <img
-                src={`/assets/images/chapter_${((c.chapter_number - 1) % 13) + 1}.png`}
+                src={`/assets/images/chapter_${c.chapter_number}.png`}
                 alt={c.title[selectedLanguage] || c.title["en"]}
                 className="h-20 w-24 rounded-xl object-cover shadow-soft shrink-0"
               />
@@ -540,7 +540,7 @@ export function ChapterDetail() {
       <div className="flex-1 overflow-y-auto pb-44 scroll-hide">
         <div className="px-5">
           <ImageBanner
-            src={`/assets/images/chapter_${((chapter.chapter_number - 1) % 13) + 1}.png`}
+            src={`/assets/images/chapter_${chapter.chapter_number}.png`}
             alt={title}
             fit="contain"
           >
@@ -1489,7 +1489,7 @@ export function WisdomScreen() {
     <ScreenWrapper>
       <Header title={t("wisdom", selectedLanguage)} back={false} />
       <div className="flex-1 overflow-y-auto px-5 pb-4 space-y-4 scroll-hide">
-        <ImageBanner src={DEMO_IMG} alt="Daily wisdom" fit="contain" className="bg-gradient-dawn">
+        <ImageBanner src={DEMO_IMG} alt={t("dailyWisdom", selectedLanguage)} fit="contain" className="bg-gradient-dawn">
           <span className="text-[10px] uppercase tracking-widest opacity-80">{t("dailyWisdom", selectedLanguage)}</span>
           <p className="mt-1 font-serif text-xl leading-snug text-balance">
             "
@@ -1621,8 +1621,8 @@ export function WisdomThemeDetail() {
     <ScreenWrapper>
       <Header title={t(theme.id, selectedLanguage)} subtitle={`${theme.count} ${t("verses", selectedLanguage).toLowerCase()}`} back={true} />
       <div className="px-5 flex-1 overflow-y-auto space-y-3 pb-8 scroll-hide">
-        <ImageBanner src={DEMO_IMG} alt={theme.title} className="aspect-[5/2]">
-          <p className="font-serif text-xl">{theme.title}</p>
+        <ImageBanner src={DEMO_IMG} alt={t(theme.id, selectedLanguage)} className="aspect-[5/2]">
+          <p className="font-serif text-xl">{t(theme.id, selectedLanguage)}</p>
         </ImageBanner>
         {themeVerses.map((v) => (
           <VerseCard
@@ -2412,11 +2412,11 @@ export function Notifications() {
   ]);
 
   const categories = [
-    { id: "all", label: "All" },
-    { id: "reminders", label: "Reminders" },
-    { id: "updates", label: "Updates" },
-    { id: "quotes", label: "Quotes" },
-    { id: "achievements", label: "Achievements" }
+    { id: "all", label: t("allBtn", selectedLanguage) || "All" },
+    { id: "reminders", label: t("remindersTitle", selectedLanguage) || "Reminders" },
+    { id: "updates", label: t("updatesTitle", selectedLanguage) || "Updates" },
+    { id: "quotes", label: t("quotesTitle", selectedLanguage) || "Quotes" },
+    { id: "achievements", label: t("achievementsTitle", selectedLanguage) || "Achievements" }
   ];
 
   const handleNotificationClick = (n: AppNotification) => {
@@ -2553,7 +2553,7 @@ export function Notifications() {
 
             return (
               <div key={group} className="space-y-2.5">
-                <p className="font-serif text-base text-foreground/80 mt-2 mb-1 px-0.5">{group}</p>
+                <p className="font-serif text-base text-foreground/80 mt-2 mb-1 px-0.5">{t(group.replace(/[^a-zA-Z0-9]/g, ""), selectedLanguage) || group}</p>
                 <div className="space-y-3">
                   {groupNotifications.map(n => (
                     <AppCard
@@ -2568,7 +2568,7 @@ export function Notifications() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <p className="font-sans text-sm font-semibold text-foreground truncate">
-                            {n.title}
+                            {t(n.title.replace(/[^a-zA-Z0-9]/g, ""), selectedLanguage) || n.title}
                           </p>
                           <div className="flex items-center gap-1.5 shrink-0">
                             <span className="text-[9px] text-muted-foreground font-medium">
@@ -2580,7 +2580,7 @@ export function Notifications() {
                           </div>
                         </div>
                         <p className="text-xs text-muted-foreground/90 mt-0.5 leading-relaxed">
-                          {n.body}
+                          {t(n.body.replace(/[^a-zA-Z0-9]/g, ""), selectedLanguage) || n.body}
                         </p>
 
                         {n.linkText && (
@@ -2596,7 +2596,7 @@ export function Notifications() {
                             ) : (
                               <ChevronRight size={11} />
                             )}
-                            {n.linkText}
+                            {t(n.linkText.replace(/[^a-zA-Z0-9]/g, ""), selectedLanguage) || n.linkText}
                           </div>
                         )}
                       </div>
@@ -3124,7 +3124,7 @@ export function Profile() {
              <AppCard className="flex items-center gap-4 border border-primary/10">
                {cachedPhotoURL || user.photoURL ? (
                  <img
-                   src={cachedPhotoURL || user.photoURL}
+                   src={cachedPhotoURL || user.photoURL || undefined}
                    alt={profile.name}
                    className="h-16 w-16 rounded-full object-cover shadow-card shrink-0"
                  />
@@ -3399,7 +3399,7 @@ export function Profile() {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div className="relative w-full max-w-sm bg-gradient-to-b from-card via-card to-card/95 rounded-3xl shadow-2xl max-h-[85vh] overflow-y-auto border border-primary/10" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-primary/5 sticky top-0 bg-gradient-to-b from-card to-card/90 backdrop-blur-sm">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-primary/5 sticky top-0 bg-gradient-to-b from-card to-card/90 backdrop-blur-sm z-10">
               <div>
                 <span className="font-serif text-lg text-foreground block">{t("accountSettingsTitle", selectedLanguage)}</span>
                 <p className="text-xs text-muted-foreground mt-0.5">{t("accountSettingsSub", selectedLanguage)}</p>
@@ -3488,7 +3488,7 @@ export function Profile() {
 /* ───────────── Help: Contact ───────────── */
 export function HelpContact() {
   const nav = useNavigate();
-  const { user } = useUserProgress();
+  const { user, selectedLanguage } = useUserProgress();
   const [message, setMessage] = useState("");
 
   const userEmail = user?.email || "";
@@ -3540,6 +3540,7 @@ export function HelpContact() {
 
 /* ───────────── Help: Privacy Policy ───────────── */
 export function HelpPrivacy() {
+  const { selectedLanguage } = useUserProgress();
   return (
     <ScreenWrapper>
       <Header title={t("privacyPolicyTitle", selectedLanguage)} back={true} backTo="/profile" />
@@ -3588,6 +3589,7 @@ export function HelpPrivacy() {
 
 /* ───────────── Help: Terms of Service ───────────── */
 export function HelpTerms() {
+  const { selectedLanguage } = useUserProgress();
   return (
     <ScreenWrapper>
       <Header title={t("termsTitle", selectedLanguage)} back={true} backTo="/profile" />
@@ -3739,10 +3741,10 @@ export function HelpCorrection() {
 
   const handleSubmit = () => {
     if (!lang || !chapter || !verse || !message.trim()) {
-      toast.error("All fields are required.");
+      toast.error(t("allFieldsRequired", selectedLanguage) || "All fields are required.");
       return;
     }
-    toast.success("Correction submitted. Thank you!");
+    toast.success(t("correctionSubmittedToast", selectedLanguage) || "Correction submitted. Thank you!");
   };
 
   return (
@@ -3781,9 +3783,10 @@ export function HelpCorrection() {
 
 /* Loading placeholder (skeleton state demo) */
 export function LoadingDemo() {
+  const { selectedLanguage } = useUserProgress();
   return (
     <ScreenWrapper>
-      <Header title={t("loadingTitle", "en")} />
+      <Header title={t("loadingTitle", selectedLanguage)} />
       <div className="px-5 space-y-3">
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-20 w-full" />
