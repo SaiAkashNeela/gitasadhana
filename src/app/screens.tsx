@@ -40,6 +40,7 @@ import {
   Calendar,
   Megaphone,
   ArrowUp,
+  ArrowDownToLine,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
@@ -405,17 +406,6 @@ export function ChaptersList() {
           className="absolute top-0 right-0 h-44 w-auto object-cover opacity-[0.14] pointer-events-none mix-blend-multiply" 
         />
         
-        {/* Top Navigation circle back button */}
-        <div className="w-full flex justify-between items-center mb-1 z-10">
-          <button
-            onClick={() => nav(-1)}
-            className="h-10 w-10 rounded-full bg-white/70 backdrop-blur shadow-[0_2px_8px_rgba(188,169,140,0.15)] flex items-center justify-center text-[#4A3728]/70 hover:text-[#4A3728] transition"
-            aria-label="Back"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div className="w-10" />
-        </div>
 
         {/* Top Gold Ornament */}
         <div className="flex items-center gap-2.5 opacity-60">
@@ -443,8 +433,8 @@ export function ChaptersList() {
       </div>
 
       {/* 2. Search and Filter Bar */}
-      <div className="px-5 mt-5 flex gap-2.5 z-10 relative">
-        <div className="flex items-center gap-2 rounded-full bg-white border border-[#EFE9DB] px-4 h-11 shadow-[0_2px_6px_rgba(188,169,140,0.06)] flex-1">
+      <div className="px-5 mt-5 z-10 relative">
+        <div className="flex items-center gap-2 rounded-full bg-white border border-[#EFE9DB] px-4 h-11 shadow-[0_2px_6px_rgba(188,169,140,0.06)]">
           <Search size={18} className="text-[#A69B85]" />
           <input
             value={searchQuery}
@@ -452,24 +442,6 @@ export function ChaptersList() {
             placeholder={t("searchChaptersPlaceholder", selectedLanguage)}
             className="flex-1 bg-transparent outline-none text-sm text-[#4A3728] placeholder:text-[#A69B85]"
           />
-        </div>
-        
-        <div className="relative">
-          <button 
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="bg-white border border-[#EFE9DB] px-4 h-11 rounded-full text-xs font-serif text-[#4A3728] flex items-center gap-1.5 shadow-[0_2px_6px_rgba(188,169,140,0.06)] hover:bg-[#FAF6EE] cursor-pointer"
-          >
-            <span>{t("allChapters", selectedLanguage)}</span>
-            <svg width={10} height={6} viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#4A3728]">
-              <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-1 w-32 bg-white border border-[#EFE9DB] rounded-xl shadow-lg z-20 py-1 text-xs text-[#4A3728] font-serif">
-              <button onClick={() => { setSearchQuery(""); setDropdownOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-[#FAF6EE]">{t("allChapters", selectedLanguage)}</button>
-              <button onClick={() => { setSearchQuery("Yoga"); setDropdownOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-[#FAF6EE]">{t("yogaOnly", selectedLanguage)}</button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -566,7 +538,11 @@ export function ChapterDetail() {
       />
       <div className="flex-1 overflow-y-auto pb-44 scroll-hide">
         <div className="px-5">
-          <ImageBanner src={DEMO_IMG} alt={title} className="aspect-[5/3]">
+          <ImageBanner
+            src={`/assets/images/chapter_${((chapter.chapter_number - 1) % 13) + 1}.png`}
+            alt={title}
+            fit="contain"
+          >
             <span className="text-[10px] uppercase tracking-widest opacity-80">
               {t("chapterLabel", selectedLanguage)} {chapter.chapter_number}
             </span>
@@ -602,9 +578,10 @@ export function ChapterDetail() {
             {isChapterDownloaded(chapter.chapter_number) ? (
               <GhostButton
                 onClick={() => {
-                  if (window.confirm(`Delete offline audio for Chapter ${chapter.chapter_number}?`)) {
-                    deleteChapterDownload(chapter.chapter_number);
-                  }
+                  toast(`Delete offline audio for Chapter ${chapter.chapter_number}?`, {
+                    action: { label: "Delete", onClick: () => deleteChapterDownload(chapter.chapter_number) },
+                    cancel: { label: "Cancel", onClick: () => {} },
+                  });
                 }}
                 className="text-primary hover:text-primary/95 border-primary/30"
               >
@@ -806,6 +783,31 @@ export function ChapterVerses() {
   );
 }
 
+function DownloadRing({ progress, size = 32 }: { progress: number; size?: number }) {
+  const r = (size - 4) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (progress / 100) * circ;
+  return (
+    <svg width={size} height={size} className="rotate-[-90deg]">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth={2} className="text-primary/20" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth={2} strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" className="text-primary transition-all duration-200" />
+    </svg>
+  );
+}
+
+function DownloadDone({ size = 18 }: { size?: number }) {
+  return (
+    <span className="relative inline-flex items-center justify-center">
+      <Download size={size} className="text-primary" />
+      <span className="absolute -bottom-1 -right-1 bg-primary rounded-full flex items-center justify-center" style={{ width: size * 0.55, height: size * 0.55 }}>
+        <svg width={size * 0.35} height={size * 0.35} viewBox="0 0 10 10" fill="none">
+          <polyline points="1.5,5 4,7.5 8.5,2.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
+    </span>
+  );
+}
+
 /* ───────────── 8. Verse Reading ───────────── */
 function FloriateDivider({ color = "#B7943A", width = 200 }: { color?: string; width?: number }) {
   return (
@@ -828,6 +830,7 @@ function FloriateDivider({ color = "#B7943A", width = 200 }: { color?: string; w
 export function VerseReading() {
   const { id } = useParams();
   const nav = useNavigate();
+  const loc = useLocation();
   const {
     selectedLanguage,
     isBookmarked,
@@ -843,6 +846,7 @@ export function VerseReading() {
     completedVerses,
     toggleCompleted,
     isCompleted,
+    autoPlayOnOpen,
   } = useUserProgress();
   const {
     isPlaying,
@@ -878,6 +882,13 @@ export function VerseReading() {
     }
   }, [verseId, verse]);
 
+  // Auto-play when navigated from next/prev, or when setting is enabled
+  useEffect(() => {
+    if (verse && (loc.state?.autoPlay || autoPlayOnOpen)) {
+      play(verse, selectedLanguage);
+    }
+  }, [verse]);
+
   const handleBookmarkToggle = () => {
     if (saved) {
       removeBookmark(verseId);
@@ -908,7 +919,12 @@ export function VerseReading() {
   const handleNextVerse = () => {
     const maxVerses = getChapterVerseCount(chapterId);
     if (verseNumber < maxVerses) {
-      nav(`/verse/${chapterId}.${verseNumber + 1}`);
+      if (isCurrentActive && isPlaying) {
+        pause();
+        nav(`/verse/${chapterId}.${verseNumber + 1}`, { state: { autoPlay: true } });
+      } else {
+        nav(`/verse/${chapterId}.${verseNumber + 1}`);
+      }
     } else {
       toast.info(t("endOfChapterToast", selectedLanguage));
     }
@@ -916,7 +932,12 @@ export function VerseReading() {
 
   const handlePrevVerse = () => {
     if (verseNumber > 1) {
-      nav(`/verse/${chapterId}.${verseNumber - 1}`);
+      if (isCurrentActive && isPlaying) {
+        pause();
+        nav(`/verse/${chapterId}.${verseNumber - 1}`, { state: { autoPlay: true } });
+      } else {
+        nav(`/verse/${chapterId}.${verseNumber - 1}`);
+      }
     } else {
       toast.info(t("startOfChapterToast", selectedLanguage));
     }
@@ -966,7 +987,7 @@ export function VerseReading() {
   if (isLoading) {
     return (
       <ScreenWrapper>
-        <Header title={`Verse ${chapterId}.${verseNumber}`} subtitle="Bhagavad Gita" back={true} />
+        <Header title={`Verse ${chapterId}.${verseNumber}`} subtitle="Bhagavad Gita" back={true} backTo={`/chapter/${chapterId}/verses`} />
         <div className="px-5 space-y-4 pt-4">
           <Skeleton className="h-40 w-full" />
           <Skeleton className="h-20 w-full" />
@@ -1001,22 +1022,24 @@ export function VerseReading() {
         title={`Verse ${chapterId}.${verseNumber}`}
         subtitle="Bhagavad Gita"
         back={true}
+        backTo={`/chapter/${chapterId}/verses`}
         right={
           <div className="flex gap-2">
             {isVerseDownloaded(verseId) ? (
               <IconButton
                 onClick={() => {
-                  if (window.confirm(`Delete offline audio for Verse ${verseId}?`)) {
-                    deleteVerseDownload(verseId);
-                  }
+                  toast(`Delete offline audio for Verse ${verseId}?`, {
+                    action: { label: "Delete", onClick: () => deleteVerseDownload(verseId) },
+                    cancel: { label: "Cancel", onClick: () => {} },
+                  });
                 }}
                 className="text-primary hover:text-primary-dark"
               >
-                <CheckCircle2 size={18} className="fill-current text-primary" />
+                <DownloadDone size={18} />
               </IconButton>
             ) : downloading[`verse:${verseId}`] !== undefined ? (
-              <IconButton disabled className="text-primary font-bold">
-                <span className="text-[10px]">{downloading[`verse:${verseId}`]}%</span>
+              <IconButton disabled>
+                <DownloadRing progress={downloading[`verse:${verseId}`]} size={24} />
               </IconButton>
             ) : (
               <IconButton onClick={() => downloadVerse(verseId)}>
@@ -1208,22 +1231,19 @@ export function VerseReading() {
             {isVerseDownloaded(verseId) ? (
               <button
                 onClick={() => {
-                  if (window.confirm(`Delete offline audio for Verse ${verseId}?`)) {
-                    deleteVerseDownload(verseId);
-                  }
+                  toast(`Delete offline audio for Verse ${verseId}?`, {
+                    action: { label: "Delete", onClick: () => deleteVerseDownload(verseId) },
+                    cancel: { label: "Cancel", onClick: () => {} },
+                  });
                 }}
                 title="Saved offline — tap to delete"
-                className="h-8 w-8 rounded-full border border-primary/40 flex items-center justify-center transition active:scale-90 text-primary bg-card/70"
+                className="h-8 w-8 rounded-full border border-primary/40 flex items-center justify-center transition active:scale-90 bg-card/70"
               >
-                <CheckCircle2 size={14} className="fill-current" />
+                <DownloadDone size={14} />
               </button>
             ) : downloading[`verse:${verseId}`] !== undefined ? (
-              <button
-                disabled
-                title={`Downloading ${downloading[`verse:${verseId}`]}%`}
-                className="h-8 w-8 rounded-full border border-primary/20 flex items-center justify-center transition text-primary animate-pulse bg-gradient-dawn"
-              >
-                <span className="text-[9px] font-bold">{downloading[`verse:${verseId}`]}%</span>
+              <button disabled title={`Downloading ${downloading[`verse:${verseId}`]}%`} className="h-8 w-8 flex items-center justify-center">
+                <DownloadRing progress={downloading[`verse:${verseId}`]} size={32} />
               </button>
             ) : (
               <button
@@ -1459,7 +1479,7 @@ export function SearchResults() {
 /* ───────────── 13. Wisdom ───────────── */
 export function WisdomScreen() {
   const nav = useNavigate();
-  const { selectedLanguage } = useUserProgress();
+  const { selectedLanguage, toggleFavorite, isFavorite } = useUserProgress();
   const { data: quotes } = useQuotes(selectedLanguage);
 
   const displayedQuotes = quotes || [];
@@ -1501,8 +1521,8 @@ export function WisdomScreen() {
               <div className="mt-3 flex items-center justify-between">
                 <p className="text-xs text-muted-foreground">{t("gitaQuote", selectedLanguage)}</p>
                 <div className="flex gap-1">
-                  <IconButton onClick={() => toast.success(t("addedToFavoritesToast", selectedLanguage))}>
-                    <Heart size={16} />
+                  <IconButton onClick={() => { toggleFavorite(w.id); toast.success(isFavorite(w.id) ? t("removedFromFavoritesToast", selectedLanguage) : t("addedToFavoritesToast", selectedLanguage)); }}>
+                    <Bookmark size={16} className={isFavorite(w.id) ? "fill-primary text-primary" : ""} />
                   </IconButton>
                   <IconButton onClick={() => toast.success(t("sharedSuccessfullyToast", selectedLanguage))}>
                     <Share2 size={16} />
@@ -1638,7 +1658,7 @@ export function Bookmarks() {
   const [tab, setTab] = useState<"bookmarks" | "favorites">(
     new URLSearchParams(loc.search).get("tab") === "favorites" ? "favorites" : "bookmarks"
   );
-  const { bookmarks, favorites, selectedLanguage } = useUserProgress();
+  const { bookmarks, favorites, selectedLanguage, removeBookmark, toggleFavorite } = useUserProgress();
 
   const allProcessedVerses = (gitaProcessedData as any).verses || {};
   
@@ -1701,7 +1721,12 @@ export function Bookmarks() {
                 <AppCard key={vId} onClick={() => nav(`/verse/${vId}`)}>
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">{t("verseLabel", selectedLanguage)} {vId}</p>
-                    <Bookmark size={14} className="text-primary fill-primary animate-pulse" />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); removeBookmark(vId); }}
+                      className="p-1 rounded-full text-muted-foreground hover:text-destructive transition active:scale-90"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                   <p className="font-serif text-base mt-1.5 line-clamp-2 text-foreground leading-relaxed">
                     {v.translation[selectedLanguage]?.simple || v.translation["en"]?.simple || ""}
@@ -1724,7 +1749,12 @@ export function Bookmarks() {
                 <AppCard key={vId} onClick={() => nav(`/verse/${vId}`)}>
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">{t("verseLabel", selectedLanguage)} {vId}</p>
-                    <Heart size={14} className="text-destructive fill-destructive" />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(vId); }}
+                      className="p-1 rounded-full text-muted-foreground hover:text-destructive transition active:scale-90"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                   <p className="font-serif text-base mt-1.5 line-clamp-2 text-foreground leading-relaxed">
                     {v.translation[selectedLanguage]?.simple || v.translation["en"]?.simple || ""}
@@ -2108,17 +2138,13 @@ export function MiniPlayer({ hasTabs = true }: { hasTabs?: boolean }) {
         isVerseDownloaded(verseId) ? (
           <button
             title="Saved offline"
-            className="h-8 w-8 rounded-full border border-primary/30 flex items-center justify-center shrink-0 text-primary bg-card/70 active:scale-90 transition"
+            className="h-8 w-8 rounded-full border border-primary/30 flex items-center justify-center shrink-0 bg-card/70 active:scale-90 transition"
           >
-            <CheckCircle2 size={14} className="fill-current" />
+            <DownloadDone size={14} />
           </button>
         ) : downloading[`verse:${verseId}`] !== undefined ? (
-          <button
-            disabled
-            title={`Downloading ${downloading[`verse:${verseId}`]}%`}
-            className="h-8 w-8 rounded-full border border-primary/20 flex items-center justify-center shrink-0 text-primary animate-pulse bg-gradient-dawn"
-          >
-            <span className="text-[9px] font-bold">{downloading[`verse:${verseId}`]}%</span>
+          <button disabled title={`Downloading ${downloading[`verse:${verseId}`]}%`} className="h-8 w-8 flex items-center justify-center shrink-0">
+            <DownloadRing progress={downloading[`verse:${verseId}`]} size={32} />
           </button>
         ) : (
           <button
@@ -2716,9 +2742,10 @@ export function Downloads() {
                   </div>
                   <IconButton
                     onClick={() => {
-                      if (window.confirm(t("clearAllDownloadsConfirm", selectedLanguage))) {
-                        deleteWholeGita();
-                      }
+                      toast(t("clearAllDownloadsConfirm", selectedLanguage) || "Delete all downloads?", {
+                        action: { label: "Delete", onClick: () => deleteWholeGita() },
+                        cancel: { label: "Cancel", onClick: () => {} },
+                      });
                     }}
                     className="bg-white/20 border-0 text-white hover:bg-white/30"
                   >
@@ -2747,9 +2774,10 @@ export function Downloads() {
                       </div>
                       <IconButton
                         onClick={() => {
-                          if (window.confirm(`${t("deleteChapterConfirm", selectedLanguage)} ${chNum}?`)) {
-                            deleteChapterDownload(chNum);
-                          }
+                          toast(`${t("deleteChapterConfirm", selectedLanguage) || "Delete Chapter"} ${chNum}?`, {
+                            action: { label: "Delete", onClick: () => deleteChapterDownload(chNum) },
+                            cancel: { label: "Cancel", onClick: () => {} },
+                          });
                         }}
                         className="text-destructive hover:bg-destructive/5 border-transparent bg-transparent shadow-none"
                       >
@@ -2781,9 +2809,10 @@ export function Downloads() {
                       </IconButton>
                       <IconButton
                         onClick={() => {
-                          if (window.confirm(`${t("deleteVerseConfirm", selectedLanguage)} ${vId}?`)) {
-                            deleteVerseDownload(vId);
-                          }
+                          toast(`${t("deleteVerseConfirm", selectedLanguage) || "Delete Verse"} ${vId}?`, {
+                            action: { label: "Delete", onClick: () => deleteVerseDownload(vId) },
+                            cancel: { label: "Cancel", onClick: () => {} },
+                          });
                         }}
                         className="text-destructive hover:bg-destructive/5 border-transparent bg-transparent shadow-none"
                       >
@@ -2878,13 +2907,10 @@ export function Downloads() {
                               </span>
                               <IconButton
                                 onClick={() => {
-                                  if (
-                                    window.confirm(
-                                      `${t("deleteChapterConfirm", selectedLanguage)} ${ch.chapter_number}?`,
-                                    )
-                                  ) {
-                                    deleteChapterDownload(ch.chapter_number);
-                                  }
+                                  toast(`${t("deleteChapterConfirm", selectedLanguage) || "Delete Chapter"} ${ch.chapter_number}?`, {
+                                    action: { label: "Delete", onClick: () => deleteChapterDownload(ch.chapter_number) },
+                                    cancel: { label: "Cancel", onClick: () => {} },
+                                  });
                                 }}
                                 className="text-destructive bg-transparent shadow-none hover:bg-destructive/5"
                               >
@@ -2935,6 +2961,8 @@ export function Profile() {
     signOutUser,
     selectedLanguage,
     downloadedVerses,
+    autoPlayOnOpen,
+    setAutoPlayOnOpen,
   } = useUserProgress();
 
   // Dark theme toggle state
@@ -2965,32 +2993,43 @@ export function Profile() {
   const handleSeedDatabase = async () => {
     if (seedingProgress.status === "running") return;
 
-    if (
-      !window.confirm(
-        "This will overwrite existing Gita records on Firestore with standard aggregated text. Proceed?"
-      )
-    ) {
-      return;
-    }
-
-    await seedGitaDatabase((p) => {
-      setSeedingProgress(p);
-      if (p.status === "success") {
-        toast.success(p.message);
-      } else if (p.status === "error") {
-        toast.error(p.message);
-      }
+    toast("This will overwrite existing Gita records on Firestore with standard aggregated text. Proceed?", {
+      action: {
+        label: "Proceed",
+        onClick: async () => {
+          await seedGitaDatabase((p) => {
+            setSeedingProgress(p);
+            if (p.status === "success") {
+              toast.success(p.message);
+            } else if (p.status === "error") {
+              toast.error(p.message);
+            }
+          });
+        },
+      },
+      cancel: { label: "Cancel", onClick: () => {} },
     });
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOutUser();
-      toast.success(t("signedOutSuccessToast", selectedLanguage));
-      nav("/");
-    } catch (e) {
-      toast.error(t("signedOutFailToast", selectedLanguage));
-    }
+  const handleSignOut = () => {
+    toast(t("signOutConfirm", selectedLanguage) || "Are you sure you want to sign out?", {
+      action: {
+        label: "Yes",
+        onClick: async () => {
+          try {
+            await signOutUser();
+            toast.success(t("signedOutSuccessToast", selectedLanguage));
+            nav("/");
+          } catch {
+            toast.error(t("signedOutFailToast", selectedLanguage));
+          }
+        },
+      },
+      cancel: {
+        label: "No",
+        onClick: () => {},
+      },
+    });
   };
 
   const handleGoogleSignIn = async () => {
@@ -3151,6 +3190,19 @@ export function Profile() {
               <span className="flex-1 text-sm text-foreground">{t("language", selectedLanguage)}</span>
               <span className="text-xs text-muted-foreground">{activeLanguageObj?.name || "English"}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
+            </button>
+            <button
+              onClick={() => setAutoPlayOnOpen(!autoPlayOnOpen)}
+              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
+            >
+              <Volume2 size={18} className="text-primary" />
+              <span className="flex-1 text-sm text-foreground">{t("autoPlayAudio", selectedLanguage) || "Auto-play Audio"}</span>
+              <span className={`text-xs ${autoPlayOnOpen ? "text-primary" : "text-muted-foreground"}`}>
+                {autoPlayOnOpen ? "On" : "Off"}
+              </span>
+              <div className={`w-9 h-5 rounded-full transition-colors relative ${autoPlayOnOpen ? "bg-primary" : "bg-muted"}`}>
+                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${autoPlayOnOpen ? "translate-x-4" : "translate-x-0.5"}`} />
+              </div>
             </button>
             <button
               onClick={toggleTheme}

@@ -53,6 +53,8 @@ interface UserProgressContextType {
   updateStreak: (days: number) => void;
   signOutUser: () => Promise<void>;
   triggerSync: () => Promise<void>;
+  autoPlayOnOpen: boolean;
+  setAutoPlayOnOpen: (val: boolean) => void;
 
   // Download APIs
   downloadedVerses: string[];
@@ -108,6 +110,15 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     return localStorage.getItem("gita_is_gita_downloaded") === "true";
   });
   const [downloading, setDownloading] = useState<Record<string, number>>({});
+
+  const [autoPlayOnOpen, setAutoPlayOnOpenState] = useState<boolean>(() => {
+    return localStorage.getItem("gita_auto_play") !== "false";
+  });
+
+  const setAutoPlayOnOpen = (val: boolean) => {
+    setAutoPlayOnOpenState(val);
+    localStorage.setItem("gita_auto_play", String(val));
+  };
 
   // 1. Load initial local storage data for Guests
   useEffect(() => {
@@ -638,6 +649,8 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         updateStreak,
         signOutUser,
         triggerSync,
+        autoPlayOnOpen,
+        setAutoPlayOnOpen,
 
         completedVerses,
         toggleCompleted,

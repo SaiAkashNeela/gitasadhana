@@ -879,6 +879,12 @@ export const translations: Record<string, Partial<Record<SupportedLanguage, stri
     te: "ఇంగ్లీష్ లోకి మారండి",
     sa: "आङ्ग्लभाषां प्रति गच्छतु",
   },
+  notifications: {
+    en: "Notifications",
+    hi: "सूचनाएं",
+    te: "నోటిఫికేషన్‌లు",
+    sa: "सूचनाః",
+  },
   allCaughtUp: {
     en: "All caught up!",
     hi: "सभी सूचनाएं पढ़ ली गई हैं!",
@@ -1565,6 +1571,9 @@ export const additionalTranslations: Record<string, Partial<Record<SupportedLang
   },
   switchToEnglish: {
     ta: "ஆங்கிலத்திற்கு மாறவும்", kn: "ಇಂಗ್ಲಿಷ್‌ಗೆ ಬದಲಾಯಿಸಿ", ml: "ഇംഗ്ലീഷിലേക്ക് മാറുക", bn: "ইংরেজিতে পরিবর্তন করুন", gu: "અંગ્રેજીમાં બદલો", mr: "इंग्रजीमध्ये बदला", pa: "ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਬਦਲो", ne: "अंग्रेजीमा स्विच गर्नुहोस्"
+  },
+  notifications: {
+    ta: "அறிவிப்புகள்", kn: "ಸೂಚನೆಗಳು", ml: "அگاهیപ്പുകൾ", bn: "বিজ্ঞপ্তি", gu: "સૂચનાઓ", mr: "सूचना", pa: "ਨੋਟੀਫਿਕੇਸ਼ਨ", ne: "सूचनाहरू"
   },
   allCaughtUp: {
     ta: "அனைத்தும் புதுப்பிக்கப்பட்டது!", kn: "ಎಲ್ಲವೂ ಓದಲಾಗಿದೆ!", ml: "എല്ലാം പൂർത്തിയായി!", bn: "সব পড়া শেষ!", gu: "બધી સૂચનાઓ વાંચી લીધી!", mr: "सर्व वाचले!", pa: "ਸਭ ਪੜ੍ਹਿਆ ਗਿਆ!", ne: "सबै पढियो!"

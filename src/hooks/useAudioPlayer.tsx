@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { Verse } from "./useGitaData";
+import { useUserProgress } from "./useUserProgress";
 
 interface AudioContextType {
   isPlaying: boolean;
@@ -8,7 +9,7 @@ interface AudioContextType {
   duration: number;
   currentVerse: Verse | null;
   playbackRate: number;
-  play: (verse: Verse, language: string) => Promise<void>;
+  play: (verse: Verse, language: string, startPlaying?: boolean) => Promise<void>;
   pause: () => void;
   resume: () => void;
   seek: (time: number) => void;
@@ -29,7 +30,21 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentLanguage, setCurrentLanguage] = useState("en");
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const fallbackAttempted = useRef(false);
+
+  const { selectedLanguage } = useUserProgress();
+
+  // Stop playing audio when the user changes in-app language, and load the new language track source
+  useEffect(() => {
+    if (audioRef.current && currentVerse) {
+      // Pause if playing
+      audioRef.current.pause();
+      setIsPlaying(false);
+      
+      // Load the new language track source in the background without starting playback immediately
+      play(currentVerse, selectedLanguage, false);
+      console.log("⏸️ Audio stopped and source updated automatically due to in-app language switch.");
+    }
+  }, [selectedLanguage]);
 
   useEffect(() => {
     // Instantiate the audio object once on startup
@@ -51,24 +66,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleError = (e: any) => {
-      console.warn("Audio element error, attempting fallback...", e);
-      if (currentVerse && !fallbackAttempted.current) {
-        // Mark fallback as attempted so we don't loop errors
-        fallbackAttempted.current = true;
-
-        // Fetch fallback MP3 URL
-        const fallbackUrl = `https://gita.io/audio/${currentVerse.chapter}/${currentVerse.verse}.mp3`;
-        console.log(`Loading fallback MP3: ${fallbackUrl}`);
-
-        audio.src = fallbackUrl;
-        audio.load();
-        audio.play().catch((err) => {
-          console.error("Fallback audio playback failed:", err);
-          setIsPlaying(false);
-        });
-      } else {
-        setIsPlaying(false);
-      }
+      console.error("Audio element error:", e);
+      setIsPlaying(false);
     };
 
     audio.addEventListener("play", handlePlay);
@@ -88,41 +87,17 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       audio.removeEventListener("error", handleError);
       audioRef.current = null;
     };
-  }, [currentVerse]);
+  }, []);
 
-  const play = async (verse: Verse, language: string) => {
+  const play = async (verse: Verse, language: string, startPlaying = true) => {
     if (!audioRef.current) return;
 
     setCurrentVerse(verse);
     setCurrentLanguage(language);
-    fallbackAttempted.current = false;
 
     const chapterId = verse.chapter;
     const verseId = verse.verse;
-
-    let audioUrl = `https://gita.saiakash.dev/${language}/complete/${chapterId}_${verseId}.wav`;
-
-    // 1. Try querying the R2 metadata API first
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1200);
-
-      const apiRes = await fetch(
-        `https://gita.saiakash.dev/v1/audio/${language}/${chapterId}/${verseId}`,
-        { signal: controller.signal }
-      );
-      clearTimeout(timeoutId);
-
-      if (apiRes.ok) {
-        const resData = await apiRes.json();
-        if (resData && resData.url) {
-          audioUrl = resData.url;
-          console.log(`Resolved dynamic audio URL from server: ${audioUrl}`);
-        }
-      }
-    } catch (e) {
-      console.warn("Failed to query dynamic audio URL, using default:", e);
-    }
+    const audioUrl = `https://gita.saiakash.dev/${language}/complete/${chapterId}_${verseId}.wav`;
 
     console.log(`Loading audio source: ${audioUrl}`);
     audioRef.current.src = audioUrl;
@@ -130,39 +105,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     audioRef.current.loop = isLooping;
     audioRef.current.load();
 
-    audioRef.current.play().catch(async (err) => {
-      console.warn(`Failed loading ${audioUrl}. Retrying with alternate WAV:`, err);
-
-      // Fallback 1: Alternate WAV path
-      const isAlt = audioUrl.includes("_") && !audioUrl.includes("complete");
-      const fallbackWav = isAlt
-        ? `https://gita.saiakash.dev/${language}/complete/${chapterId}_${verseId}.wav`
-        : `https://gita.saiakash.dev/${language}/${chapterId}_${verseId}.wav`;
-
-      try {
-        if (audioRef.current) {
-          audioRef.current.src = fallbackWav;
-          audioRef.current.load();
-          await audioRef.current.play();
-          return;
-        }
-      } catch (altErr) {
-        console.warn(`Alternate WAV failed: ${fallbackWav}. Trying high-reliability MP3...`, altErr);
-      }
-
-      // Fallback 2: High-reliability MP3
-      if (!fallbackAttempted.current && audioRef.current) {
-        fallbackAttempted.current = true;
-        const fallbackMp3 = `https://gita.io/audio/${chapterId}/${verseId}.mp3`;
-        console.log(`Loading fallback MP3: ${fallbackMp3}`);
-        audioRef.current.src = fallbackMp3;
-        audioRef.current.load();
-        audioRef.current.play().catch((finalErr) => {
-          console.error("All audio paths failed:", finalErr);
-          setIsPlaying(false);
-        });
-      }
-    });
+    if (startPlaying) {
+      audioRef.current.play().catch((err) => {
+        if (err.name === "AbortError") return;
+        console.error("Audio playback failed:", err);
+        setIsPlaying(false);
+      });
+    }
   };
 
   const pause = () => {
@@ -174,6 +123,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const resume = () => {
     if (audioRef.current && currentVerse) {
       audioRef.current.play().catch((e) => {
+        if (e.name === "AbortError") return;
         console.error("Failed to resume audio:", e);
       });
     }

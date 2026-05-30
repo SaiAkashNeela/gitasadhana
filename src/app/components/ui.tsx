@@ -152,15 +152,24 @@ export function ImageBanner({
   alt,
   className,
   children,
+  fit = "cover",
 }: {
   src: string;
   alt: string;
   className?: string;
   children?: ReactNode;
+  fit?: "cover" | "contain";
 }) {
   return (
     <div className={cn("relative overflow-hidden rounded-3xl shadow-soft", className)}>
-      <img src={src} alt={alt} className="w-full h-full object-cover" />
+      <img
+        src={src}
+        alt={alt}
+        className={cn(
+          "w-full block",
+          fit === "cover" ? "h-full object-cover" : "h-auto"
+        )}
+      />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
       {children && (
         <div className="absolute inset-0 p-5 flex flex-col justify-end text-white">{children}</div>
