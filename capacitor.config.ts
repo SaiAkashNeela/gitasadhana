@@ -2,7 +2,7 @@ import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "com.gitachapters.app",
-  appName: "Easy Gita",
+  appName: "Gita Sadhana",
   webDir: "dist",
   server: {
     androidScheme: "https",

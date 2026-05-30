@@ -1026,7 +1026,7 @@ export function VerseReading() {
   const handleShare = async () => {
     const translationText =
       verse?.translation[selectedLanguage]?.simple || verse?.translation["en"]?.simple || "";
-    const msg = `Hare Krishna! \nCheck out this wisdom from Bhagavad Gita (Verse ${chapterId}.${verseNumber}):\n\n"${translationText}"\n\nRead more in Easy Gita App.`;
+    const msg = `Hare Krishna! \nCheck out this wisdom from Bhagavad Gita (Verse ${chapterId}.${verseNumber}):\n\n"${translationText}"\n\nRead more in Gita Sadhana App.`;
     try {
       if (navigator.share) {
         await navigator.share({
