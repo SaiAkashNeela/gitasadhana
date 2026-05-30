@@ -102,41 +102,73 @@ const supportedLanguages = [
 export function Welcome() {
   const { selectedLanguage } = useUserProgress();
   return (
-    <ScreenWrapper className="bg-gradient-dawn">
-      <div className="flex-1 flex flex-col px-6 pt-8 pb-8 overflow-hidden">
-        {/* Logo */}
-        <div className="flex items-center gap-2 text-primary font-serif text-lg tracking-wide animate-fade-up">
-          <Flower2 size={22} className="animate-spin-slow" />
-          <span>Easy Gita</span>
+    <ScreenWrapper pad={false} className="bg-[#FAF6EE]">
+      <div className="flex-1 flex flex-col justify-between select-none relative overflow-hidden bg-[#FAF6EE] text-[#5c4a37]">
+        {/* Full-bleed Top Hero Image with linear bottom fade-out */}
+        <div className="w-full h-[52dvh] relative overflow-hidden shrink-0 animate-scale-in">
+          <img
+            src="/assets/welcome_journey.png"
+            alt="Bhagavad Gita"
+            className="w-full h-full object-cover"
+          />
+          {/* Flawless soft-edge content fade blending the bottom into the background */}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#FAF6EE] to-transparent pointer-events-none" />
         </div>
 
-        {/* Hero image — no scroll, fills available space proportionally */}
-        <div className="mt-6 flex-1 min-h-0 animate-scale-in delay-75">
-          <ImageBanner src="/assets/welcome_journey.png" alt="Bhagavad Gita" className="h-full max-h-[42vh]">
-            <p className="font-serif text-2xl leading-tight text-balance">
-              {t("welcomeHeroText", selectedLanguage)}
-            </p>
-          </ImageBanner>
-        </div>
+        {/* Content area: Centered typography & elegant gold ornaments */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center z-10 animate-fade-up delay-150 min-h-0">
+          
+          {/* Golden Lotus Ornament Separator — thin gold lines fading outward with a golden lotus */}
+          <div className="flex items-center gap-3 w-full justify-center opacity-90 mt-1">
+            <div className="h-[1px] w-14 bg-gradient-to-r from-transparent via-[#d4af37]/45 to-[#d4af37]" />
+            <span className="text-[#c59b27] text-2xl font-serif leading-none select-none">🪷</span>
+            <div className="h-[1px] w-14 bg-gradient-to-l from-transparent via-[#d4af37]/45 to-[#d4af37]" />
+          </div>
 
-        {/* Text block */}
-        <div className="mt-6 animate-fade-up delay-150">
-          <h1 className="font-serif text-3xl leading-tight text-foreground text-balance">
-            {t("welcomeTitle", selectedLanguage)}
-          </h1>
-          <p className="mt-2.5 text-muted-foreground leading-relaxed text-sm">
+          {/* Centered multi-lingual headers */}
+          <div className="mt-3.5 space-y-0.5">
+            <span className="font-serif text-[#8c7453] text-xl font-light italic leading-none block">
+              {t("welcomeLine1", selectedLanguage)}
+            </span>
+            <h1 className="font-serif text-[42px] font-medium tracking-wide text-[#4a3621] leading-tight block">
+              {t("welcomeLine2", selectedLanguage)}
+            </h1>
+          </div>
+
+          {/* Gold Diamond ornament with divider lines */}
+          <div className="flex items-center gap-2 mt-3.5 opacity-80">
+            <div className="h-[1px] w-8 bg-[#e8dec9]" />
+            <span className="text-[#c59b27] text-xs leading-none">❖</span>
+            <div className="h-[1px] w-8 bg-[#e8dec9]" />
+          </div>
+
+          {/* Description Subtitle */}
+          <p className="mt-3 text-[#5c4a37] font-serif leading-relaxed text-[15px] max-w-sm px-2 text-balance">
             {t("welcomeSub", selectedLanguage)}
           </p>
+
+          {/* Prayer Hands divider line */}
+          <div className="flex items-center gap-3 mt-5 opacity-90">
+            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-[#d4af37]/40 to-[#d4af37]/80" />
+            <span className="text-[#c59b27] text-xl leading-none">🙏</span>
+            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent via-[#d4af37]/40 to-[#d4af37]/80" />
+          </div>
         </div>
 
-        {/* CTAs */}
-        <div className="mt-6 space-y-3 animate-fade-up delay-250">
+        {/* CTA Terracotta Button */}
+        <div className="px-6 mt-2 mb-4 shrink-0 animate-fade-up delay-250">
           <Link to="/onboarding/2">
-            <PrimaryButton>{t("beginJourneyBtn", selectedLanguage)}</PrimaryButton>
+            <button className="w-full h-12 rounded-full bg-[#C06D31] hover:bg-[#A65B25] active:scale-[0.985] transition-all duration-200 shadow-md text-white font-serif text-lg tracking-wide flex items-center justify-center gap-2 group">
+              <span>{t("Continue", selectedLanguage)}</span>
+              <span className="text-xl transition-transform duration-200 group-hover:translate-x-1">➔</span>
+            </button>
           </Link>
-          <Link to="/language" className="block">
-            <GhostButton>{t("chooseLanguageBtn", selectedLanguage)}</GhostButton>
-          </Link>
+        </div>
+
+        {/* Page dot indicators at bottom */}
+        <div className="flex justify-center gap-2 pb-6 shrink-0 animate-fade-up delay-350">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] transition-all duration-300" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] transition-all duration-300" />
         </div>
       </div>
     </ScreenWrapper>
@@ -146,72 +178,92 @@ export function Welcome() {
 /* ───────────── 2 & 3. Onboarding slides ───────────── */
 const slides = [
   {
-    img: "/assets/read_focus.png",
-    title: "Read with calm focus",
-    body: "Sanskrit, transliteration, translation and commentary — beautifully laid out.",
-  },
-  {
     img: "/assets/listen_return.png",
-    title: "Listen, reflect, return",
-    body: "Audio recitations, personal notes and daily streaks to keep you steady.",
+    titleKey: "onboardingSlideTitle2",
+    bodyKey: "onboardingSlideBody2",
   },
 ];
 
 export function Onboarding() {
-  const { step } = useParams();
   const { selectedLanguage } = useUserProgress();
-  const i = Math.max(0, Math.min(slides.length - 1, parseInt(step ?? "2") - 2));
-  const s = slides[i];
-  const next = i === slides.length - 1 ? "/language" : `/onboarding/${i + 3}`;
+  const s = slides[0];
 
-  const slideTitle = t(`onboardingSlideTitle${i + 1}`, selectedLanguage);
-  const slideBody = t(`onboardingSlideBody${i + 1}`, selectedLanguage);
+  const slideTitle = t(s.titleKey, selectedLanguage);
+  const slideBody = s.bodyKey ? t(s.bodyKey, selectedLanguage) : "";
 
   return (
-    <ScreenWrapper className="bg-gradient-dawn">
-      <div className="flex-1 flex flex-col px-6 pt-6 pb-8 overflow-hidden">
-        {/* Nav row */}
-        <div className="flex justify-between items-center animate-fade-up">
-          <Link to="/" className="text-sm text-muted-foreground active:opacity-60 transition-opacity">
-            {t("back", selectedLanguage)}
+    <ScreenWrapper pad={false} className="bg-[#FAF6EE]">
+      <div className="flex-1 flex flex-col justify-between select-none relative overflow-hidden bg-[#FAF6EE] text-[#5c4a37]">
+        {/* Full-bleed Top Hero Image with linear bottom fade-out */}
+        <div className="w-full h-[52dvh] relative overflow-hidden shrink-0 animate-scale-in">
+          <img
+            src={s.img}
+            alt={slideTitle}
+            className="w-full h-full object-cover"
+          />
+          {/* Flawless soft-edge content fade blending the bottom into the background */}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#FAF6EE] to-transparent pointer-events-none" />
+
+          {/* Nav overlay - positioned elegantly over the top banner */}
+          <div className="absolute top-0 inset-x-0 px-6 pt-safe pb-4 flex justify-between items-center z-20">
+            <Link to="/" className="h-9 px-4 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white/90 text-sm flex items-center justify-center font-serif tracking-wide active:opacity-75 transition-opacity shadow-sm">
+              {t("back", selectedLanguage)}
+            </Link>
+            <Link to="/language" className="h-9 px-4 rounded-full bg-white/15 backdrop-blur-md border border-white/10 text-white/95 text-sm flex items-center justify-center font-medium active:opacity-75 transition-opacity shadow-sm">
+              {t("skip", selectedLanguage)}
+            </Link>
+          </div>
+        </div>
+
+        {/* Content area: Centered typography & elegant ornaments */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center z-10 animate-fade-up delay-150 min-h-0">
+          
+          {/* Golden Lotus Ornament Separator */}
+          <div className="flex items-center gap-3 w-full justify-center opacity-90 mt-1">
+            <div className="h-[1px] w-14 bg-gradient-to-r from-transparent via-[#d4af37]/45 to-[#d4af37]" />
+            <span className="text-[#c59b27] text-2xl font-serif leading-none select-none">🪷</span>
+            <div className="h-[1px] w-14 bg-gradient-to-l from-transparent via-[#d4af37]/45 to-[#d4af37]" />
+          </div>
+
+          {/* Centered slide headings */}
+          <h2 className="font-serif text-[32px] font-medium tracking-wide text-[#4a3621] leading-tight mt-4 block">
+            {slideTitle}
+          </h2>
+
+          {/* Gold Diamond ornament */}
+          <div className="flex items-center gap-2 mt-3.5 opacity-80">
+            <div className="h-[1px] w-8 bg-[#e8dec9]" />
+            <span className="text-[#c59b27] text-xs leading-none">❖</span>
+            <div className="h-[1px] w-8 bg-[#e8dec9]" />
+          </div>
+
+          {/* Slide Description Body */}
+          <p className="mt-3.5 text-[#5c4a37] font-serif leading-relaxed text-[15px] max-w-sm px-4 text-balance">
+            {slideBody}
+          </p>
+
+          {/* Gold separator */}
+          <div className="flex items-center gap-3 mt-5 opacity-90">
+            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-[#d4af37]/40 to-[#d4af37]/80" />
+            <span className="text-[#c59b27] text-xl leading-none">🙏</span>
+            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent via-[#d4af37]/40 to-[#d4af37]/80" />
+          </div>
+        </div>
+
+        {/* CTA Terracotta Button */}
+        <div className="px-6 mt-2 mb-4 shrink-0 animate-fade-up delay-250">
+          <Link to="/language">
+            <button className="w-full h-12 rounded-full bg-[#C06D31] hover:bg-[#A65B25] active:scale-[0.985] transition-all duration-200 shadow-md text-white font-serif text-lg tracking-wide flex items-center justify-center gap-2 group">
+              <span>{t("continueBtn", selectedLanguage)}</span>
+              <span className="text-xl transition-transform duration-200 group-hover:translate-x-1">➔</span>
+            </button>
           </Link>
-          <Link to="/language" className="text-sm text-primary font-medium active:opacity-60 transition-opacity">
-            {t("skip", selectedLanguage)}
-          </Link>
         </div>
 
-        {/* Slide image — keyed so it re-animates on each step */}
-        <div
-          key={`img-${i}`}
-          className="mt-5 flex-1 min-h-0 animate-scale-in"
-        >
-          <ImageBanner src={s.img} alt={slideTitle} className="h-full max-h-[42vh]" />
-        </div>
-
-        {/* Dot indicators */}
-        <div className="mt-5 flex justify-center gap-2 animate-fade-up delay-75">
-          {slides.map((_, idx) => (
-            <span
-              key={idx}
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                idx === i ? "w-6 bg-primary" : "w-1.5 bg-border",
-              )}
-            />
-          ))}
-        </div>
-
-        {/* Text — keyed so it re-animates */}
-        <div key={`text-${i}`} className="mt-5 animate-fade-up delay-150">
-          <h2 className="font-serif text-3xl text-foreground text-balance">{slideTitle}</h2>
-          <p className="mt-2.5 text-muted-foreground leading-relaxed text-sm">{slideBody}</p>
-        </div>
-
-        {/* CTA */}
-        <div className="mt-6 animate-fade-up delay-250">
-          <Link to={next}>
-            <PrimaryButton>{i === slides.length - 1 ? t("continueBtn", selectedLanguage) : t("next", selectedLanguage)}</PrimaryButton>
-          </Link>
+        {/* Page dot indicators at bottom: condensed to 2 dots (inactive, active) */}
+        <div className="flex justify-center gap-2 pb-6 shrink-0 animate-fade-up delay-350">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] transition-all duration-300" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] transition-all duration-300" />
         </div>
       </div>
     </ScreenWrapper>
