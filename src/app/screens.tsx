@@ -102,8 +102,8 @@ const supportedLanguages = [
 export function Welcome() {
   const { selectedLanguage } = useUserProgress();
   return (
-    <ScreenWrapper pad={false} className="bg-[#FAF6EE]">
-      <div className="flex-1 flex flex-col justify-between select-none relative overflow-hidden bg-[#FAF6EE] text-[#5c4a37]">
+    <ScreenWrapper pad={false} className="bg-[#FAF6EE] dark:bg-background">
+      <div className="flex-1 flex flex-col justify-between select-none relative overflow-hidden bg-[#FAF6EE] dark:bg-background text-[#5c4a37] dark:text-foreground">
         {/* Full-bleed Top Hero Image with linear bottom fade-out */}
         <div className="w-full h-[52dvh] relative overflow-hidden shrink-0 animate-scale-in">
           <img
@@ -112,7 +112,7 @@ export function Welcome() {
             className="w-full h-full object-cover"
           />
           {/* Flawless soft-edge content fade blending the bottom into the background */}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#FAF6EE] to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#FAF6EE] dark:from-background to-transparent pointer-events-none" />
         </div>
 
         {/* Content area: Centered typography & elegant gold ornaments */}
@@ -127,23 +127,23 @@ export function Welcome() {
 
           {/* Centered multi-lingual headers */}
           <div className="mt-3.5 space-y-0.5">
-            <span className="font-serif text-[#8c7453] text-xl font-light italic leading-none block">
+            <span className="font-serif text-[#8c7453] dark:text-muted-foreground text-xl font-light italic leading-none block">
               {t("welcomeLine1", selectedLanguage)}
             </span>
-            <h1 className="font-serif text-[42px] font-medium tracking-wide text-[#4a3621] leading-tight block">
+            <h1 className="font-serif text-[42px] font-medium tracking-wide text-[#4a3621] dark:text-foreground leading-tight block">
               {t("welcomeLine2", selectedLanguage)}
             </h1>
           </div>
 
           {/* Gold Diamond ornament with divider lines */}
           <div className="flex items-center gap-2 mt-3.5 opacity-80">
-            <div className="h-[1px] w-8 bg-[#e8dec9]" />
+            <div className="h-[1px] w-8 bg-[#e8dec9] dark:bg-border/60" />
             <span className="text-[#c59b27] text-xs leading-none">❖</span>
-            <div className="h-[1px] w-8 bg-[#e8dec9]" />
+            <div className="h-[1px] w-8 bg-[#e8dec9] dark:bg-border/60" />
           </div>
 
           {/* Description Subtitle */}
-          <p className="mt-3 text-[#5c4a37] font-serif leading-relaxed text-[15px] max-w-sm px-2 text-balance">
+          <p className="mt-3 text-[#5c4a37] dark:text-foreground/90 font-serif leading-relaxed text-[15px] max-w-sm px-2 text-balance">
             {t("welcomeSub", selectedLanguage)}
           </p>
 
@@ -167,8 +167,8 @@ export function Welcome() {
 
         {/* Page dot indicators at bottom */}
         <div className="flex justify-center gap-2 pb-6 shrink-0 animate-fade-up delay-350">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] transition-all duration-300" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] transition-all duration-300" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] dark:bg-primary transition-all duration-300" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] dark:bg-muted transition-all duration-300" />
         </div>
       </div>
     </ScreenWrapper>
@@ -192,8 +192,8 @@ export function Onboarding() {
   const slideBody = s.bodyKey ? t(s.bodyKey, selectedLanguage) : "";
 
   return (
-    <ScreenWrapper pad={false} className="bg-[#FAF6EE]">
-      <div className="flex-1 flex flex-col justify-between select-none relative overflow-hidden bg-[#FAF6EE] text-[#5c4a37]">
+    <ScreenWrapper pad={false} className="bg-[#FAF6EE] dark:bg-background">
+      <div className="flex-1 flex flex-col justify-between select-none relative overflow-hidden bg-[#FAF6EE] dark:bg-background text-[#5c4a37] dark:text-foreground">
         {/* Full-bleed Top Hero Image with linear bottom fade-out */}
         <div className="w-full h-[52dvh] relative overflow-hidden shrink-0 animate-scale-in">
           <img
@@ -202,7 +202,7 @@ export function Onboarding() {
             className="w-full h-full object-cover"
           />
           {/* Flawless soft-edge content fade blending the bottom into the background */}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#FAF6EE] to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#FAF6EE] dark:from-background to-transparent pointer-events-none" />
 
           {/* Nav overlay - positioned elegantly over the top banner */}
           <div className="absolute top-0 inset-x-0 px-6 pt-safe pb-4 flex justify-between items-center z-20">
@@ -226,19 +226,19 @@ export function Onboarding() {
           </div>
 
           {/* Centered slide headings */}
-          <h2 className="font-serif text-[32px] font-medium tracking-wide text-[#4a3621] leading-tight mt-4 block">
+          <h2 className="font-serif text-[32px] font-medium tracking-wide text-[#4a3621] dark:text-foreground leading-tight mt-4 block">
             {slideTitle}
           </h2>
 
           {/* Gold Diamond ornament */}
           <div className="flex items-center gap-2 mt-3.5 opacity-80">
-            <div className="h-[1px] w-8 bg-[#e8dec9]" />
+            <div className="h-[1px] w-8 bg-[#e8dec9] dark:bg-border/60" />
             <span className="text-[#c59b27] text-xs leading-none">❖</span>
-            <div className="h-[1px] w-8 bg-[#e8dec9]" />
+            <div className="h-[1px] w-8 bg-[#e8dec9] dark:bg-border/60" />
           </div>
 
           {/* Slide Description Body */}
-          <p className="mt-3.5 text-[#5c4a37] font-serif leading-relaxed text-[15px] max-w-sm px-4 text-balance">
+          <p className="mt-3.5 text-[#5c4a37] dark:text-foreground/90 font-serif leading-relaxed text-[15px] max-w-sm px-4 text-balance">
             {slideBody}
           </p>
 
@@ -262,8 +262,8 @@ export function Onboarding() {
 
         {/* Page dot indicators at bottom: condensed to 2 dots (inactive, active) */}
         <div className="flex justify-center gap-2 pb-6 shrink-0 animate-fade-up delay-350">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] transition-all duration-300" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] transition-all duration-300" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] dark:bg-muted transition-all duration-300" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] dark:bg-primary transition-all duration-300" />
         </div>
       </div>
     </ScreenWrapper>
@@ -455,14 +455,14 @@ export function ChaptersList() {
   });
 
   return (
-    <ScreenWrapper className="bg-[#FAF7EE]">
+    <ScreenWrapper className="bg-[#FAF7EE] dark:bg-background">
       {/* 1. Header Hero with blended backdrop */}
       <div className="relative pt-6 px-5 flex flex-col items-center overflow-hidden">
         {/* Krishna & Arjuna chariot background image blend */}
         <img 
           src="/assets/images/lord_krishna.png" 
           alt="Lord Krishna and Arjuna"
-          className="absolute top-0 right-0 h-44 w-auto object-cover opacity-[0.14] pointer-events-none mix-blend-multiply" 
+          className="absolute top-0 right-0 h-44 w-auto object-cover opacity-[0.14] dark:opacity-[0.08] pointer-events-none mix-blend-multiply dark:mix-blend-luminosity" 
         />
         
 
@@ -474,12 +474,12 @@ export function ChaptersList() {
         </div>
 
         {/* Serif Chapters Title */}
-        <h1 className="font-serif text-3.5xl text-[#4A3728] font-bold tracking-wide mt-1">
+        <h1 className="font-serif text-3.5xl text-[#4A3728] dark:text-foreground font-bold tracking-wide mt-1">
           {t("chapters", selectedLanguage)}
         </h1>
 
         {/* Subtitle description */}
-        <p className="text-xs font-serif text-[#8A7D65] mt-1 italic text-center text-balance max-w-[80%] leading-relaxed">
+        <p className="text-xs font-serif text-[#8A7D65] dark:text-muted-foreground mt-1 italic text-center text-balance max-w-[80%] leading-relaxed">
           {t("exploreChaptersDesc", selectedLanguage)}
         </p>
 
@@ -493,13 +493,13 @@ export function ChaptersList() {
 
       {/* 2. Search and Filter Bar */}
       <div className="px-5 mt-5 z-10 relative">
-        <div className="flex items-center gap-2 rounded-full bg-white border border-[#EFE9DB] px-4 h-11 shadow-[0_2px_6px_rgba(188,169,140,0.06)]">
-          <Search size={18} className="text-[#A69B85]" />
+        <div className="flex items-center gap-2 rounded-full bg-white dark:bg-card border border-[#EFE9DB] dark:border-border/60 px-4 h-11 shadow-[0_2px_6px_rgba(188,169,140,0.06)] dark:shadow-none">
+          <Search size={18} className="text-[#A69B85] dark:text-muted-foreground" />
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("searchChaptersPlaceholder", selectedLanguage)}
-            className="flex-1 bg-transparent outline-none text-sm text-[#4A3728] placeholder:text-[#A69B85]"
+            className="flex-1 bg-transparent outline-none text-sm text-[#4A3728] dark:text-foreground placeholder:text-[#A69B85] dark:placeholder:text-muted-foreground"
           />
         </div>
       </div>
@@ -515,7 +515,7 @@ export function ChaptersList() {
             <div
               key={c.chapter_number}
               onClick={() => nav(`/chapter/${c.chapter_number}`)}
-              className="bg-white/95 border border-[#F4EFE3] hover:border-[#EADFCA] shadow-[0_2px_8px_rgba(188,169,140,0.06)] hover:shadow-[0_4px_12px_rgba(188,169,140,0.12)] rounded-2.5xl p-3 flex items-center gap-3.5 cursor-pointer active:scale-[0.99] transition-all duration-200"
+              className="bg-white/95 dark:bg-card/95 border border-[#F4EFE3] dark:border-border/40 hover:border-[#EADFCA] dark:hover:border-primary/40 shadow-[0_2px_8px_rgba(188,169,140,0.06)] dark:shadow-none hover:shadow-[0_4px_12px_rgba(188,169,140,0.12)] dark:hover:shadow-soft rounded-2.5xl p-3 flex items-center gap-3.5 cursor-pointer active:scale-[0.99] transition-all duration-200"
             >
               {/* Rounded 4:3 chapter illustration */}
               <img
@@ -525,29 +525,29 @@ export function ChaptersList() {
               />
 
               {/* Gold circle chapter number */}
-              <div className="h-8 w-8 rounded-full bg-[#FAF5EA] border border-[#EFE9DB] flex items-center justify-center font-serif text-sm font-semibold text-[#B69550] shrink-0">
+              <div className="h-8 w-8 rounded-full bg-[#FAF5EA] dark:bg-muted border border-[#EFE9DB] dark:border-border/60 flex items-center justify-center font-serif text-sm font-semibold text-[#B69550] dark:text-primary shrink-0">
                 {c.chapter_number}
               </div>
 
               {/* Titles & Verse Info */}
               <div className="flex-1 min-w-0">
-                <h3 className="font-serif text-base text-[#4A3728] font-bold truncate">
+                <h3 className="font-serif text-base text-[#4A3728] dark:text-foreground font-bold truncate">
                   {c.title[selectedLanguage] || c.title["en"]}
                 </h3>
-                <p className="text-[11px] text-[#8A7D65] mt-0.5 truncate leading-relaxed">
+                <p className="text-[11px] text-[#8A7D65] dark:text-muted-foreground mt-0.5 truncate leading-relaxed">
                   {c.summary[selectedLanguage] || c.summary["en"]}
                 </p>
-                <p className="text-[11px] text-[#C69A3F] font-serif font-semibold mt-2">
+                <p className="text-[11px] text-[#C69A3F] dark:text-primary font-serif font-semibold mt-2">
                   {c.verseCount} {t("verses", selectedLanguage)}
                 </p>
               </div>
 
               {/* Gold Right Chevron indicator */}
-              <ChevronRight size={18} className="text-[#C5B396] shrink-0" />
+              <ChevronRight size={18} className="text-[#C5B396] dark:text-muted-foreground shrink-0" />
             </div>
           ))
         ) : (
-          <div className="text-center py-12 text-[#8A7D65] font-serif text-sm">
+          <div className="text-center py-12 text-[#8A7D65] dark:text-muted-foreground font-serif text-sm">
             {t("noMatchingChapters", selectedLanguage)}
           </div>
         )}
@@ -715,7 +715,7 @@ export function ChapterVerses() {
   const progressRatio = completedCount / totalCount;
 
   return (
-    <ScreenWrapper className="bg-[#FAF7EE]">
+    <ScreenWrapper className="bg-[#FAF7EE] dark:bg-background">
       {/* Exquisite Top Reference Ornament */}
       <div className="w-full flex justify-center pt-2 select-none">
         <div className="flex items-center gap-1.5 opacity-60">
@@ -728,7 +728,7 @@ export function ChapterVerses() {
       <div className="flex items-center justify-between px-5 pt-2 pb-2 relative">
         <button
           onClick={() => nav(`/chapter/${chapter.chapter_number}`)}
-          className="h-10 w-10 rounded-full bg-white/70 backdrop-blur shadow-[0_2px_8px_rgba(188,169,140,0.15)] flex items-center justify-center text-[#4A3728]/70 hover:text-[#4A3728] transition shrink-0"
+          className="h-10 w-10 rounded-full bg-white/70 dark:bg-card/70 backdrop-blur shadow-[0_2px_8px_rgba(188,169,140,0.15)] dark:shadow-none flex items-center justify-center text-[#4A3728]/70 dark:text-foreground/70 hover:text-[#4A3728] dark:hover:text-foreground transition shrink-0"
           aria-label="Back"
         >
           <ChevronLeft size={20} />
@@ -744,8 +744,8 @@ export function ChapterVerses() {
 
       {/* Progress Section */}
       <div className="px-5 mt-2">
-        <AppCard className="bg-white border border-[#EFE9DB] shadow-[0_2px_6px_rgba(188,169,140,0.06)] p-3">
-          <div className="flex justify-between items-center text-xs text-[#8A7D65] font-serif mb-1.5">
+        <AppCard className="bg-white dark:bg-card border border-[#EFE9DB] dark:border-border/60 shadow-[0_2px_6px_rgba(188,169,140,0.06)] dark:shadow-none p-3">
+          <div className="flex justify-between items-center text-xs text-[#8A7D65] dark:text-muted-foreground font-serif mb-1.5">
             <span>{t("yourJourney", selectedLanguage)}</span>
             <span className="font-semibold text-primary">{Math.round(progressRatio * 100)}% {t("readLabel", selectedLanguage).toLowerCase()}</span>
           </div>
@@ -755,13 +755,13 @@ export function ChapterVerses() {
 
       {/* Search Input */}
       <div className="px-5 mt-4">
-        <div className="flex items-center gap-2 rounded-full bg-white border border-[#EFE9DB] px-4 h-10.5 shadow-[0_2px_6px_rgba(188,169,140,0.06)]">
-          <Search size={16} className="text-[#A69B85]" />
+        <div className="flex items-center gap-2 rounded-full bg-white dark:bg-card border border-[#EFE9DB] dark:border-border/60 px-4 h-10.5 shadow-[0_2px_6px_rgba(188,169,140,0.06)] dark:shadow-none">
+          <Search size={16} className="text-[#A69B85] dark:text-muted-foreground" />
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("searchPlaceholder", selectedLanguage)}
-            className="flex-1 bg-transparent outline-none text-xs text-[#4A3728] placeholder:text-[#A69B85]"
+            className="flex-1 bg-transparent outline-none text-xs text-[#4A3728] dark:text-foreground placeholder:text-[#A69B85] dark:placeholder:text-muted-foreground"
           />
         </div>
       </div>
@@ -781,8 +781,8 @@ export function ChapterVerses() {
               <div
                 key={verseId}
                 className={cn(
-                  "bg-white/95 border shadow-[0_2px_8px_rgba(188,169,140,0.06)] rounded-2xl p-3 flex items-center gap-3 transition-all duration-150 cursor-pointer hover:border-[#EADFCA]",
-                  completed ? "border-primary/20 bg-emerald-50/5" : "border-[#F4EFE3]"
+                  "bg-white/95 dark:bg-card/95 border shadow-[0_2px_8px_rgba(188,169,140,0.06)] dark:shadow-none rounded-2xl p-3 flex items-center gap-3 transition-all duration-150 cursor-pointer hover:border-[#EADFCA] dark:hover:border-primary/40",
+                  completed ? "border-primary/20 bg-emerald-50/5 dark:bg-emerald-950/5" : "border-[#F4EFE3] dark:border-border/40"
                 )}
                 onClick={() => nav(`/verse/${verseId}`)}
               >
@@ -804,14 +804,14 @@ export function ChapterVerses() {
                   {completed ? (
                     <CheckCircle2 size={22} className="text-primary fill-primary/10 animate-scale-in" />
                   ) : (
-                    <Circle size={22} className="text-[#C5B396]/60 hover:text-primary transition-colors" />
+                    <Circle size={22} className="text-[#C5B396]/60 dark:text-muted-foreground/60 hover:text-primary dark:hover:text-primary transition-colors" />
                   )}
                 </button>
 
                 {/* Verse Info & Snippet */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-serif text-sm font-bold text-[#4A3728]">
+                    <span className="font-serif text-sm font-bold text-[#4A3728] dark:text-foreground">
                       {t("verseLabel", selectedLanguage)} {v.verse}
                     </span>
                     {completed && (
@@ -826,12 +826,12 @@ export function ChapterVerses() {
                 </div>
 
                 {/* Arrow indicator */}
-                <ChevronRight size={16} className="text-[#C5B396]/60 shrink-0" />
+                <ChevronRight size={16} className="text-[#C5B396]/60 dark:text-muted-foreground/60 shrink-0" />
               </div>
             );
           })
         ) : (
-          <div className="text-center py-12 text-[#8A7D65] font-serif text-sm">
+          <div className="text-center py-12 text-[#8A7D65] dark:text-muted-foreground font-serif text-sm">
             {t("nothingYet", selectedLanguage)}
           </div>
         )}
@@ -1587,40 +1587,40 @@ export function WisdomScreen() {
 
 /* ───────────── 14. Wisdom Themes ───────────── */
 const wisdomThemes = [
-  { id: "t1", title: "On Duty", count: 24, color: "from-amber-200 to-orange-200", query: "duty" },
+  { id: "t1", title: "On Duty", count: 24, color: "from-amber-200 to-orange-200 dark:from-amber-950/40 dark:to-orange-950/40 dark:border dark:border-primary/10", query: "duty" },
   {
     id: "t2",
     title: "On Detachment",
     count: 18,
-    color: "from-rose-200 to-amber-200",
+    color: "from-rose-200 to-amber-200 dark:from-rose-950/40 dark:to-amber-950/40 dark:border dark:border-primary/10",
     query: "detachment",
   },
   {
     id: "t3",
     title: "On Devotion",
     count: 31,
-    color: "from-yellow-200 to-rose-200",
+    color: "from-yellow-200 to-rose-200 dark:from-yellow-950/40 dark:to-rose-950/40 dark:border dark:border-primary/10",
     query: "devotion",
   },
   {
     id: "t4",
     title: "On Meditation",
     count: 16,
-    color: "from-orange-200 to-yellow-200",
+    color: "from-orange-200 to-yellow-200 dark:from-orange-950/40 dark:to-yellow-950/40 dark:border dark:border-primary/10",
     query: "meditation",
   },
   {
     id: "t5",
     title: "On The Soul",
     count: 22,
-    color: "from-amber-100 to-orange-100",
+    color: "from-amber-100 to-orange-100 dark:from-amber-950/30 dark:to-orange-950/30 dark:border dark:border-primary/10",
     query: "soul",
   },
   {
     id: "t6",
     title: "On Liberation",
     count: 19,
-    color: "from-yellow-100 to-amber-200",
+    color: "from-yellow-100 to-amber-200 dark:from-yellow-950/30 dark:to-amber-950/40 dark:border dark:border-primary/10",
     query: "liberation",
   },
 ];
@@ -3317,8 +3317,7 @@ export function Profile() {
     setAutoPlayOnOpen,
   } = useUserProgress();
 
-  // Dark theme toggle state
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -3369,18 +3368,7 @@ export function Profile() {
 
   const reminderConfig = getReminderConfig();
 
-  const toggleTheme = () => {
-    const nextDark = !dark;
-    setDark(nextDark);
-    if (nextDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-    const modeName = nextDark ? t("darkMode", selectedLanguage) : t("lightMode", selectedLanguage);
-    const enabledStr = t("themeChangedToast", selectedLanguage);
-    toast.success(`${modeName} ${enabledStr}`);
-  };
+
 
   const handleSeedDatabase = async () => {
     if (seedingProgress.status === "running") return;
@@ -3598,15 +3586,7 @@ export function Profile() {
                 <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${autoPlayOnOpen ? "translate-x-4" : "translate-x-0.5"}`} />
               </div>
             </button>
-            <button
-              onClick={toggleTheme}
-              className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
-            >
-              {dark ? <Moon size={18} className="text-primary" /> : <Sun size={18} className="text-primary" />}
-              <span className="flex-1 text-sm text-foreground">{t("theme", selectedLanguage)}</span>
-              <span className="text-xs text-muted-foreground">{dark ? t("darkMode", selectedLanguage) : t("lightMode", selectedLanguage)}</span>
-              <ChevronRight size={16} className="text-muted-foreground" />
-            </button>
+
             <button
               onClick={() => nav("/reminders")}
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"

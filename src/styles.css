@@ -91,6 +91,12 @@
   --border: oklch(0.32 0.025 55);
   --input: oklch(0.32 0.025 55);
   --ring: oklch(0.78 0.13 70);
+  --parchment: oklch(0.2 0.015 50);
+  --ink: oklch(0.9 0.015 50);
+  --gold-soft: oklch(0.35 0.06 70);
+  --gradient-warm: linear-gradient(160deg, oklch(0.18 0.018 50) 0%, oklch(0.14 0.018 45) 100%);
+  --gradient-dawn: linear-gradient(180deg, oklch(0.22 0.02 55) 0%, oklch(0.16 0.02 45) 100%);
+  --gradient-gold: linear-gradient(135deg, oklch(0.72 0.13 70) 0%, oklch(0.55 0.11 60) 100%);
 }
 
 @layer base {
