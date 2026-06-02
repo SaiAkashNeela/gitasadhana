@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { onAuthStateChanged, User, deleteUser } from "firebase/auth";
 import { doc, getDoc, setDoc, onSnapshot, deleteDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
@@ -94,11 +94,12 @@ interface UserProgressContextType {
 
 const UserProgressContext = createContext<UserProgressContextType | undefined>(undefined);
 
-const SYNC_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes in milliseconds
+const SYNC_INTERVAL_MS = 60 * 1000;
 
 export function UserProgressProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const syncDirtyRef = useRef(false);
 
   // Current Language
   const [selectedLanguage, setSelectedLanguage] = useState(() => {
@@ -285,13 +286,16 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     localStorage.setItem("gita_last_opened_date", todayStr);
   }, []);
 
-  // Background interval for minutes read tracking
+  // Background interval for minutes read tracking + 1-min cloud sync flush
   useEffect(() => {
     const interval = setInterval(() => {
       if (document.visibilityState === "visible") {
         setProfile(prev => ({ ...prev, minutes: prev.minutes + 1 }));
       }
-    }, 60000);
+      if (syncDirtyRef.current) {
+        syncStateToCloud();
+      }
+    }, SYNC_INTERVAL_MS);
     return () => clearInterval(interval);
   }, []);
 
@@ -397,7 +401,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
               setProfile((prev) => {
                 const name = currentUser.displayName || data.name || "Seeker";
                 const email = currentUser.email || data.email || "";
-                const streak = data.streak ?? 1;
+                const streak = Math.max(prev.streak, data.streak ?? 1);
                 const versesRead = Math.max(prev.versesRead, data.readVerses?.length || data.versesRead || 0);
                 const bookmarksCount = Math.max(prev.bookmarks, data.bookmarks?.length || 0);
                 const minutes = Math.max(prev.minutes, data.minutes || 0);
@@ -485,7 +489,9 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     }
   }, [downloadedVerses, downloadedChapters, isGitaDownloaded, user]);
 
-  // 4. Helper to push state changes to cloud if logged in (Throttled to once every 30 minutes, synchronously locks to block race conditions)
+  // 4. Helper to push state to cloud.
+  // Non-forced calls just mark dirty — a 1-min interval batches all changes into 1 write.
+  // Forced calls (sign-out, triggerSync) write immediately.
   const syncStateToCloud = async (
     updatedBookmarks = bookmarks,
     updatedNotes = notes,
@@ -503,55 +509,43 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   ) => {
     if (!user) return;
 
-    // Retrieve last sync timestamp
-    const lastSyncTimeStr = localStorage.getItem("gita_last_sync_time") || "0";
-    const now = Date.now();
-    const timeSinceLastSync = now - Number(lastSyncTimeStr);
-
-    if (!force && timeSinceLastSync < SYNC_INTERVAL_MS) {
-      console.log(`☁️ Cloud sync deferred. Last sync was ${Math.round(timeSinceLastSync / 1000 / 60)} mins ago (sync is limited to once every 30 mins).`);
-      return;
-    }
-
-    // Set the sync timestamp IMMEDIATELY and synchronously before setDoc to block race conditions!
-    if (!force) {
-      localStorage.setItem("gita_last_sync_time", now.toString());
-    }
-
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      await setDoc(
-        userDocRef,
-        {
-          name: updatedProfile.name,
-          email: updatedProfile.email,
-          streak: updatedProfile.streak,
-          versesRead: updatedProfile.versesRead,
-          bookmarks: updatedBookmarks,
-          notes: updatedNotes,
-          history: updatedHistory,
-          favorites: updatedFavorites,
-          language: lang,
-          downloadedVerses: updatedDownloadedVerses,
-          downloadedChapters: updatedDownloadedChapters,
-          isGitaDownloaded: updatedIsGitaDownloaded,
-          completedVerses: updatedCompleted,
-          readVerses: updatedReadVerses,
-          readDates: updatedReadDates,
-          createdAt: updatedProfile.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        { merge: true },
-      );
-      // Update with the final completion timestamp
-      localStorage.setItem("gita_last_sync_time", Date.now().toString());
-      console.log("☁️ Successfully backed up progress to cloud.");
-    } catch (e) {
-      // If it failed, clear the timestamp so it can retry later
-      if (!force) {
-        localStorage.removeItem("gita_last_sync_time");
+    const doWrite = async (u: typeof user) => {
+      try {
+        const userDocRef = doc(db, "users", u.uid);
+        await setDoc(
+          userDocRef,
+          {
+            name: updatedProfile.name,
+            email: updatedProfile.email,
+            streak: updatedProfile.streak,
+            versesRead: updatedProfile.versesRead,
+            bookmarks: updatedBookmarks,
+            notes: updatedNotes,
+            history: updatedHistory,
+            favorites: updatedFavorites,
+            language: lang,
+            downloadedVerses: updatedDownloadedVerses,
+            downloadedChapters: updatedDownloadedChapters,
+            isGitaDownloaded: updatedIsGitaDownloaded,
+            completedVerses: updatedCompleted,
+            readVerses: updatedReadVerses,
+            readDates: updatedReadDates,
+            createdAt: updatedProfile.createdAt || new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true },
+        );
+        syncDirtyRef.current = false;
+        console.log("☁️ Successfully backed up progress to cloud.");
+      } catch (e) {
+        console.error("Cloud backup failed:", e);
       }
-      console.error("Cloud backup failed:", e);
+    };
+
+    if (force) {
+      await doWrite(user);
+    } else {
+      syncDirtyRef.current = true;
     }
   };
 
@@ -689,28 +683,9 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   };
 
   const signOutUser = async () => {
+    await syncStateToCloud(bookmarks, notes, history, favorites, profile, selectedLanguage, downloadedVerses, downloadedChapters, isGitaDownloaded, true, completedVerses, readVerses, readDates);
     await auth.signOut();
     setUser(null);
-    localStorage.clear();
-    setBookmarks([]);
-    setNotes([]);
-    setHistory([]);
-    setFavorites([]);
-    setCompletedVerses([]);
-    setReadVerses([]);
-    setDownloadedVerses([]);
-    setDownloadedChapters([]);
-    setIsGitaDownloaded(false);
-    setReadDates([]);
-    setProfile({
-      name: "Seeker",
-      email: "guest@easygita.app",
-      streak: 1,
-      versesRead: 0,
-      bookmarks: 0,
-      minutes: 0,
-      createdAt: new Date().toISOString(),
-    });
   };
 
   const deleteAccountAndData = async () => {
@@ -746,7 +721,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
   const triggerSync = async () => {
     if (!user) return;
-    await syncStateToCloud(bookmarks, notes, history, favorites, profile, selectedLanguage, downloadedVerses, downloadedChapters, isGitaDownloaded, true);
+    await syncStateToCloud(bookmarks, notes, history, favorites, profile, selectedLanguage, downloadedVerses, downloadedChapters, isGitaDownloaded, true, completedVerses, readVerses, readDates);
   };
 
   // ──── High-fidelity Simulated Download Methods ────
