@@ -1,11 +1,13 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "firebase/auth";
+import { getAuth, initializeAuth, indexedDBLocalPersistence, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "firebase/auth";
 import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
+  persistentSingleTabManager,
 } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
+import { Capacitor } from "@capacitor/core";
 
 const firebaseConfig = {
   apiKey: "***REMOVED***",
@@ -20,15 +22,19 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore with robust local persistent cache
+// Native WebView doesn't support multi-tab IndexedDB coordination
 const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager(),
+    tabManager: Capacitor.isNativePlatform()
+      ? persistentSingleTabManager({})
+      : persistentMultipleTabManager(),
   }),
 });
 
-// Initialize Auth
-const auth = getAuth(app);
+// initializeAuth with indexedDB persistence avoids WebView popup/redirect resolver deadlock
+const auth = Capacitor.isNativePlatform()
+  ? initializeAuth(app, { persistence: indexedDBLocalPersistence })
+  : getAuth(app);
 
 // Initialize Cloud Functions
 const functions = getFunctions(app, "us-central1");

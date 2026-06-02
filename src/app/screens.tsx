@@ -3677,8 +3677,12 @@ export function Profile() {
           grantOfflineAccess: true,
         });
         const nativeUser = await GoogleAuth.signIn();
-        const credential = GoogleAuthProvider.credential(nativeUser.authentication.idToken);
-        await signInWithCredential(auth, credential);
+        console.log("Google idToken:", nativeUser.authentication.idToken ? "present" : "MISSING");
+        const idToken = nativeUser.authentication.idToken;
+        if (!idToken) throw new Error("No idToken returned from Google Sign-In");
+        const credential = GoogleAuthProvider.credential(idToken);
+        const result = await signInWithCredential(auth, credential);
+        console.log("Firebase sign-in success:", result.user.email);
         toast.success(t("googleSignInSuccessToast", selectedLanguage));
       } catch (e: any) {
         console.error("Native Google sign-in failed:", e);
