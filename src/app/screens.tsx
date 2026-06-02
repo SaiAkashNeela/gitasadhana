@@ -43,6 +43,10 @@ import {
   ArrowDownToLine,
   X,
   AlertTriangle,
+  Send,
+  Wifi,
+  WifiOff,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
@@ -77,6 +81,7 @@ import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { auth, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "@/lib/firebase";
 import { seedGitaDatabase, SeedingProgress } from "@/lib/seeding";
 import { sendContactEmail, sendCorrectionEmail } from "@/lib/api/email.functions";
+import { useGitaAI } from "@/hooks/useGitaAI";
 import { getReminderConfig, updateReminderSettings, formatTime12Hour, localizedReminders } from "@/lib/notifications";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -470,15 +475,38 @@ export function HomeScreen() {
   }, []);
 
   const hasUnread = notifications.some(n => !n.read);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const [bannerVisible, setBannerVisible] = useState(true);
+
+  useEffect(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setBannerVisible(entry.isIntersecting),
+      { threshold: 0.1 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <ScreenWrapper>
       <div className="px-5 pt-5 flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground">{t("hariOm", selectedLanguage)}, {profile.name}</p>
-          <h1 className="font-serif text-2xl text-foreground">{t("todaysVerse", selectedLanguage)}</h1>
+          <h1 className={`font-serif text-2xl text-foreground transition-opacity duration-300 ${bannerVisible ? "opacity-100" : "opacity-0 pointer-events-none select-none"}`}>
+            {t("todaysVerse", selectedLanguage)}
+          </h1>
         </div>
         <div className="flex gap-2">
+          <IconButton onClick={() => nav("/gita-ai")} className="relative">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+              <path d="M12 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+              <path d="M8 14c0-2.21 1.79-4 4-4s4 1.79 4 4" />
+              <path d="M12 18v-2" />
+            </svg>
+          </IconButton>
           <IconButton onClick={() => nav("/notifications")} className="relative">
             <Bell size={18} />
             {hasUnread && (
@@ -491,6 +519,7 @@ export function HomeScreen() {
       <div className="flex-1 overflow-y-auto pb-44 scroll-hide">
         <div className="px-5 mt-5">
           <div
+            ref={bannerRef}
             onClick={() =>
               nav(
                 `/verse/${
@@ -1228,7 +1257,6 @@ export function VerseReading() {
     const nextIdx = (activeSpeedIdx + 1) % speeds.length;
     setActiveSpeedIdx(nextIdx);
     setRate(speeds[nextIdx]);
-    toast.info(`${t("playbackSpeedSetToast", selectedLanguage)} ${speeds[nextIdx]}x`);
   };
 
   const handleShare = async () => {
@@ -2289,7 +2317,6 @@ export function Player() {
     const nextIdx = (activeSpeedIdx + 1) % speeds.length;
     setActiveSpeedIdx(nextIdx);
     setRate(speeds[nextIdx]);
-    toast.info(`${t("playbackSpeedSetToast", selectedLanguage)} ${speeds[nextIdx]}x`);
   };
 
   if (!currentVerse) {
@@ -3579,6 +3606,7 @@ export function Profile() {
     setAutoPlayOnOpen,
   } = useUserProgress();
 
+  const { forceSyncBeforeLogout } = useGitaAI(user?.uid ?? null);
 
   const [showSignOutModal, setShowSignOutModal] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -3674,6 +3702,7 @@ export function Profile() {
   const confirmSignOut = async () => {
     setIsSigningOut(true);
     try {
+      await forceSyncBeforeLogout();
       await signOutUser();
       setShowSignOutModal(false);
       toast.success(t("signedOutSuccessToast", selectedLanguage) || "Signed out successfully");
@@ -4500,6 +4529,206 @@ export function HelpCorrection() {
         >
           {sending ? "Submitting..." : t("submitCorrectionBtn", selectedLanguage)}
         </button>
+      </div>
+    </ScreenWrapper>
+  );
+}
+
+/* ───────────── Gita AI ───────────── */
+export function GitaAI() {
+  const { user, selectedLanguage } = useUserProgress();
+  const { messages, language, setLanguage, sending, limitReached, error, clearError, sendMessage, clearChat } =
+    useGitaAI(user?.uid ?? null);
+  const [input, setInput] = useState("");
+  const [showLangPicker, setShowLangPicker] = useState(!localStorage.getItem("gita_ai_language"));
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const nav = useNavigate();
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, sending]);
+
+  const handleSend = async () => {
+    const text = input.trim();
+    if (!text || sending || limitReached) return;
+    setInput("");
+    await sendMessage(text);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  if (showLangPicker) {
+    return (
+      <ScreenWrapper>
+        <div className="flex items-center justify-between px-5 pt-5 pb-2">
+          <button onClick={() => nav(-1)} className="h-10 w-10 rounded-full bg-card/70 flex items-center justify-center text-foreground/70 hover:text-foreground transition">
+            <ChevronLeft size={20} />
+          </button>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center pb-safe">
+          <div className="h-20 w-20 rounded-full overflow-hidden shadow-soft mb-6 border-2 border-primary/20">
+            <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
+          </div>
+          <h1 className="font-serif text-2xl text-foreground mb-2">Gita AI</h1>
+          <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
+            A calm, devotional guide to the wisdom of the Bhagavad Gita.<br/>
+            Which language would you like to converse in?
+          </p>
+          <div className="w-full space-y-2 max-h-[50vh] overflow-y-auto scroll-hide">
+            {supportedLanguages.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => { setLanguage(l.code); setShowLangPicker(false); }}
+                className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition active:scale-[0.98]"
+              >
+                <span className="font-medium text-foreground text-sm">{l.name}</span>
+                <span className="text-muted-foreground text-sm">{l.native}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </ScreenWrapper>
+    );
+  }
+
+  return (
+    <ScreenWrapper>
+      {/* Header */}
+      <div className="flex items-center gap-3 px-5 pt-5 pb-3 border-b border-border/40">
+        <button onClick={() => nav(-1)} className="h-10 w-10 rounded-full bg-card/70 flex items-center justify-center text-foreground/70 hover:text-foreground transition shrink-0">
+          <ChevronLeft size={20} />
+        </button>
+        <div className="h-9 w-9 rounded-full overflow-hidden border border-primary/20 shrink-0">
+          <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-serif text-base text-foreground leading-tight">Gita AI</p>
+          <p className="text-[11px] text-muted-foreground">
+            {supportedLanguages.find((l) => l.code === language)?.name ?? "English"}
+          </p>
+        </div>
+        <button onClick={clearChat} className="h-9 w-9 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition" aria-label="Clear chat">
+          <RotateCcw size={15} />
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto scroll-hide px-4 py-4 space-y-4">
+        {messages.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12 select-none">
+            <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-primary/20 shadow-soft mb-4">
+              <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
+            </div>
+            <h2 className="font-serif text-lg text-foreground mb-2">Hare Krishna 🙏</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Ask me anything about the Bhagavad Gita, Lord Krishna, or how to use this app.
+            </p>
+            <div className="mt-6 space-y-2 w-full">
+              {[
+                "What is the main teaching of the Bhagavad Gita?",
+                "Explain the concept of Nishkama Karma",
+                "Who is Lord Krishna?",
+              ].map((prompt) => (
+                <button
+                  key={prompt}
+                  onClick={() => { setInput(prompt); inputRef.current?.focus(); }}
+                  className="w-full text-left px-4 py-2.5 rounded-xl bg-card border border-border/60 text-sm text-foreground/80 hover:border-primary/40 hover:bg-primary/5 transition active:scale-[0.98]"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+            {msg.role === "model" && (
+              <div className="h-7 w-7 rounded-full overflow-hidden border border-primary/20 shrink-0 mt-0.5">
+                <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+              msg.role === "user"
+                ? "bg-primary text-primary-foreground rounded-br-sm"
+                : "bg-card border border-border/60 text-foreground rounded-bl-sm"
+            }`}>
+              {msg.text}
+            </div>
+          </div>
+        ))}
+
+        {sending && (
+          <div className="flex gap-2.5 justify-start">
+            <div className="h-7 w-7 rounded-full overflow-hidden border border-primary/20 shrink-0 mt-0.5">
+              <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
+            </div>
+            <div className="bg-card border border-border/60 px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1 items-center">
+              <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
+              <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:150ms]" />
+              <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
+            </div>
+          </div>
+        )}
+
+        {limitReached && (
+          <div className="mx-2 px-5 py-4 rounded-2xl bg-primary/8 border border-primary/20 text-center">
+            <p className="font-serif text-base text-foreground mb-1">Daily limit reached 🙏</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              You've received today's guidance from Gita AI. Please return tomorrow for more conversations and wisdom.
+            </p>
+          </div>
+        )}
+
+        {error && error !== "offline" && (
+          <div className="mx-2 px-4 py-3 rounded-2xl bg-destructive/8 border border-destructive/20 flex items-center gap-3">
+            <p className="text-sm text-destructive flex-1">{error}</p>
+            <button onClick={clearError} className="text-destructive/60 hover:text-destructive transition"><X size={16} /></button>
+          </div>
+        )}
+
+        {error === "offline" && (
+          <div className="mx-2 px-5 py-4 rounded-2xl bg-muted/60 border border-border/60 text-center">
+            <WifiOff size={20} className="text-muted-foreground mx-auto mb-2" />
+            <p className="font-serif text-sm text-foreground mb-1">No connection</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              An internet connection is needed to speak with Gita AI. Your messages are safely stored locally.
+            </p>
+            <button onClick={clearError} className="mt-3 text-xs text-primary font-medium">Dismiss</button>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="border-t border-border/40 bg-card/80 backdrop-blur-xl px-4 py-3 pb-safe">
+        <div className="flex items-end gap-3 max-w-md mx-auto">
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask about the Bhagavad Gita..."
+            rows={1}
+            disabled={limitReached}
+            className="flex-1 resize-none bg-muted/60 border border-border/60 rounded-2xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 max-h-32 scroll-hide disabled:opacity-50"
+            style={{ overflowY: input.split("\n").length > 3 ? "auto" : "hidden" }}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || sending || limitReached}
+            className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-soft active:scale-90 transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+          >
+            <Send size={16} />
+          </button>
+        </div>
       </div>
     </ScreenWrapper>
   );

@@ -34,6 +34,7 @@ import {
   HelpPrivacy,
   HelpTerms,
   HelpCorrection,
+  GitaAI,
 } from "./screens";
 
 // Instantiate TanStack React Query Client
@@ -51,7 +52,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <UserProgressProvider>
         <AudioProvider>
-          <Toaster position="bottom-center" richColors />
+          <Toaster position="bottom-center" richColors duration={1000} />
           <HashRouter>
             <Routes>
               <Route path="/" element={<Welcome />} />
@@ -84,6 +85,7 @@ export default function App() {
               <Route path="/help/privacy" element={<HelpPrivacy />} />
               <Route path="/help/terms" element={<HelpTerms />} />
               <Route path="/help/correction" element={<HelpCorrection />} />
+              <Route path="/gita-ai" element={<GitaAI />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </HashRouter>
