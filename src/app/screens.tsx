@@ -3672,6 +3672,10 @@ export function Profile() {
   const handleGoogleSignIn = async () => {
     if (Capacitor.isNativePlatform()) {
       try {
+        await GoogleAuth.initialize({
+          scopes: ["profile", "email"],
+          grantOfflineAccess: true,
+        });
         const nativeUser = await GoogleAuth.signIn();
         const credential = GoogleAuthProvider.credential(nativeUser.authentication.idToken);
         await signInWithCredential(auth, credential);
@@ -3697,7 +3701,7 @@ export function Profile() {
       try {
         const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
         const result = await SignInWithApple.authorize({
-          clientId: "com.gitasadhana.app",
+          clientId: "com.gitasadhana.ios",
           redirectURI: "https://gitasadhana-app.firebaseapp.com/__/auth/handler",
           scopes: "email name",
         });
