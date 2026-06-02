@@ -44,6 +44,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       play(currentVerse, selectedLanguage, false);
       console.log("⏸️ Audio stopped and source updated automatically due to in-app language switch.");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLanguage]);
 
   useEffect(() => {

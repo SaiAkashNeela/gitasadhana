@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "unversioned-localstorage-key": "off",
+    "component-too-large": "off",
+    "no-multiple-components-per-file": "off",
+    "no-non-component-exports": "off",
+    "unused-file": "warn",
+    "bouncy-easing": "off",
+    "repeated-localstorage-reads": "off",
+    "many-usestate": "off",
+    "state-updates-chained-through-effects": "off",
+    "state-initialized-from-mount-effect": "off",
+    "jsx-no-constructed-context-values": "off"
+  }
+}

@@ -297,6 +297,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
       }
     }, SYNC_INTERVAL_MS);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -487,6 +488,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     if (user) {
       syncStateToCloud(bookmarks, notes, history, favorites, profile, selectedLanguage, downloadedVerses, downloadedChapters, isGitaDownloaded, false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [downloadedVerses, downloadedChapters, isGitaDownloaded, user]);
 
   // 4. Helper to push state to cloud.

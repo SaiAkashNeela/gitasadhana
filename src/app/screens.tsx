@@ -211,7 +211,7 @@ export function Welcome() {
         {/* CTA Terracotta Button */}
         <div className="px-6 mt-2 mb-4 shrink-0 animate-fade-up delay-250">
           <Link to="/onboarding/2">
-            <button className="w-full h-12 rounded-full bg-[#C06D31] hover:bg-[#A65B25] active:scale-[0.985] transition-all duration-200 shadow-md text-white font-serif text-lg tracking-wide flex items-center justify-center gap-2 group">
+            <button type="button" className="w-full h-12 rounded-full bg-[#C06D31] hover:bg-[#A65B25] active:scale-[0.985] transition-all duration-200 shadow-md text-white font-serif text-lg tracking-wide flex items-center justify-center gap-2 group">
               <span>{t("Continue", selectedLanguage)}</span>
               <span className="text-xl transition-transform duration-200 group-hover:translate-x-1">➔</span>
             </button>
@@ -220,8 +220,8 @@ export function Welcome() {
 
         {/* Page dot indicators at bottom */}
         <div className="flex justify-center gap-2 pb-safe shrink-0 animate-fade-up delay-350">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] dark:bg-primary transition-all duration-300" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] dark:bg-muted transition-all duration-300" />
+          <span className="size-2.5 rounded-full bg-[#8c7453] dark:bg-primary transition-all duration-300" />
+          <span className="size-2.5 rounded-full bg-[#e8dec9] dark:bg-muted transition-all duration-300" />
         </div>
       </div>
     </ScreenWrapper>
@@ -306,7 +306,7 @@ export function Onboarding() {
         {/* CTA Terracotta Button */}
         <div className="px-6 mt-2 mb-4 shrink-0 animate-fade-up delay-250">
           <Link to="/language">
-            <button className="w-full h-12 rounded-full bg-[#C06D31] hover:bg-[#A65B25] active:scale-[0.985] transition-all duration-200 shadow-md text-white font-serif text-lg tracking-wide flex items-center justify-center gap-2 group">
+            <button type="button" className="w-full h-12 rounded-full bg-[#C06D31] hover:bg-[#A65B25] active:scale-[0.985] transition-all duration-200 shadow-md text-white font-serif text-lg tracking-wide flex items-center justify-center gap-2 group">
               <span>{t("continueBtn", selectedLanguage)}</span>
               <span className="text-xl transition-transform duration-200 group-hover:translate-x-1">➔</span>
             </button>
@@ -315,8 +315,8 @@ export function Onboarding() {
 
         {/* Page dot indicators at bottom: condensed to 2 dots (inactive, active) */}
         <div className="flex justify-center gap-2 pb-safe shrink-0 animate-fade-up delay-350">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] dark:bg-muted transition-all duration-300" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] dark:bg-primary transition-all duration-300" />
+          <span className="size-2.5 rounded-full bg-[#e8dec9] dark:bg-muted transition-all duration-300" />
+          <span className="size-2.5 rounded-full bg-[#8c7453] dark:bg-primary transition-all duration-300" />
         </div>
       </div>
     </ScreenWrapper>
@@ -510,7 +510,7 @@ export function HomeScreen() {
           <IconButton onClick={() => nav("/notifications")} className="relative">
             <Bell size={18} />
             {hasUnread && (
-              <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-background animate-pulse" />
+              <span className="absolute top-1.5 right-1.5 size-2.5 rounded-full bg-red-500 ring-2 ring-background animate-pulse" />
             )}
           </IconButton>
         </div>
@@ -520,6 +520,13 @@ export function HomeScreen() {
         <div className="px-5 mt-5">
           <div
             ref={bannerRef}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Enter" && nav(
+              `/verse/${
+                dailyVerse ? `${dailyVerse.chapter}.${dailyVerse.verse}` : "2.47"
+              }`
+            )}
             onClick={() =>
               nav(
                 `/verse/${
@@ -565,7 +572,7 @@ export function HomeScreen() {
             const strokeDashoffset = circ - (progress * circ);
 
             return (
-              <button
+              <button type="button"
                 key={c.chapter_number}
                 onClick={() => nav(`/chapter/${c.chapter_number}`)}
                 className="snap-start shrink-0 flex flex-col items-center text-center w-20 active:scale-[0.97] transition-transform select-none"
@@ -636,7 +643,7 @@ export function HomeScreen() {
         </SectionTitle>
         <div className="px-5">
           <AppCard className="flex items-center gap-4" onClick={() => nav("/journey")}>
-            <div className="h-14 w-14 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground shadow-soft shrink-0">
+            <div className="size-14 rounded-full bg-gradient-gold flex items-center justify-center text-primary-foreground shadow-soft shrink-0">
               <Flame size={22} />
             </div>
             <div className="flex-1">
@@ -733,6 +740,7 @@ export function ChaptersList() {
         <div className="flex items-center gap-2 rounded-full bg-white dark:bg-card border border-[#EFE9DB] dark:border-border/60 px-4 h-11 shadow-[0_2px_6px_rgba(188,169,140,0.06)] dark:shadow-none">
           <Search size={18} className="text-[#A69B85] dark:text-muted-foreground" />
           <input
+            aria-label="Search chapters"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("searchChaptersPlaceholder", selectedLanguage)}
@@ -762,7 +770,7 @@ export function ChaptersList() {
               />
 
               {/* Gold circle chapter number */}
-              <div className="h-8 w-8 rounded-full bg-[#FAF5EA] dark:bg-muted border border-[#EFE9DB] dark:border-border/60 flex items-center justify-center font-serif text-sm font-semibold text-[#B69550] dark:text-primary shrink-0">
+              <div className="size-8 rounded-full bg-[#FAF5EA] dark:bg-muted border border-[#EFE9DB] dark:border-border/60 flex items-center justify-center font-serif text-sm font-semibold text-[#B69550] dark:text-primary shrink-0">
                 {c.chapter_number}
               </div>
 
@@ -963,9 +971,9 @@ export function ChapterVerses() {
       </div>
 
       <div className="flex items-center justify-between px-5 pt-2 pb-2 relative">
-        <button
+        <button type="button"
           onClick={() => nav(`/chapter/${chapter.chapter_number}`)}
-          className="h-10 w-10 rounded-full bg-white/70 dark:bg-card/70 backdrop-blur shadow-[0_2px_8px_rgba(188,169,140,0.15)] dark:shadow-none flex items-center justify-center text-[#4A3728]/70 dark:text-foreground/70 hover:text-[#4A3728] dark:hover:text-foreground transition shrink-0"
+          className="size-10 rounded-full bg-white/70 dark:bg-card/70 backdrop-blur shadow-[0_2px_8px_rgba(188,169,140,0.15)] dark:shadow-none flex items-center justify-center text-[#4A3728]/70 dark:text-foreground/70 hover:text-[#4A3728] dark:hover:text-foreground transition shrink-0"
           aria-label="Back"
         >
           <ChevronLeft size={20} />
@@ -995,6 +1003,7 @@ export function ChapterVerses() {
         <div className="flex items-center gap-2 rounded-full bg-white dark:bg-card border border-[#EFE9DB] dark:border-border/60 px-4 h-10.5 shadow-[0_2px_6px_rgba(188,169,140,0.06)] dark:shadow-none">
           <Search size={16} className="text-[#A69B85] dark:text-muted-foreground" />
           <input
+              aria-label="Search verses"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t("searchPlaceholder", selectedLanguage)}
@@ -1035,7 +1044,7 @@ export function ChapterVerses() {
                       toast.info(`${t("verseUnmarked", selectedLanguage)} (${verseId})`);
                     }
                   }}
-                  className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 transition-transform active:scale-90"
+                  className="size-9 rounded-full flex items-center justify-center shrink-0 transition-transform active:scale-90"
                   aria-label="Toggle Complete"
                 >
                   {completed ? (
@@ -1400,7 +1409,7 @@ export function VerseReading() {
               {t("translation", selectedLanguage)}
             </p>
             {selectedLanguage === "en" && (
-              <button
+              <button type="button"
                 onClick={() => nav(`/verse/${chapterId}.${verseNumber}/words`)}
                 className="text-[10px] uppercase tracking-widest text-primary font-bold hover:underline active:scale-95 transition-transform cursor-pointer"
               >
@@ -1447,6 +1456,7 @@ export function VerseReading() {
         {/* Progress Timeline Range Slider */}
         <div className="w-full flex flex-col gap-1">
           <input
+              aria-label="Audio progress"
             type="range"
             min="0"
             max={isCurrentActive && duration > 0 ? duration : 100}
@@ -1468,7 +1478,7 @@ export function VerseReading() {
         {/* Playback action buttons */}
         <div className="flex items-center justify-between gap-4 mt-0.5">
           {/* Looping / Repeat */}
-          <button
+          <button type="button"
             onClick={() => {
               toggleLooping();
               toast.info(t(isLooping ? "repeatDisabledToast" : "repeatEnabledToast", selectedLanguage));
@@ -1482,7 +1492,7 @@ export function VerseReading() {
           {/* Media Buttons Group */}
           <div className="flex items-center gap-4">
             {/* Skip Back */}
-            <button
+            <button type="button"
               onClick={handlePrevVerse}
               disabled={verseNumber <= 1}
               className="p-2.5 rounded-full flex items-center justify-center border border-border/60 hover:bg-black/5 active:scale-90 transition bg-card disabled:opacity-40"
@@ -1491,9 +1501,9 @@ export function VerseReading() {
             </button>
 
             {/* Main Play/Pause */}
-            <button
+            <button type="button"
               onClick={handlePlayToggle}
-              className="w-12 h-12 rounded-full flex items-center justify-center shadow-soft active:scale-95 transition-all text-primary-foreground hover:brightness-105 bg-gradient-gold"
+              className="size-12 rounded-full flex items-center justify-center shadow-soft active:scale-95 transition-all text-primary-foreground hover:brightness-105 bg-gradient-gold"
             >
               {isCurrentActive && isPlaying ? (
                 <Pause size={20} className="fill-current" />
@@ -1503,7 +1513,7 @@ export function VerseReading() {
             </button>
 
             {/* Skip Forward */}
-            <button
+            <button type="button"
               onClick={handleNextVerse}
               disabled={verseNumber >= maxVerses}
               className="p-2.5 rounded-full flex items-center justify-center border border-border/60 hover:bg-black/5 active:scale-90 transition bg-card disabled:opacity-40"
@@ -1515,7 +1525,7 @@ export function VerseReading() {
           {/* Speed & Download Panel */}
           <div className="flex items-center gap-1.5">
             {/* Speed / Rate Toggle */}
-            <button
+            <button type="button"
               onClick={handleSpeedToggle}
               className="h-8 px-2.5 rounded-full border border-border/50 flex items-center justify-center text-[10px] font-bold uppercase transition active:scale-90 text-primary bg-gradient-dawn"
             >
@@ -1524,7 +1534,7 @@ export function VerseReading() {
 
             {/* Offline/Download Audio — icon only */}
             {isVerseDownloaded(verseId) ? (
-              <button
+              <button type="button"
                 onClick={() => {
                   toast(`${t("deleteVerseConfirm", selectedLanguage)} ${verseId}?`, {
                     action: { label: t("delete", selectedLanguage), onClick: () => deleteVerseDownload(verseId) },
@@ -1532,19 +1542,19 @@ export function VerseReading() {
                   });
                 }}
                 title={`${t("savedOfflineLabel", selectedLanguage)} — ${t("tapToDelete", selectedLanguage)}`}
-                className="h-8 w-8 rounded-full border border-primary/40 flex items-center justify-center transition active:scale-90 bg-card/70"
+                className="size-8 rounded-full border border-primary/40 flex items-center justify-center transition active:scale-90 bg-card/70"
               >
                 <DownloadDone size={14} />
               </button>
             ) : downloading[`verse:${verseId}`] !== undefined ? (
-              <button disabled title={`Downloading ${downloading[`verse:${verseId}`]}%`} className="h-8 w-8 flex items-center justify-center">
+              <button type="button" disabled title={`Downloading ${downloading[`verse:${verseId}`]}%`} className="size-8 flex items-center justify-center">
                 <DownloadRing progress={downloading[`verse:${verseId}`]} size={32} />
               </button>
             ) : (
-              <button
+              <button type="button"
                 onClick={() => downloadVerse(verseId)}
                 title="Download verse audio for offline use"
-                className="h-8 w-8 rounded-full border border-border/50 flex items-center justify-center transition active:scale-90 text-muted-foreground hover:text-foreground bg-card"
+                className="size-8 rounded-full border border-border/50 flex items-center justify-center transition active:scale-90 text-muted-foreground hover:text-foreground bg-card"
               >
                 <Download size={14} />
               </button>
@@ -1625,14 +1635,14 @@ export function VerseWords() {
       <ScreenWrapper>
         <Header title={t("wordMeanings", selectedLanguage)} subtitle={`Verse ${chapterId}.${verseNumber}`} back={true} />
         <div className="flex-1 flex flex-col items-center justify-center text-center px-8 py-16">
-          <div className="h-20 w-20 rounded-full bg-gradient-dawn flex items-center justify-center text-primary mb-5 shadow-card">
+          <div className="size-20 rounded-full bg-gradient-dawn flex items-center justify-center text-primary mb-5 shadow-card">
             <Languages size={28} />
           </div>
           <h3 className="font-serif text-xl text-foreground">{t("languageNotSupported", selectedLanguage)}</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-xs">
             {t("wordBreakdownAvailableEnglish", selectedLanguage)}
           </p>
-          <button
+          <button type="button"
             onClick={() => nav("/language")}
             className="mt-6 px-6 h-10 rounded-full bg-gradient-gold text-primary-foreground text-xs font-bold shadow-soft active:scale-95 transition cursor-pointer"
           >
@@ -1659,7 +1669,7 @@ export function VerseWords() {
             </div>
           ) : (
             words.map((w, i) => (
-              <AppCard key={i} className="flex items-center justify-between gap-4 py-3">
+              <AppCard key={w.word ?? i} className="flex items-center justify-between gap-4 py-3">
                 <p className="font-serif italic text-foreground text-left">{w.word}</p>
                 <p className="text-sm text-muted-foreground text-right">{w.meaning}</p>
               </AppCard>
@@ -1683,6 +1693,7 @@ export function SearchScreen() {
         <div className="flex items-center gap-2 rounded-full bg-card border border-border px-4 h-12 shadow-card">
           <Search size={18} className="text-muted-foreground" />
           <input
+              aria-label="Search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) =>
@@ -1697,7 +1708,7 @@ export function SearchScreen() {
         <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">{t("suggestedLabel", selectedLanguage)}</p>
         <div className="flex flex-wrap gap-2">
           {["karma", "atman", "devotion", "fear", "meditation", "duty"].map((t) => (
-            <button
+            <button type="button"
               key={t}
               onClick={() => nav(`/search/results?q=${t}`)}
               className="px-4 h-9 rounded-full bg-card border border-border text-sm text-foreground active:bg-muted/30"
@@ -1851,7 +1862,7 @@ export function WisdomScreen() {
       {/* Scrollable list of other quotes */}
       <div className="flex-1 overflow-y-auto px-5 pb-44 space-y-3 scroll-hide">
         {displayedQuotes.map((w, idx) => (
-          <AppCard key={idx}>
+          <AppCard key={w.id ?? idx}>
             <div className="flex items-start gap-3">
               <span className="text-[10px] font-bold text-primary/60 mt-1 w-6 shrink-0 text-right">{idx + 1}</span>
               <p className="font-serif text-base text-foreground leading-relaxed flex-1">"{w.text}"</p>
@@ -1923,7 +1934,7 @@ export function WisdomThemes() {
       <Header title={t("wisdomThemesTitle", selectedLanguage)} subtitle={t("wisdomThemesSubtitle", selectedLanguage)} back={true} />
       <div className="flex-1 overflow-y-auto px-5 grid grid-cols-2 gap-3 pb-8 scroll-hide">
         {wisdomThemes.map((themeItem) => (
-          <button
+          <button type="button"
             key={themeItem.id}
             onClick={() => nav(`/wisdom/theme/${themeItem.id}`)}
             className="text-left active:scale-[0.98] transition"
@@ -2023,7 +2034,7 @@ export function Bookmarks() {
       />
       <div className="px-5">
         <div className="flex gap-1 p-1 rounded-full bg-muted">
-          <button
+          <button type="button"
             onClick={() => setTab("bookmarks")}
             className={cn(
               "flex-1 h-9 rounded-full text-sm font-medium transition",
@@ -2032,7 +2043,7 @@ export function Bookmarks() {
           >
             {t("verseSaves", selectedLanguage)} ({bookmarkedVerses.length})
           </button>
-          <button
+          <button type="button"
             onClick={() => setTab("favorites")}
             className={cn(
               "flex-1 h-9 rounded-full text-sm font-medium transition",
@@ -2058,7 +2069,7 @@ export function Bookmarks() {
                 <AppCard key={vId} onClick={() => nav(`/verse/${vId}`)}>
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">{t("verseLabel", selectedLanguage)} {vId}</p>
-                    <button
+                    <button type="button"
                       onClick={(e) => { e.stopPropagation(); removeBookmark(vId); }}
                       className="p-1 rounded-full text-muted-foreground hover:text-destructive transition active:scale-90"
                     >
@@ -2086,7 +2097,7 @@ export function Bookmarks() {
                 <AppCard key={vId} onClick={() => nav(`/verse/${vId}`)}>
                   <div className="flex items-center justify-between">
                     <p className="text-[10px] uppercase tracking-widest text-primary font-semibold">{t("verseLabel", selectedLanguage)} {vId}</p>
-                    <button
+                    <button type="button"
                       onClick={(e) => { e.stopPropagation(); toggleFavorite(vId); }}
                       className="p-1 rounded-full text-muted-foreground hover:text-destructive transition active:scale-90"
                     >
@@ -2173,6 +2184,7 @@ export function Notes() {
       <div className="px-5">
         <AppCard>
           <textarea
+              aria-label="Note content"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             placeholder={t("writeReflectionPlaceholder", selectedLanguage)}
@@ -2180,7 +2192,7 @@ export function Notes() {
             className="w-full bg-transparent outline-none text-sm resize-none placeholder:text-muted-foreground"
           />
           <div className="flex justify-end mt-2">
-            <button
+            <button type="button"
               onClick={handleSave}
               className="px-4 h-9 rounded-full bg-gradient-gold text-primary-foreground text-sm font-medium active:scale-[0.97] transition"
             >
@@ -2206,7 +2218,7 @@ export function Notes() {
                     {n.date} · {t("verseLabel", selectedLanguage)} {n.verseId}
                   </p>
                 </div>
-                <button
+                <button type="button"
                   onClick={() => {
                     deleteNote(n.id);
                     toast.success(t("deletedNoteToast", selectedLanguage));
@@ -2268,7 +2280,7 @@ export function HistoryScreen() {
               onClick={() => nav(`/verse/${h.chapter}.${h.verse}`)}
               className="flex items-center gap-3"
             >
-              <div className="h-10 w-10 rounded-full bg-gradient-dawn flex items-center justify-center text-primary text-xs font-medium shrink-0">
+              <div className="size-10 rounded-full bg-gradient-dawn flex items-center justify-center text-primary text-xs font-medium shrink-0">
                 {h.chapter}.{h.verse}
               </div>
               <div className="flex-1 min-w-0 text-left">
@@ -2384,6 +2396,7 @@ export function Player() {
         {/* Slider bar */}
         <div className="w-full mt-8">
           <input
+              aria-label="Audio progress"
             type="range"
             min="0"
             max={duration || 100}
@@ -2402,9 +2415,9 @@ export function Player() {
           <IconButton onClick={() => seek(Math.max(0, currentTime - 10))}>
             <SkipBack size={20} />
           </IconButton>
-          <button
+          <button type="button"
             onClick={isPlaying ? pause : resume}
-            className="h-16 w-16 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shadow-soft active:scale-[0.96] transition"
+            className="size-16 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shadow-soft active:scale-[0.96] transition"
           >
             {isPlaying ? <Pause size={26} /> : <Play size={26} className="ml-1" />}
           </button>
@@ -2414,7 +2427,7 @@ export function Player() {
         </div>
 
         <div className="flex justify-between w-full mt-8 text-muted-foreground pt-4">
-          <button
+          <button type="button"
             onClick={handleSpeedToggle}
             className="h-10 px-3 rounded-full bg-card/70 backdrop-blur shadow-card flex items-center justify-center text-xs font-semibold text-foreground/70 hover:text-foreground"
           >
@@ -2477,12 +2490,15 @@ export function MiniPlayer({ hasTabs = true }: { hasTabs?: boolean }) {
       <img
         src={DEMO_IMG}
         alt=""
-        className="h-10 w-10 rounded-xl object-cover shrink-0 cursor-pointer"
+        className="size-10 rounded-xl object-cover shrink-0 cursor-pointer"
         onClick={() => nav(`/verse/${displayVerse.chapter}.${displayVerse.verse}`)}
       />
       <div
         className="flex-1 min-w-0 cursor-pointer"
+        role="button"
+        tabIndex={0}
         onClick={() => nav(`/verse/${displayVerse.chapter}.${displayVerse.verse}`)}
+        onKeyDown={(e) => e.key === "Enter" && nav(`/verse/${displayVerse.chapter}.${displayVerse.verse}`)}
       >
         <p className="text-sm font-medium text-foreground truncate">
           {t("chapterLabel", selectedLanguage)} {displayVerse.chapter} · {t("verseLabel", selectedLanguage)} {displayVerse.verse}
@@ -2494,21 +2510,21 @@ export function MiniPlayer({ hasTabs = true }: { hasTabs?: boolean }) {
       {/* Download icon — only when a verse is actually loaded/playing */}
       {isLoaded && (
         isVerseDownloaded(verseId) ? (
-          <button
+          <button type="button"
             title={t("savedOfflineLabel", selectedLanguage)}
-            className="h-8 w-8 rounded-full border border-primary/30 flex items-center justify-center shrink-0 bg-card/70 active:scale-90 transition"
+            className="size-8 rounded-full border border-primary/30 flex items-center justify-center shrink-0 bg-card/70 active:scale-90 transition"
           >
             <DownloadDone size={14} />
           </button>
         ) : downloading[`verse:${verseId}`] !== undefined ? (
-          <button disabled title={`Downloading ${downloading[`verse:${verseId}`]}%`} className="h-8 w-8 flex items-center justify-center shrink-0">
+          <button type="button" disabled title={`Downloading ${downloading[`verse:${verseId}`]}%`} className="size-8 flex items-center justify-center shrink-0">
             <DownloadRing progress={downloading[`verse:${verseId}`]} size={32} />
           </button>
         ) : (
-          <button
+          <button type="button"
             onClick={(e) => { e.stopPropagation(); downloadVerse(verseId); }}
             title={t("downloadForOffline", selectedLanguage)}
-            className="h-8 w-8 rounded-full border border-border/50 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground bg-card active:scale-90 transition"
+            className="size-8 rounded-full border border-border/50 flex items-center justify-center shrink-0 text-muted-foreground hover:text-foreground bg-card active:scale-90 transition"
           >
             <Download size={14} />
           </button>
@@ -2516,9 +2532,9 @@ export function MiniPlayer({ hasTabs = true }: { hasTabs?: boolean }) {
       )}
 
       {/* Play/Pause */}
-      <button
+      <button type="button"
         onClick={handlePlay}
-        className="h-9 w-9 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shrink-0 active:scale-[0.93] transition shadow-card"
+        className="size-9 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shrink-0 active:scale-[0.93] transition shadow-card"
       >
         {isLoaded && isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
       </button>
@@ -2695,7 +2711,7 @@ export function Journey() {
             { value: "month", label: "Month", subLabel: getCurrentMonthLabel() },
             { value: "custom", label: "Custom", subLabel: "Select Dates" },
           ].map((tab) => (
-            <button
+            <button type="button"
               key={tab.value}
               onClick={() => setDurationFilter(tab.value as any)}
               className={cn(
@@ -2721,19 +2737,19 @@ export function Journey() {
           <AppCard className="space-y-4">
             <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
               <div className="flex items-center gap-2">
-                <button
+                <button type="button"
                   onClick={() => setOffset7Days(prev => prev + 7)}
-                  className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition shrink-0"
+                  className="size-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition shrink-0"
                 >
                   <ChevronLeft size={14} className="text-foreground" />
                 </button>
                 <p className="font-serif text-sm text-foreground font-medium text-center px-1">
                   {getWeekDateRange()}
                 </p>
-                <button
+                <button type="button"
                   onClick={() => setOffset7Days(prev => Math.max(0, prev - 7))}
                   disabled={offset7Days === 0}
-                  className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                  className="size-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                 >
                   <ChevronRight size={14} className="text-foreground" />
                 </button>
@@ -2751,7 +2767,7 @@ export function Journey() {
                   <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">{d.dayName}</span>
                   <div
                     className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center text-xs transition duration-300",
+                      "size-8 rounded-full flex items-center justify-center text-xs transition duration-300",
                       d.isRead
                         ? "bg-gradient-gold text-primary-foreground font-bold shadow-md shadow-amber-500/10 scale-105"
                         : "bg-muted text-muted-foreground"
@@ -2774,26 +2790,26 @@ export function Journey() {
             <AppCard className="space-y-4">
               <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <button 
+                  <button type="button" 
                     onClick={() => {
                       const prev = new Date(selectedMonthDate);
                       prev.setMonth(prev.getMonth() - 1);
                       setSelectedMonthDate(prev);
                     }}
-                    className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition shrink-0"
+                    className="size-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition shrink-0"
                   >
                     <ChevronLeft size={14} className="text-foreground" />
                   </button>
                   <p className="font-serif text-sm text-foreground font-medium min-w-[84px] text-center">
                     {monthName}
                   </p>
-                  <button 
+                  <button type="button" 
                     onClick={() => {
                       const next = new Date(selectedMonthDate);
                       next.setMonth(next.getMonth() + 1);
                       setSelectedMonthDate(next);
                     }}
-                    className="h-7 w-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition shrink-0"
+                    className="size-7 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 transition shrink-0"
                   >
                     <ChevronRight size={14} className="text-foreground" />
                   </button>
@@ -2804,7 +2820,7 @@ export function Journey() {
               </div>
               <div className="grid grid-cols-7 gap-y-2.5 gap-x-2 text-center">
                 {weekdays.map((w, idx) => (
-                  <span key={idx} className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                  <span key={w} className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
                     {w}
                   </span>
                 ))}
@@ -2847,19 +2863,21 @@ export function Journey() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">From</label>
-                  <input 
-                    type="date" 
-                    value={customStartDate} 
+                  <label htmlFor="date-from" className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">From</label>
+                  <input
+                    id="date-from"
+                    type="date"
+                    value={customStartDate}
                     onChange={(e) => setCustomStartDate(e.target.value)}
                     className="w-full h-10 rounded-xl border border-border/60 bg-muted/30 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">To</label>
-                  <input 
-                    type="date" 
-                    value={customEndDate} 
+                  <label htmlFor="date-to" className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">To</label>
+                  <input
+                    id="date-to"
+                    type="date"
+                    value={customEndDate}
                     onChange={(e) => setCustomEndDate(e.target.value)}
                     className="w-full h-10 rounded-xl border border-border/60 bg-muted/30 px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                   />
@@ -2876,7 +2894,7 @@ export function Journey() {
                       <span className="text-[8px] uppercase tracking-wider text-muted-foreground font-medium">{d.dayName}</span>
                       <div
                         className={cn(
-                          "w-7 h-7 rounded-full flex items-center justify-center text-[10px] transition duration-200",
+                          "size-7 rounded-full flex items-center justify-center text-[10px] transition duration-200",
                           d.isRead
                             ? "bg-gradient-gold text-primary-foreground font-bold shadow-md shadow-amber-500/10 scale-105"
                             : "bg-muted text-muted-foreground/60"
@@ -2937,7 +2955,7 @@ export function Reminders() {
             <p className="font-serif text-base">{t("gentleReminder", selectedLanguage)}</p>
             <p className="text-xs text-muted-foreground">{t("dailyNudge", selectedLanguage)}</p>
           </div>
-          <button
+          <button type="button"
             onClick={() => {
               setEnabled((e) => !e);
             }}
@@ -2948,7 +2966,7 @@ export function Reminders() {
           >
             <span
               className={cn(
-                "absolute top-0.5 h-6 w-6 rounded-full bg-card shadow transition-all",
+                "absolute top-0.5 size-6 rounded-full bg-card shadow transition-all",
                 enabled ? "left-5" : "left-0.5",
               )}
             />
@@ -2960,7 +2978,7 @@ export function Reminders() {
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 mt-2">{t("timeLabel", selectedLanguage)}</p>
               <div className="grid grid-cols-3 gap-2">
                 {times.map((t) => (
-                  <button
+                  <button type="button"
                     key={t}
                     onClick={() => setPicked(t)}
                     className={cn(
@@ -2984,7 +3002,7 @@ export function Reminders() {
                 {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
                   <div
                     key={i}
-                    className="h-8 w-8 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center text-xs font-bold shadow-soft"
+                    className="size-8 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center text-xs font-bold shadow-soft"
                   >
                     {d}
                   </div>
@@ -3084,49 +3102,49 @@ export function Notifications() {
     switch (type) {
       case "bell":
         return (
-          <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-950/45 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm border border-amber-100/50 dark:border-transparent">
+          <div className="size-10 rounded-full bg-amber-50 dark:bg-amber-950/45 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 shadow-sm border border-amber-100/50 dark:border-transparent">
             <Bell size={18} />
           </div>
         );
       case "lotus":
         return (
-          <div className="h-10 w-10 rounded-full bg-rose-50 dark:bg-rose-950/35 text-rose-500 dark:text-rose-400 flex items-center justify-center shrink-0 shadow-sm border border-rose-100/50 dark:border-transparent">
+          <div className="size-10 rounded-full bg-rose-50 dark:bg-rose-950/35 text-rose-500 dark:text-rose-400 flex items-center justify-center shrink-0 shadow-sm border border-rose-100/50 dark:border-transparent">
             <Flower2 size={18} />
           </div>
         );
       case "trophy":
         return (
-          <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-950/35 text-primary flex items-center justify-center shrink-0 shadow-sm border border-amber-100/50 dark:border-transparent">
+          <div className="size-10 rounded-full bg-amber-50 dark:bg-amber-950/35 text-primary flex items-center justify-center shrink-0 shadow-sm border border-amber-100/50 dark:border-transparent">
             <Trophy size={18} />
           </div>
         );
       case "calendar":
         return (
-          <div className="h-10 w-10 rounded-full bg-indigo-50 dark:bg-indigo-950/35 text-indigo-500 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-sm border border-indigo-100/50 dark:border-transparent">
+          <div className="size-10 rounded-full bg-indigo-50 dark:bg-indigo-950/35 text-indigo-500 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-sm border border-indigo-100/50 dark:border-transparent">
             <Calendar size={18} />
           </div>
         );
       case "chapter":
         return (
-          <div className="h-10 w-10 rounded-full bg-emerald-50 dark:bg-emerald-950/35 text-emerald-500 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm border border-emerald-100/50 dark:border-transparent">
+          <div className="size-10 rounded-full bg-emerald-50 dark:bg-emerald-950/35 text-emerald-500 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-sm border border-emerald-100/50 dark:border-transparent">
             <ArrowUp size={18} />
           </div>
         );
       case "share":
         return (
-          <div className="h-10 w-10 rounded-full bg-sky-50 dark:bg-sky-950/35 text-sky-500 dark:text-sky-400 flex items-center justify-center shrink-0 shadow-sm border border-sky-100/50 dark:border-transparent">
+          <div className="size-10 rounded-full bg-sky-50 dark:bg-sky-950/35 text-sky-500 dark:text-sky-400 flex items-center justify-center shrink-0 shadow-sm border border-sky-100/50 dark:border-transparent">
             <Share2 size={18} />
           </div>
         );
       case "megaphone":
         return (
-          <div className="h-10 w-10 rounded-full bg-orange-50 dark:bg-orange-950/35 text-orange-500 dark:text-orange-400 flex items-center justify-center shrink-0 shadow-sm border border-orange-100/50 dark:border-transparent">
+          <div className="size-10 rounded-full bg-orange-50 dark:bg-orange-950/35 text-orange-500 dark:text-orange-400 flex items-center justify-center shrink-0 shadow-sm border border-orange-100/50 dark:border-transparent">
             <Megaphone size={18} />
           </div>
         );
       default:
         return (
-          <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0 shadow-sm">
+          <div className="size-10 rounded-full bg-muted flex items-center justify-center shrink-0 shadow-sm">
             <Info size={18} />
           </div>
         );
@@ -3147,9 +3165,9 @@ export function Notifications() {
       </div>
 
       <div className="flex items-center justify-between px-5 pt-2 pb-2 relative">
-        <button
+        <button type="button"
           onClick={() => nav(-1)}
-          className="h-10 w-10 rounded-full bg-card/75 backdrop-blur shadow-card flex items-center justify-center text-foreground/75 hover:text-foreground active:scale-95 transition shrink-0"
+          className="size-10 rounded-full bg-card/75 backdrop-blur shadow-card flex items-center justify-center text-foreground/75 hover:text-foreground active:scale-95 transition shrink-0"
         >
           <ChevronLeft size={20} />
         </button>
@@ -3159,7 +3177,7 @@ export function Notifications() {
         </div>
         <div className="flex gap-2 shrink-0">
           {notifications.length > 0 && (
-            <button
+            <button type="button"
               onClick={clearNotifications}
               className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-500 hover:bg-red-500/20 active:scale-95 transition flex items-center gap-1 border border-red-500/20 shadow-sm shrink-0"
               title="Clear All"
@@ -3167,9 +3185,9 @@ export function Notifications() {
               {t("clearAll", selectedLanguage) || "Clear All"}
             </button>
           )}
-          <button
+          <button type="button"
             onClick={() => nav("/reminders")}
-            className="h-10 w-10 rounded-full bg-card/75 backdrop-blur shadow-card flex items-center justify-center text-foreground/75 hover:text-foreground active:scale-95 transition shrink-0"
+            className="size-10 rounded-full bg-card/75 backdrop-blur shadow-card flex items-center justify-center text-foreground/75 hover:text-foreground active:scale-95 transition shrink-0"
           >
             <SettingsIcon size={18} />
           </button>
@@ -3214,7 +3232,7 @@ export function Notifications() {
                                 {n.time}
                               </span>
                               {!n.read && (
-                                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                                <span className="size-1.5 rounded-full bg-primary animate-pulse" />
                               )}
                             </div>
                           </div>
@@ -3240,7 +3258,7 @@ export function Notifications() {
                           )}
                         </div>
                         {/* Individual Close/Clear Button */}
-                        <button
+                        <button type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             deleteNotification(n.id);
@@ -3260,13 +3278,13 @@ export function Notifications() {
         )}
 
         {/* Bottom Preferences Managed Card */}
-        <button
+        <button type="button"
           onClick={() => nav("/reminders")}
           className="w-full mt-4 active:scale-[0.99] transition-transform text-left block"
         >
           <AppCard className="bg-gradient-dawn border border-primary/20 flex items-center justify-between p-3.5 shadow-soft">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shrink-0 shadow-soft">
+              <div className="size-10 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center shrink-0 shadow-soft">
                 <SettingsIcon size={18} />
               </div>
               <div>
@@ -3320,7 +3338,7 @@ export function Downloads() {
         {/* Statistics Panel */}
         <AppCard className="bg-gradient-dawn border border-primary/10 flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+            <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <RefreshCw size={18} className="animate-spin-slow text-primary" />
             </div>
             <div>
@@ -3338,7 +3356,7 @@ export function Downloads() {
 
         {/* Tab Selection */}
         <div className="flex bg-muted/65 p-1 rounded-full mt-4 border border-border/40">
-          <button
+          <button type="button"
             onClick={() => setActiveTab("library")}
             className={cn(
               "flex-1 py-2 text-xs font-semibold rounded-full transition active:scale-95",
@@ -3347,7 +3365,7 @@ export function Downloads() {
           >
             {t("myLibrary", selectedLanguage)} ({downloadedChapters.length + individualDownloadedVerses.length})
           </button>
-          <button
+          <button type="button"
             onClick={() => setActiveTab("download")}
             className={cn(
               "flex-1 py-2 text-xs font-semibold rounded-full transition active:scale-95",
@@ -3404,7 +3422,7 @@ export function Downloads() {
                   return (
                     <AppCard key={`lib-ch-${chNum}`} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-dawn flex items-center justify-center text-primary">
+                        <div className="size-10 rounded-xl bg-gradient-dawn flex items-center justify-center text-primary">
                           <Headphones size={16} />
                         </div>
                         <div>
@@ -3432,7 +3450,7 @@ export function Downloads() {
                 return (
                   <AppCard key={`lib-ver-${vId}`} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground">
+                      <div className="size-10 rounded-xl bg-card border border-border flex items-center justify-center text-muted-foreground">
                         <Headphones size={16} />
                       </div>
                       <div>
@@ -3492,7 +3510,7 @@ export function Downloads() {
                     <ProgressBar value={downloading["gita"] / 100} />
                   </div>
                 ) : (
-                  <button
+                  <button type="button"
                     onClick={downloadWholeGita}
                     className="px-5 h-10 rounded-full bg-white text-primary text-xs font-bold shadow-soft flex items-center gap-1.5 active:scale-95 transition hover:bg-white/95 cursor-pointer"
                   >
@@ -3791,10 +3809,10 @@ export function Profile() {
                  <img
                    src={cachedPhotoURL || user.photoURL || undefined}
                    alt={profile.name}
-                   className="h-16 w-16 rounded-full object-cover shadow-card shrink-0"
+                   className="size-16 rounded-full object-cover shadow-card shrink-0"
                  />
                ) : (
-                 <div className="h-16 w-16 rounded-full bg-gradient-dawn flex items-center justify-center text-primary font-bold text-xl shadow-card shrink-0">
+                 <div className="size-16 rounded-full bg-gradient-dawn flex items-center justify-center text-primary font-bold text-xl shadow-card shrink-0">
                    {profile.name.charAt(0).toUpperCase()}
                  </div>
                )}
@@ -3802,9 +3820,9 @@ export function Profile() {
                   <p className="font-serif text-xl text-foreground truncate">{profile.name}</p>
                   <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
                 </div>
-                <button
+                <button type="button"
                   onClick={() => setShowSettingsModal(true)}
-                  className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition active:scale-90 shrink-0"
+                  className="size-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition active:scale-90 shrink-0"
                 >
                   <SettingsIcon size={16} />
                 </button>
@@ -3816,11 +3834,11 @@ export function Profile() {
               {t("backupProgressSub", selectedLanguage)}
             </p>
             <div className="space-y-2">
-              <button
+              <button type="button"
                 onClick={handleGoogleSignIn}
                 className="w-full h-11 rounded-full bg-card border border-border text-foreground font-semibold flex items-center justify-center gap-2 text-sm shadow-card active:scale-[0.98] transition cursor-pointer"
               >
-                <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
+                <svg className="size-4 shrink-0" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -3841,11 +3859,11 @@ export function Profile() {
                 {t("continueWithGoogle", selectedLanguage)}
               </button>
               {(Capacitor.getPlatform() === "ios" || !Capacitor.isNativePlatform()) && (
-                <button
+                <button type="button"
                   onClick={handleAppleSignIn}
                   className="w-full h-11 rounded-full bg-foreground text-background font-semibold flex items-center justify-center gap-2 text-sm shadow-soft active:scale-[0.98] transition cursor-pointer"
                 >
-                  <svg className="h-4 w-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                  <svg className="size-4 shrink-0 fill-current" viewBox="0 0 24 24">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.51-.62.71-1.16 1.85-1.01 2.96 1.1.09 2.24-.57 2.96-1.41" />
                   </svg>
                   {t("continueWithApple", selectedLanguage)}
@@ -3877,7 +3895,7 @@ export function Profile() {
             {t("readingSettings", selectedLanguage)}
           </p>
           <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
-            <button
+            <button type="button"
               onClick={() => nav("/language")}
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
@@ -3886,7 +3904,7 @@ export function Profile() {
               <span className="text-xs text-muted-foreground">{activeLanguageObj?.name || t("selectLanguageShort", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
-            <button
+            <button type="button"
               onClick={() => setAutoPlayOnOpen(!autoPlayOnOpen)}
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
@@ -3896,11 +3914,11 @@ export function Profile() {
                 {autoPlayOnOpen ? t("onLabel", selectedLanguage) : t("offLabel", selectedLanguage)}
               </span>
               <div className={`w-9 h-5 rounded-full transition-colors relative ${autoPlayOnOpen ? "bg-primary" : "bg-muted"}`}>
-                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${autoPlayOnOpen ? "translate-x-4" : "translate-x-0.5"}`} />
+                <div className={`absolute top-0.5 size-4 rounded-full bg-white shadow transition-transform ${autoPlayOnOpen ? "translate-x-4" : "translate-x-0.5"}`} />
               </div>
             </button>
 
-            <button
+            <button type="button"
               onClick={() => nav("/reminders")}
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
@@ -3920,7 +3938,7 @@ export function Profile() {
             {t("practiceTools", selectedLanguage)}
           </p>
           <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
-            <button
+            <button type="button"
               onClick={() => nav("/notes")}
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
@@ -3928,7 +3946,7 @@ export function Profile() {
               <span className="flex-1 text-sm text-foreground">{t("notesAndReflections", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
-            <button
+            <button type="button"
               onClick={() => nav("/history")}
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
@@ -3936,7 +3954,7 @@ export function Profile() {
               <span className="flex-1 text-sm text-foreground">{t("readingHistory", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
-            <button
+            <button type="button"
               onClick={() => nav("/downloads")}
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
@@ -3945,7 +3963,7 @@ export function Profile() {
               <span className="text-xs text-muted-foreground">{downloadedVerses.length} {t("tracks", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
-            <button
+            <button type="button"
               onClick={() => nav("/journey")}
               className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer"
             >
@@ -3963,7 +3981,7 @@ export function Profile() {
          <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2 px-1">{t("helpSupportTitle", selectedLanguage)}</p>
            <div className="rounded-2xl bg-card border border-border/60 shadow-card divide-y divide-border/60 overflow-hidden">
-             <button onClick={() => {
+             <button type="button" onClick={() => {
                const shareText = `I'm reading the Bhagavad Gita on Gita Sadhana! Join me on this spiritual journey.`;
                if (navigator.share) {
                  navigator.share({
@@ -3980,22 +3998,22 @@ export function Profile() {
                 <span className="flex-1 text-sm text-foreground">{t("shareWisdom", selectedLanguage)}</span>
                <ChevronRight size={16} className="text-muted-foreground" />
              </button>
-             <button onClick={() => nav("/help/contact")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+             <button type="button" onClick={() => nav("/help/contact")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
                <Info size={18} className="text-primary" />
                 <span className="flex-1 text-sm text-foreground">{t("contactUsTitle", selectedLanguage)}</span>
                <ChevronRight size={16} className="text-muted-foreground" />
              </button>
-            <button onClick={() => nav("/help/privacy")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+            <button type="button" onClick={() => nav("/help/privacy")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
               <FileText size={18} className="text-primary" />
                <span className="flex-1 text-sm text-foreground">{t("privacyPolicyTitle", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
-            <button onClick={() => nav("/help/terms")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+            <button type="button" onClick={() => nav("/help/terms")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
               <FileText size={18} className="text-primary" />
                <span className="flex-1 text-sm text-foreground">{t("termsTitle", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
             </button>
-            <button onClick={() => nav("/help/correction")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
+            <button type="button" onClick={() => nav("/help/correction")} className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-muted/10 transition cursor-pointer">
               <Megaphone size={18} className="text-primary" />
                <span className="flex-1 text-sm text-foreground">{t("verseLanguageCorrectionTitle", selectedLanguage)}</span>
               <ChevronRight size={16} className="text-muted-foreground" />
@@ -4007,12 +4025,12 @@ export function Profile() {
 
       {/* Sign Out Modal */}
       {showSignOutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => !isSigningOut && setShowSignOutModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation" onClick={() => !isSigningOut && setShowSignOutModal(false)}>
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative w-full max-w-sm bg-card rounded-3xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
               <span className="font-serif text-base text-foreground">{t("signOutTitle", selectedLanguage)}</span>
-              <button onClick={() => !isSigningOut && setShowSignOutModal(false)} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition">
+              <button type="button" onClick={() => !isSigningOut && setShowSignOutModal(false)} className="size-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition">
                 <X size={18} />
               </button>
             </div>
@@ -4021,14 +4039,14 @@ export function Profile() {
                 {t("signOutConfirmMessage", selectedLanguage) || "Are you sure you want to sign out? You can always sign back in to access your bookmarks, notes, and progress."}
               </p>
               <div className="flex gap-3">
-                <button
+                <button type="button"
                   onClick={() => !isSigningOut && setShowSignOutModal(false)}
                   disabled={isSigningOut}
                   className="flex-1 h-11 rounded-full bg-muted text-foreground font-semibold flex items-center justify-center transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {t("cancel", selectedLanguage)}
                 </button>
-                <button
+                <button type="button"
                   onClick={confirmSignOut}
                   disabled={isSigningOut}
                   className="flex-1 h-11 rounded-full bg-destructive text-white font-semibold flex items-center justify-center transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
@@ -4043,7 +4061,7 @@ export function Profile() {
 
       {/* Settings Modal */}
       {showSettingsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => !isDeletingAccount && setShowSettingsModal(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation" onClick={() => !isDeletingAccount && setShowSettingsModal(false)}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div className="relative w-full max-w-sm bg-gradient-to-b from-card via-card to-card/95 rounded-3xl shadow-2xl max-h-[85vh] overflow-y-auto border border-primary/10" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
@@ -4052,7 +4070,7 @@ export function Profile() {
                 <span className="font-serif text-lg text-foreground block">{t("accountSettingsTitle", selectedLanguage)}</span>
                 <p className="text-xs text-muted-foreground mt-0.5">{t("accountSettingsSub", selectedLanguage)}</p>
               </div>
-              <button onClick={() => !isDeletingAccount && setShowSettingsModal(false)} className="h-9 w-9 rounded-full bg-muted/60 flex items-center justify-center hover:bg-muted transition text-muted-foreground hover:text-foreground">
+              <button type="button" onClick={() => !isDeletingAccount && setShowSettingsModal(false)} className="size-9 rounded-full bg-muted/60 flex items-center justify-center hover:bg-muted transition text-muted-foreground hover:text-foreground">
                 <X size={18} />
               </button>
             </div>
@@ -4071,7 +4089,7 @@ export function Profile() {
                     { value: "monthly", label: t("monthlyDigest", selectedLanguage), desc: t("monthlyDigestDesc", selectedLanguage) },
                     { value: "none", label: t("noEmails", selectedLanguage), desc: t("noEmailsDesc", selectedLanguage) },
                   ].map((option) => (
-                    <button
+                    <button type="button"
                       key={option.value}
                       onClick={() => setNewsletterPref(option.value)}
                       className={`w-full flex items-start gap-3 px-4 py-3.5 rounded-2xl border-2 transition duration-200 ${
@@ -4080,12 +4098,12 @@ export function Profile() {
                           : "border-border/40 bg-muted/30 hover:border-primary/30 hover:bg-muted/50"
                       }`}
                     >
-                      <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition ${
+                      <div className={`size-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition ${
                         newsletterPref === option.value
                           ? "border-primary bg-primary"
                           : "border-muted-foreground/40 bg-transparent"
                       }`}>
-                        {newsletterPref === option.value && <div className="h-2 w-2 bg-card rounded-full" />}
+                        {newsletterPref === option.value && <div className="size-2 bg-card rounded-full" />}
                       </div>
                       <div className="text-left flex-1">
                         <p className={`text-sm font-medium ${newsletterPref === option.value ? "text-foreground" : "text-foreground/80"}`}>
@@ -4102,7 +4120,7 @@ export function Profile() {
               <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
 
               {/* Sign Out */}
-              <button
+              <button type="button"
                 onClick={() => { setShowSettingsModal(false); handleSignOut(); }}
                 className="w-full flex items-center justify-center gap-2 h-12 rounded-full bg-card border border-border text-destructive font-medium active:scale-[0.98] transition hover:bg-destructive/5 cursor-pointer"
               >
@@ -4114,7 +4132,7 @@ export function Profile() {
 
               {/* Danger Zone — collapsible */}
               <div className="space-y-3">
-                <button
+                <button type="button"
                   onClick={() => setShowDangerZone(prev => !prev)}
                   className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-muted/40 border border-border/40 hover:bg-muted/60 transition active:scale-[0.98]"
                 >
@@ -4128,7 +4146,7 @@ export function Profile() {
                 {showDangerZone && (
                   <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 space-y-3 animate-fade-up">
                     <p className="text-xs text-destructive/80">{t("dangerZoneWarning", selectedLanguage)}</p>
-                    <button
+                    <button type="button"
                       onClick={() => setShowDeleteModal(true)}
                       className="w-full h-11 rounded-full bg-destructive text-white font-semibold text-sm border border-destructive/50 transition active:scale-[0.98] hover:shadow-lg hover:shadow-destructive/20"
                     >
@@ -4149,7 +4167,7 @@ export function Profile() {
 
       {/* Delete Account Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" onClick={() => !isDeletingAccount && setShowDeleteModal(false)}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" role="presentation" onClick={() => !isDeletingAccount && setShowDeleteModal(false)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" />
           <div className="relative w-full max-w-sm bg-card rounded-3xl shadow-2xl border border-destructive/20 scale-up" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
@@ -4157,7 +4175,7 @@ export function Profile() {
                 <AlertTriangle size={18} className="text-destructive animate-bounce" />
                 {t("dangerZone", selectedLanguage)}
               </span>
-              <button onClick={() => !isDeletingAccount && setShowDeleteModal(false)} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition">
+              <button type="button" onClick={() => !isDeletingAccount && setShowDeleteModal(false)} className="size-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition">
                 <X size={18} />
               </button>
             </div>
@@ -4169,14 +4187,14 @@ export function Profile() {
                 This will delete your registered profile, all your notes/reflections, reading history, custom bookmarks, completed verses list, and favorites from our secure servers and this device.
               </p>
               <div className="flex gap-3 pt-2">
-                <button
+                <button type="button"
                   onClick={() => !isDeletingAccount && setShowDeleteModal(false)}
                   disabled={isDeletingAccount}
                   className="flex-1 h-11 rounded-full bg-muted text-foreground font-semibold flex items-center justify-center transition active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed text-sm"
                 >
                   {t("cancel", selectedLanguage) || "Cancel"}
                 </button>
-                <button
+                <button type="button"
                   onClick={async () => {
                     setIsDeletingAccount(true);
                     try {
@@ -4235,6 +4253,7 @@ export function HelpContact() {
             <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">{t("yourEmail", selectedLanguage)}</label>
             <input
               type="email"
+              aria-label="Your email address"
               value={emailInput}
               readOnly={!!user}
               onChange={(e) => setEmailInput(e.target.value)}
@@ -4245,6 +4264,7 @@ export function HelpContact() {
           <div>
             <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">{t("messageLabel", selectedLanguage)}</label>
             <textarea
+              aria-label="Your message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t("contactMessagePlaceholder", selectedLanguage)}
@@ -4252,7 +4272,7 @@ export function HelpContact() {
               className="w-full rounded-xl border border-border/60 bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
             />
           </div>
-          <button
+          <button type="button"
             disabled={sending}
             onClick={async () => {
               if (!emailInput.trim() || !message.trim()) {
@@ -4419,13 +4439,13 @@ function PickerSheet({ label, placeholder, value, options, onSelect, disabled = 
           <div className="relative w-full bg-card rounded-t-3xl shadow-2xl max-h-[60vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-border/60">
               <span className="font-serif text-base text-foreground">{label}</span>
-              <button onClick={() => setOpen(false)} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+              <button type="button" onClick={() => setOpen(false)} className="size-8 rounded-full bg-muted flex items-center justify-center">
                 <ChevronLeft size={16} className="rotate-[-90deg]" />
               </button>
             </div>
             <div className="overflow-y-auto flex-1 py-2">
               {options.map((o) => (
-                <button
+                <button type="button"
                   key={o.value}
                   onClick={() => { onSelect(o.value); setOpen(false); }}
                   className={cn(
@@ -4434,7 +4454,7 @@ function PickerSheet({ label, placeholder, value, options, onSelect, disabled = 
                   )}
                 >
                   {o.label}
-                  {o.value === value && <span className="w-2 h-2 rounded-full bg-primary" />}
+                  {o.value === value && <span className="size-2 rounded-full bg-primary" />}
                 </button>
               ))}
             </div>
@@ -4522,7 +4542,7 @@ export function HelpCorrection() {
           />
         </div>
 
-        <button
+        <button type="button"
           onClick={handleSubmit}
           disabled={sending}
           className="w-full h-12 rounded-full bg-primary text-white font-medium active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
@@ -4567,12 +4587,12 @@ export function GitaAI() {
     return (
       <ScreenWrapper>
         <div className="flex items-center justify-between px-5 pt-5 pb-2">
-          <button onClick={() => nav(-1)} className="h-10 w-10 rounded-full bg-card/70 flex items-center justify-center text-foreground/70 hover:text-foreground transition">
+          <button type="button" onClick={() => nav(-1)} className="size-10 rounded-full bg-card/70 flex items-center justify-center text-foreground/70 hover:text-foreground transition">
             <ChevronLeft size={20} />
           </button>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center pb-safe">
-          <div className="h-20 w-20 rounded-full overflow-hidden shadow-soft mb-6 border-2 border-primary/20">
+          <div className="size-20 rounded-full overflow-hidden shadow-soft mb-6 border-2 border-primary/20">
             <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
           </div>
           <h1 className="font-serif text-2xl text-foreground mb-2">Gita AI</h1>
@@ -4582,7 +4602,7 @@ export function GitaAI() {
           </p>
           <div className="w-full space-y-2 max-h-[50vh] overflow-y-auto scroll-hide">
             {supportedLanguages.map((l) => (
-              <button
+              <button type="button"
                 key={l.code}
                 onClick={() => { setLanguage(l.code); setShowLangPicker(false); }}
                 className="w-full flex items-center justify-between px-5 py-3.5 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:bg-primary/5 transition active:scale-[0.98]"
@@ -4601,10 +4621,10 @@ export function GitaAI() {
     <ScreenWrapper>
       {/* Header */}
       <div className="flex items-center gap-3 px-5 pt-5 pb-3 border-b border-border/40">
-        <button onClick={() => nav(-1)} className="h-10 w-10 rounded-full bg-card/70 flex items-center justify-center text-foreground/70 hover:text-foreground transition shrink-0">
+        <button type="button" onClick={() => nav(-1)} className="size-10 rounded-full bg-card/70 flex items-center justify-center text-foreground/70 hover:text-foreground transition shrink-0">
           <ChevronLeft size={20} />
         </button>
-        <div className="h-9 w-9 rounded-full overflow-hidden border border-primary/20 shrink-0">
+        <div className="size-9 rounded-full overflow-hidden border border-primary/20 shrink-0">
           <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
         </div>
         <div className="flex-1 min-w-0">
@@ -4613,7 +4633,7 @@ export function GitaAI() {
             {supportedLanguages.find((l) => l.code === language)?.name ?? "English"}
           </p>
         </div>
-        <button onClick={clearChat} className="h-9 w-9 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition" aria-label="Clear chat">
+        <button type="button" onClick={clearChat} className="size-9 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground transition" aria-label="Clear chat">
           <RotateCcw size={15} />
         </button>
       </div>
@@ -4622,7 +4642,7 @@ export function GitaAI() {
       <div className="flex-1 overflow-y-auto scroll-hide px-4 py-4 space-y-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12 select-none">
-            <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-primary/20 shadow-soft mb-4">
+            <div className="size-16 rounded-full overflow-hidden border-2 border-primary/20 shadow-soft mb-4">
               <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
             </div>
             <h2 className="font-serif text-lg text-foreground mb-2">Hare Krishna 🙏</h2>
@@ -4635,7 +4655,7 @@ export function GitaAI() {
                 "Explain the concept of Nishkama Karma",
                 "Who is Lord Krishna?",
               ].map((prompt) => (
-                <button
+                <button type="button"
                   key={prompt}
                   onClick={() => { setInput(prompt); inputRef.current?.focus(); }}
                   className="w-full text-left px-4 py-2.5 rounded-xl bg-card border border-border/60 text-sm text-foreground/80 hover:border-primary/40 hover:bg-primary/5 transition active:scale-[0.98]"
@@ -4650,7 +4670,7 @@ export function GitaAI() {
         {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             {msg.role === "model" && (
-              <div className="h-7 w-7 rounded-full overflow-hidden border border-primary/20 shrink-0 mt-0.5">
+              <div className="size-7 rounded-full overflow-hidden border border-primary/20 shrink-0 mt-0.5">
                 <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
               </div>
             )}
@@ -4666,13 +4686,13 @@ export function GitaAI() {
 
         {sending && (
           <div className="flex gap-2.5 justify-start">
-            <div className="h-7 w-7 rounded-full overflow-hidden border border-primary/20 shrink-0 mt-0.5">
+            <div className="size-7 rounded-full overflow-hidden border border-primary/20 shrink-0 mt-0.5">
               <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
             </div>
             <div className="bg-card border border-border/60 px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1 items-center">
-              <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
-              <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:150ms]" />
-              <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
+              <span className="size-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
+              <span className="size-2 rounded-full bg-primary/60 animate-bounce [animation-delay:150ms]" />
+              <span className="size-2 rounded-full bg-primary/60 animate-bounce [animation-delay:300ms]" />
             </div>
           </div>
         )}
@@ -4689,7 +4709,7 @@ export function GitaAI() {
         {error && error !== "offline" && (
           <div className="mx-2 px-4 py-3 rounded-2xl bg-destructive/8 border border-destructive/20 flex items-center gap-3">
             <p className="text-sm text-destructive flex-1">{error}</p>
-            <button onClick={clearError} className="text-destructive/60 hover:text-destructive transition"><X size={16} /></button>
+            <button type="button" onClick={clearError} className="text-destructive/60 hover:text-destructive transition"><X size={16} /></button>
           </div>
         )}
 
@@ -4700,7 +4720,7 @@ export function GitaAI() {
             <p className="text-xs text-muted-foreground leading-relaxed">
               An internet connection is needed to speak with Gita AI. Your messages are safely stored locally.
             </p>
-            <button onClick={clearError} className="mt-3 text-xs text-primary font-medium">Dismiss</button>
+            <button type="button" onClick={clearError} className="mt-3 text-xs text-primary font-medium">Dismiss</button>
           </div>
         )}
 
@@ -4711,6 +4731,7 @@ export function GitaAI() {
       <div className="border-t border-border/40 bg-card/80 backdrop-blur-xl px-4 py-3 pb-safe">
         <div className="flex items-end gap-3 max-w-md mx-auto">
           <textarea
+              aria-label="Message to Gita AI"
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -4721,10 +4742,10 @@ export function GitaAI() {
             className="flex-1 resize-none bg-muted/60 border border-border/60 rounded-2xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 max-h-32 scroll-hide disabled:opacity-50"
             style={{ overflowY: input.split("\n").length > 3 ? "auto" : "hidden" }}
           />
-          <button
+          <button type="button"
             onClick={handleSend}
             disabled={!input.trim() || sending || limitReached}
-            className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-soft active:scale-90 transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+            className="size-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-soft active:scale-90 transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
           >
             <Send size={16} />
           </button>

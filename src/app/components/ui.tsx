@@ -40,9 +40,9 @@ export function Header({
   return (
     <header className="flex items-center gap-3 px-5 pt-4 pb-3">
       {back && (
-        <button
+        <button type="button"
           onClick={() => backTo ? nav(backTo) : nav(-1)}
-          className="h-10 w-10 rounded-full bg-card/70 backdrop-blur shadow-card flex items-center justify-center text-foreground/70 hover:text-foreground transition"
+          className="size-10 rounded-full bg-card/70 backdrop-blur shadow-card flex items-center justify-center text-foreground/70 hover:text-foreground transition"
           aria-label="Back"
         >
           <ChevronLeft size={20} />
@@ -70,7 +70,10 @@ export function AppCard({
 }) {
   return (
     <div
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
+      onKeyDown={onClick ? (e) => e.key === "Enter" && onClick() : undefined}
       className={cn(
         "rounded-2xl bg-card shadow-card border border-border/40 p-4",
         onClick && "cursor-pointer active:scale-[0.985] transition-transform duration-150 ease-out",
@@ -88,7 +91,7 @@ export function PrimaryButton({
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { children: ReactNode }) {
   return (
-    <button
+    <button type="button"
       {...props}
       className={cn(
         "w-full h-12 rounded-full bg-gradient-gold text-primary-foreground font-medium tracking-wide shadow-soft active:scale-[0.98] transition disabled:opacity-50",
@@ -106,7 +109,7 @@ export function GhostButton({
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { children: ReactNode }) {
   return (
-    <button
+    <button type="button"
       {...props}
       className={cn(
         "w-full h-12 rounded-full bg-card border border-border text-foreground font-medium active:scale-[0.98] transition",
@@ -124,10 +127,10 @@ export function IconButton({
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { children: ReactNode }) {
   return (
-    <button
+    <button type="button"
       {...props}
       className={cn(
-        "h-10 w-10 rounded-full bg-card/70 backdrop-blur shadow-card flex items-center justify-center text-foreground/70 hover:text-foreground transition-all duration-150 active:scale-90",
+        "size-10 rounded-full bg-card/70 backdrop-blur shadow-card flex items-center justify-center text-foreground/70 hover:text-foreground transition-all duration-150 active:scale-90",
         className,
       )}
     >
@@ -212,7 +215,7 @@ export function BottomTabs() {
             >
               <span
                 className={cn(
-                  "h-9 w-9 rounded-full flex items-center justify-center transition-all duration-200 ease-out select-none relative",
+                  "size-9 rounded-full flex items-center justify-center transition-all duration-200 ease-out select-none relative",
                   active
                     ? "bg-gradient-gold text-primary-foreground shadow-soft scale-105"
                     : "text-muted-foreground scale-100",
@@ -267,7 +270,7 @@ export function ChapterCard({
           className="h-full w-full object-cover"
         />
         {/* Small premium number badge overlay */}
-        <div className="absolute top-1 left-1 h-4.5 w-4.5 rounded-full bg-black/55 backdrop-blur-xs flex items-center justify-center font-serif text-[9px] font-bold text-white leading-none">
+        <div className="absolute top-1 left-1 size-4.5 rounded-full bg-black/55 backdrop-blur-xs flex items-center justify-center font-serif text-[9px] font-bold text-white leading-none">
           {id}
         </div>
       </div>
@@ -322,7 +325,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center px-8 py-16">
-      <div className="h-20 w-20 rounded-full bg-gradient-dawn flex items-center justify-center text-primary mb-5 shadow-card">
+      <div className="size-20 rounded-full bg-gradient-dawn flex items-center justify-center text-primary mb-5 shadow-card">
         {icon}
       </div>
       <h3 className="font-serif text-xl text-foreground">{title}</h3>
