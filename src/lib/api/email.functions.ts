@@ -24,10 +24,11 @@ export const sendCorrectionEmail = async (
   language: string,
   chapter: string,
   verse: string,
-  message: string
+  message: string,
+  email?: string,
 ) => {
   const correctionEmailFn = httpsCallable(functions, "sendCorrectionEmail");
-  return correctionEmailFn({ language, chapter, verse, message });
+  return correctionEmailFn({ language, chapter, verse, message, email });
 };
 
 /**

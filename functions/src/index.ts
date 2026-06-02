@@ -7,6 +7,10 @@ const awsSecretAccessKey = defineSecret("AWS_SES_SECRET_ACCESS_KEY");
 const awsRegion = defineSecret("AWS_SES_REGION");
 const sesFromEmail = defineSecret("SES_FROM_EMAIL");
 
+const ADMIN_EMAIL = "hello@gitasadhana.com";
+// Once you host the logo PNG publicly, replace this URL:
+const LOGO_URL = "https://gitasadhana.com/favicon.png";
+
 function getSES() {
   return new SESClient({
     region: awsRegion.value(),
@@ -17,107 +21,355 @@ function getSES() {
   });
 }
 
+function emailShell(bodyContent: string): string {
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style type="text/css">
+    body { margin: 0; padding: 0; min-width: 100%; background-color: #F8F4EC; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; max-width: 100%; height: auto; }
+    a { text-decoration: none; }
+    @media screen and (max-width: 600px) {
+      .email-container { width: 100% !important; border-radius: 0 !important; border-left: none !important; border-right: none !important; }
+      .fluid-padding { padding: 20px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#F8F4EC;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+  <table width="100%" bgcolor="#F8F4EC" border="0" cellpadding="0" cellspacing="0" style="padding:20px 0;">
+    <tr>
+      <td align="center" style="padding:10px;">
+        <table class="email-container" width="600" bgcolor="#FFFDF8" border="0" cellpadding="0" cellspacing="0"
+          style="max-width:600px;margin:auto;border:1px solid #EBDDCB;border-radius:16px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.02);">
+
+          <!-- Header / Logo -->
+          <tr>
+            <td align="center" style="padding:30px 20px 20px 20px;">
+              <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="padding-right:12px;">
+                    <img src="${LOGO_URL}" width="36" height="36" alt="Gita Sadhana" style="border-radius:8px;" />
+                  </td>
+                  <td style="font-family:'Georgia',serif;font-size:24px;letter-spacing:1px;color:#4A3320;">
+                    Gita Sadhana
+                  </td>
+                </tr>
+              </table>
+              <table width="120" border="0" cellpadding="0" cellspacing="0" style="margin-top:15px;">
+                <tr><td style="border-top:1px solid #EBDDCB;">&nbsp;</td></tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          ${bodyContent}
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" bgcolor="#FDF7EE" style="padding:25px 40px;border-top:1px solid #EBDDCB;">
+              <p style="margin:0 0 12px 0;font-family:'Georgia',serif;font-style:italic;font-size:14px;color:#7A5E43;">
+                "The Gita is not just to be read, it is to be lived."
+              </p>
+              <p style="margin:0 0 12px 0;font-family:'Arial',sans-serif;font-size:13px;color:#A48D75;line-height:1.5;">
+                Questions? Reach us at
+                <a href="mailto:${ADMIN_EMAIL}" style="color:#B37D4E;font-weight:bold;">${ADMIN_EMAIL}</a>
+              </p>
+              <table width="60" border="0" cellpadding="0" cellspacing="0" style="margin:0 auto 12px auto;">
+                <tr><td style="border-top:1px solid #EBDDCB;">&nbsp;</td></tr>
+              </table>
+              <p style="margin:0;font-family:'Arial',sans-serif;font-size:11px;color:#B5A595;line-height:1.5;">
+                Gita Sadhana &bull; Walking the path of wisdom together
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function cardRow(content: string): string {
+  return `<tr>
+    <td class="fluid-padding" align="center" style="padding:10px 40px 30px 40px;">
+      <table width="100%" bgcolor="#FDF7EE" border="0" cellpadding="0" cellspacing="0"
+        style="border:1px solid #EBDDCB;border-radius:12px;">
+        <tr><td style="padding:25px;">${content}</td></tr>
+      </table>
+    </td>
+  </tr>`;
+}
+
+function ctaRow(label: string, url: string): string {
+  return `<tr>
+    <td align="center" style="padding:10px 40px 35px 40px;">
+      <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td align="center" bgcolor="#B37D4E" style="border-radius:8px;">
+            <a href="${url}" target="_blank"
+              style="display:inline-block;padding:14px 35px;font-family:'Georgia',serif;font-size:16px;color:#ffffff;text-decoration:none;border-radius:8px;border:1px solid #A66D3D;">
+              ${label} &rarr;
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>`;
+}
+
+async function sendEmail(ses: SESClient, to: string, subject: string, html: string, text: string, replyTo?: string) {
+  await ses.send(new SendEmailCommand({
+    Source: sesFromEmail.value(),
+    Destination: { ToAddresses: [to] },
+    Message: {
+      Subject: { Data: subject },
+      Body: {
+        Html: { Data: html },
+        Text: { Data: text },
+      },
+    },
+    ...(replyTo ? { ReplyToAddresses: [replyTo] } : {}),
+  }));
+}
+
+// ─── Contact Form ────────────────────────────────────────────────────────────
+
 export const sendContactEmail = onCall(
-  {
-    secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail],
-    region: "us-central1",
-  },
+  { secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail], region: "us-central1" },
   async (request) => {
     const { email, message } = request.data as { email: string; message: string };
-
-    if (!email || !message?.trim()) {
-      throw new HttpsError("invalid-argument", "Email and message are required.");
-    }
+    if (!email || !message?.trim()) throw new HttpsError("invalid-argument", "Email and message are required.");
 
     const ses = getSES();
-    await ses.send(new SendEmailCommand({
-      Source: sesFromEmail.value(),
-      Destination: { ToAddresses: ["hello@gitasadhana.com"] },
-      Message: {
-        Subject: { Data: `Contact Form: ${email}` },
-        Body: {
-          Text: {
-            Data: `From: ${email}\n\n${message}`,
-          },
-        },
-      },
-      ReplyToAddresses: [email],
-    }));
+
+    // Admin notification
+    await sendEmail(
+      ses,
+      ADMIN_EMAIL,
+      `Contact Form: Message from ${email}`,
+      emailShell(`
+        <tr>
+          <td class="fluid-padding" style="padding:15px 40px 20px 40px;">
+            <h2 style="margin:0 0 10px 0;font-family:'Georgia',serif;font-weight:normal;font-size:22px;color:#4A3320;">New Contact Message</h2>
+          </td>
+        </tr>
+        ${cardRow(`
+          <p style="margin:0 0 8px 0;font-family:'Arial',sans-serif;font-size:13px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">From</p>
+          <p style="margin:0 0 20px 0;font-family:'Arial',sans-serif;font-size:15px;color:#4A3320;font-weight:bold;">${email}</p>
+          <p style="margin:0 0 8px 0;font-family:'Arial',sans-serif;font-size:13px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">Message</p>
+          <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;line-height:1.7;color:#5C4A3D;">${message.replace(/\n/g, "<br/>")}</p>
+        `)}
+      `),
+      `New contact message from ${email}:\n\n${message}`,
+      email,
+    );
+
+    // User confirmation
+    await sendEmail(
+      ses,
+      email,
+      "We received your message — Gita Sadhana",
+      emailShell(`
+        <tr>
+          <td class="fluid-padding" style="padding:15px 40px 20px 40px;">
+            <h2 style="margin:0 0 15px 0;font-family:'Georgia',serif;font-weight:normal;font-size:22px;color:#4A3320;">Thank you for reaching out 🙏</h2>
+            <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;line-height:1.7;color:#5C4A3D;">
+              We have received your message and will get back to you within 1–2 business days.<br/><br/>
+              In the meantime, continue your journey through the Bhagavad Gita and let its wisdom guide your day.
+            </p>
+          </td>
+        </tr>
+        ${cardRow(`
+          <p style="margin:0 0 8px 0;font-family:'Arial',sans-serif;font-size:13px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">Your message</p>
+          <p style="margin:0;font-family:'Arial',sans-serif;font-size:14px;line-height:1.7;color:#5C4A3D;font-style:italic;">"${message.replace(/\n/g, "<br/>")}"</p>
+        `)}
+        ${ctaRow("Continue Reading", "https://gitasadhana.com")}
+      `),
+      `Thank you for reaching out!\n\nWe received your message and will reply within 1-2 business days.\n\nYour message:\n"${message}"\n\nGita Sadhana Team`,
+    );
 
     return { success: true };
   }
 );
 
-export const sendCorrectionEmail = onCall(
-  {
-    secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail],
-    region: "us-central1",
-  },
-  async (request) => {
-    const { language, chapter, verse, message } = request.data as {
-      language: string;
-      chapter: string;
-      verse: string;
-      message: string;
-    };
+// ─── Verse / Language Correction ─────────────────────────────────────────────
 
+export const sendCorrectionEmail = onCall(
+  { secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail], region: "us-central1" },
+  async (request) => {
+    const { language, chapter, verse, message, email } = request.data as {
+      language: string; chapter: string; verse: string; message: string; email?: string;
+    };
     if (!language || !chapter || !verse || !message?.trim()) {
       throw new HttpsError("invalid-argument", "All fields are required.");
     }
 
     const ses = getSES();
-    await ses.send(new SendEmailCommand({
-      Source: sesFromEmail.value(),
-      Destination: { ToAddresses: ["hello@gitasadhana.com"] },
-      Message: {
-        Subject: { Data: `Correction: ${language} | Chapter ${chapter} Verse ${verse}` },
-        Body: {
-          Text: {
-            Data: `Language: ${language}\nChapter: ${chapter}\nVerse: ${verse}\n\nIssue:\n${message}`,
-          },
-        },
-      },
-    }));
+
+    // Admin notification
+    await sendEmail(
+      ses,
+      ADMIN_EMAIL,
+      `Correction Report: ${language} | Ch ${chapter}.${verse}`,
+      emailShell(`
+        <tr>
+          <td class="fluid-padding" style="padding:15px 40px 20px 40px;">
+            <h2 style="margin:0 0 10px 0;font-family:'Georgia',serif;font-weight:normal;font-size:22px;color:#4A3320;">Verse Correction Report</h2>
+          </td>
+        </tr>
+        ${cardRow(`
+          <table width="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding:0 15px 15px 0;width:33%;">
+                <p style="margin:0 0 4px 0;font-family:'Arial',sans-serif;font-size:12px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">Language</p>
+                <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;color:#4A3320;font-weight:bold;">${language}</p>
+              </td>
+              <td style="padding:0 15px 15px 0;width:33%;">
+                <p style="margin:0 0 4px 0;font-family:'Arial',sans-serif;font-size:12px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">Chapter</p>
+                <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;color:#4A3320;font-weight:bold;">${chapter}</p>
+              </td>
+              <td style="padding:0 0 15px 0;width:33%;">
+                <p style="margin:0 0 4px 0;font-family:'Arial',sans-serif;font-size:12px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">Verse</p>
+                <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;color:#4A3320;font-weight:bold;">${verse}</p>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" style="border-top:1px solid #EBDDCB;padding-top:15px;">
+                <p style="margin:0 0 8px 0;font-family:'Arial',sans-serif;font-size:12px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">Reported Issue</p>
+                <p style="margin:0;font-family:'Arial',sans-serif;font-size:14px;line-height:1.7;color:#5C4A3D;">${message.replace(/\n/g, "<br/>")}</p>
+              </td>
+            </tr>
+            ${email ? `<tr><td colspan="3" style="padding-top:12px;">
+              <p style="margin:0;font-family:'Arial',sans-serif;font-size:12px;color:#9A7B5E;">Reported by: <span style="color:#4A3320;">${email}</span></p>
+            </td></tr>` : ""}
+          </table>
+        `)}
+      `),
+      `Correction: ${language} | Chapter ${chapter} Verse ${verse}\n\nIssue:\n${message}${email ? `\n\nReported by: ${email}` : ""}`,
+      email,
+    );
+
+    // User confirmation (only if email provided)
+    if (email) {
+      await sendEmail(
+        ses,
+        email,
+        "Your correction has been submitted — Gita Sadhana",
+        emailShell(`
+          <tr>
+            <td class="fluid-padding" style="padding:15px 40px 20px 40px;">
+              <h2 style="margin:0 0 15px 0;font-family:'Georgia',serif;font-weight:normal;font-size:22px;color:#4A3320;">Thank you for your contribution 🙏</h2>
+              <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;line-height:1.7;color:#5C4A3D;">
+                We have received your correction report for <strong>Chapter ${chapter}, Verse ${verse}</strong> (${language}).<br/><br/>
+                Our team will review it carefully. Contributions like yours help us maintain the accuracy and sanctity of the Gita's teachings.
+              </p>
+            </td>
+          </tr>
+          ${cardRow(`
+            <p style="margin:0 0 8px 0;font-family:'Arial',sans-serif;font-size:13px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">Your submission</p>
+            <p style="margin:0 0 12px 0;font-family:'Arial',sans-serif;font-size:13px;color:#B37D4E;">
+              ${language} &bull; Chapter ${chapter} &bull; Verse ${verse}
+            </p>
+            <p style="margin:0;font-family:'Arial',sans-serif;font-size:14px;line-height:1.7;color:#5C4A3D;font-style:italic;">"${message.replace(/\n/g, "<br/>")}"</p>
+          `)}
+          ${ctaRow("Continue Reading", "https://gitasadhana.com")}
+        `),
+        `Thank you for submitting a correction!\n\nWe received your report for:\nLanguage: ${language}\nChapter: ${chapter}\nVerse: ${verse}\n\nYour note:\n"${message}"\n\nOur team will review it and update if needed.\n\nGita Sadhana Team`,
+      );
+    }
 
     return { success: true };
   }
 );
 
+// ─── Newsletter Subscription ──────────────────────────────────────────────────
+
 export const sendNewsletterEmail = onCall(
-  {
-    secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail],
-    region: "us-central1",
-  },
+  { secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail], region: "us-central1" },
   async (request) => {
     const { email, frequency } = request.data as {
       email: string;
       frequency: "daily" | "weekly" | "monthly";
     };
 
-    if (!email || !frequency) {
-      throw new HttpsError("invalid-argument", "Email and frequency are required.");
-    }
-
-    if (!["daily", "weekly", "monthly"].includes(frequency)) {
-      throw new HttpsError("invalid-argument", "Invalid frequency value.");
-    }
+    if (!email || !frequency) throw new HttpsError("invalid-argument", "Email and frequency are required.");
+    if (!["daily", "weekly", "monthly"].includes(frequency)) throw new HttpsError("invalid-argument", "Invalid frequency.");
 
     const ses = getSES();
-    const frequencyCapitalized = frequency.charAt(0).toUpperCase() + frequency.slice(1);
-    
-    await ses.send(new SendEmailCommand({
-      Source: sesFromEmail.value(),
-      Destination: { ToAddresses: [email] },
-      Message: {
-        Subject: { Data: `Gita Sadhana: ${frequencyCapitalized} Newsletter Subscription Confirmed` },
-        Body: {
-          Text: {
-            Data: `Hello,\n\nThank you for subscribing to our ${frequency} newsletter.\n\nYou will now receive curated verses and spiritual insights from the Bhagavad Gita every ${frequency.replace("monthly", "month")}.\n\nBest regards,\nGita Sadhana Team`,
-          },
-        },
-      },
-      ReplyToAddresses: ["hello@gitasadhana.com"],
-    }));
+    const frequencyLabel: Record<string, string> = { daily: "Daily", weekly: "Weekly", monthly: "Monthly" };
+    const frequencyDesc: Record<string, string> = {
+      daily: "every day to start your morning with wisdom",
+      weekly: "every week with curated verses and insights",
+      monthly: "every month with the most profound teachings",
+    };
+
+    // User confirmation
+    await sendEmail(
+      ses,
+      email,
+      `You're subscribed to ${frequencyLabel[frequency]} Wisdom — Gita Sadhana`,
+      emailShell(`
+        <tr>
+          <td class="fluid-padding" style="padding:15px 40px 20px 40px;">
+            <h2 style="margin:0 0 15px 0;font-family:'Georgia',serif;font-weight:normal;font-size:22px;color:#4A3320;">
+              Timeless wisdom.<br/>For everyday life.
+            </h2>
+            <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;line-height:1.7;color:#5C4A3D;">
+              Namaste 🙏<br/><br/>
+              You are now subscribed to our <strong>${frequencyLabel[frequency]} Digest</strong>. Expect verses from the Bhagavad Gita ${frequencyDesc[frequency]}.
+            </p>
+          </td>
+        </tr>
+        ${cardRow(`
+          <p style="margin:0 0 20px 0;font-family:'Arial',sans-serif;font-size:12px;color:#B37D4E;text-transform:uppercase;letter-spacing:1px;">☼ Today's Wisdom</p>
+          <p style="margin:0 0 15px 0;font-family:'Georgia',serif;font-size:18px;line-height:1.6;color:#4A3320;">
+            कर्मण्येवाधिकारस्ते मा फलेषु कदाचन ।<br/>
+            मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ।।
+          </p>
+          <p style="margin:0 0 20px 0;font-family:'Arial',sans-serif;font-size:13px;color:#9A7B5E;">— Bhagavad Gita 2.47</p>
+          <p style="margin:0 0 20px 0;font-size:14px;color:#D4B28C;">❦</p>
+          <p style="margin:0;font-family:'Arial',sans-serif;font-size:14px;line-height:1.7;color:#5C4A3D;">
+            You have a right to perform your prescribed duties, but you are not entitled to the fruits of your actions. Never consider yourself the cause of the results, and never be attached to inaction.
+          </p>
+        `)}
+        ${ctaRow("Continue Reading", "https://gitasadhana.com")}
+        <tr>
+          <td align="center" style="padding:0 40px 30px 40px;">
+            <p style="margin:0;font-family:'Arial',sans-serif;font-size:11px;color:#B5A595;line-height:1.5;">
+              You subscribed with ${email}. No longer wish to receive these? Reply to this email and we'll remove you.
+            </p>
+          </td>
+        </tr>
+      `),
+      `Namaste!\n\nYou are subscribed to Gita Sadhana's ${frequencyLabel[frequency]} Digest.\n\nYou will receive curated verses from the Bhagavad Gita ${frequencyDesc[frequency]}.\n\nTo unsubscribe, reply to this email.\n\nGita Sadhana Team`,
+      ADMIN_EMAIL,
+    );
+
+    // Admin notification
+    await sendEmail(
+      ses,
+      ADMIN_EMAIL,
+      `New Newsletter Subscriber: ${email} (${frequencyLabel[frequency]})`,
+      emailShell(`
+        <tr>
+          <td style="padding:20px 40px;">
+            <h2 style="margin:0 0 15px 0;font-family:'Georgia',serif;font-weight:normal;font-size:22px;color:#4A3320;">New Subscriber</h2>
+            ${cardRow(`
+              <p style="margin:0 0 8px 0;font-family:'Arial',sans-serif;font-size:13px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">Email</p>
+              <p style="margin:0 0 15px 0;font-family:'Arial',sans-serif;font-size:15px;color:#4A3320;font-weight:bold;">${email}</p>
+              <p style="margin:0 0 8px 0;font-family:'Arial',sans-serif;font-size:13px;color:#9A7B5E;text-transform:uppercase;letter-spacing:1px;">Frequency</p>
+              <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;color:#4A3320;font-weight:bold;">${frequencyLabel[frequency]}</p>
+            `)}
+          </td>
+        </tr>
+      `),
+      `New subscriber: ${email} (${frequencyLabel[frequency]})`,
+    );
 
     return { success: true };
   }

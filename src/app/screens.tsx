@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, useRef, ReactNode } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   Flower2,
@@ -76,6 +76,7 @@ import {
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { auth, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "@/lib/firebase";
 import { seedGitaDatabase, SeedingProgress } from "@/lib/seeding";
+import { sendContactEmail, sendCorrectionEmail } from "@/lib/api/email.functions";
 import { getReminderConfig, updateReminderSettings, formatTime12Hour, localizedReminders } from "@/lib/notifications";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -213,7 +214,7 @@ export function Welcome() {
         </div>
 
         {/* Page dot indicators at bottom */}
-        <div className="flex justify-center gap-2 pb-6 shrink-0 animate-fade-up delay-350">
+        <div className="flex justify-center gap-2 pb-safe shrink-0 animate-fade-up delay-350">
           <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] dark:bg-primary transition-all duration-300" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] dark:bg-muted transition-all duration-300" />
         </div>
@@ -308,7 +309,7 @@ export function Onboarding() {
         </div>
 
         {/* Page dot indicators at bottom: condensed to 2 dots (inactive, active) */}
-        <div className="flex justify-center gap-2 pb-6 shrink-0 animate-fade-up delay-350">
+        <div className="flex justify-center gap-2 pb-safe shrink-0 animate-fade-up delay-350">
           <span className="w-2.5 h-2.5 rounded-full bg-[#e8dec9] dark:bg-muted transition-all duration-300" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#8c7453] dark:bg-primary transition-all duration-300" />
         </div>
@@ -3585,6 +3586,20 @@ export function Profile() {
   const [newsletterPref, setNewsletterPref] = useState("daily");
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDangerZone, setShowDangerZone] = useState(false);
+  const prevUserRef = useRef<typeof user>(undefined);
+
+  // Auto-open account settings on every login/signup
+  useEffect(() => {
+    if (prevUserRef.current === undefined) {
+      prevUserRef.current = user;
+      return;
+    }
+    if (!prevUserRef.current && user) {
+      setShowSettingsModal(true);
+    }
+    prevUserRef.current = user;
+  }, [user]);
 
   // Cache profile photo as base64 data URL for 24h — avoids repeated Google image fetches
   const [cachedPhotoURL, setCachedPhotoURL] = useState<string | null>(() => {
@@ -3959,15 +3974,6 @@ export function Profile() {
           </div>
         </div>
 
-        {/* Auth Sign out */}
-        {user && (
-          <button
-            onClick={handleSignOut}
-            className="w-full flex items-center justify-center gap-2 h-12 rounded-full bg-card border border-border text-destructive font-medium active:scale-[0.98] transition hover:bg-destructive/5 cursor-pointer"
-          >
-            <LogOut size={16} /> {t("signOut", selectedLanguage)}
-          </button>
-        )}
       </div>
 
       {/* Sign Out Modal */}
@@ -4066,21 +4072,41 @@ export function Profile() {
               {/* Divider */}
               <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
 
-              {/* Delete Account Section */}
+              {/* Sign Out */}
+              <button
+                onClick={() => { setShowSettingsModal(false); handleSignOut(); }}
+                className="w-full flex items-center justify-center gap-2 h-12 rounded-full bg-card border border-border text-destructive font-medium active:scale-[0.98] transition hover:bg-destructive/5 cursor-pointer"
+              >
+                <LogOut size={16} /> {t("signOut", selectedLanguage)}
+              </button>
+
+              {/* Divider */}
+              <div className="h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
+
+              {/* Danger Zone — collapsible */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2 mb-3">
-                  <Trash2 size={18} className="text-destructive" />
-                  <label className="text-sm font-semibold text-foreground">{t("dangerZone", selectedLanguage)}</label>
-                </div>
-                <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 space-y-3">
-                  <p className="text-xs text-destructive/80">{t("dangerZoneWarning", selectedLanguage)}</p>
-                  <button
-                    onClick={() => setShowDeleteModal(true)}
-                    className="w-full h-11 rounded-full bg-destructive text-white font-semibold text-sm border border-destructive/50 transition active:scale-[0.98] hover:shadow-lg hover:shadow-destructive/20"
-                  >
-                    {t("deleteAccount", selectedLanguage)}
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowDangerZone(prev => !prev)}
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-muted/40 border border-border/40 hover:bg-muted/60 transition active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-2">
+                    <Trash2 size={16} className="text-destructive/70" />
+                    <span className="text-sm font-medium text-foreground/70">{t("dangerZone", selectedLanguage)}</span>
+                  </div>
+                  <ChevronRight size={16} className={`text-muted-foreground transition-transform duration-200 ${showDangerZone ? "rotate-90" : ""}`} />
+                </button>
+
+                {showDangerZone && (
+                  <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 space-y-3 animate-fade-up">
+                    <p className="text-xs text-destructive/80">{t("dangerZoneWarning", selectedLanguage)}</p>
+                    <button
+                      onClick={() => setShowDeleteModal(true)}
+                      className="w-full h-11 rounded-full bg-destructive text-white font-semibold text-sm border border-destructive/50 transition active:scale-[0.98] hover:shadow-lg hover:shadow-destructive/20"
+                    >
+                      {t("deleteAccount", selectedLanguage)}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -4158,6 +4184,8 @@ export function HelpContact() {
   const nav = useNavigate();
   const { user, selectedLanguage } = useUserProgress();
   const [message, setMessage] = useState("");
+  const [emailInput, setEmailInput] = useState(user?.email || "");
+  const [sending, setSending] = useState(false);
 
   const userEmail = user?.email || "";
 
@@ -4178,8 +4206,9 @@ export function HelpContact() {
             <label className="text-xs text-muted-foreground uppercase tracking-widest mb-1.5 block">{t("yourEmail", selectedLanguage)}</label>
             <input
               type="email"
-              value={userEmail}
+              value={emailInput}
               readOnly={!!user}
+              onChange={(e) => setEmailInput(e.target.value)}
               placeholder="your@email.com"
               className="w-full h-11 rounded-xl border border-border/60 bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60"
             />
@@ -4195,10 +4224,26 @@ export function HelpContact() {
             />
           </div>
           <button
-            onClick={() => toast.success(t("messageSentToast", selectedLanguage))}
-            className="w-full h-12 rounded-full bg-primary text-white font-medium active:scale-[0.98] transition"
+            disabled={sending}
+            onClick={async () => {
+              if (!emailInput.trim() || !message.trim()) {
+                toast.error(t("allFieldsRequired", selectedLanguage) || "Email and message are required.");
+                return;
+              }
+              setSending(true);
+              try {
+                await sendContactEmail(emailInput.trim(), message.trim());
+                toast.success(t("messageSentToast", selectedLanguage));
+                setMessage("");
+              } catch (e: any) {
+                toast.error(e.message || "Failed to send. Try again.");
+              } finally {
+                setSending(false);
+              }
+            }}
+            className="w-full h-12 rounded-full bg-primary text-white font-medium active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {t("submitBtn", selectedLanguage)}
+            {sending ? "Sending..." : t("submitBtn", selectedLanguage)}
           </button>
         </div>
       </div>
@@ -4372,11 +4417,12 @@ function PickerSheet({ label, placeholder, value, options, onSelect, disabled = 
 }
 
 export function HelpCorrection() {
-  const { selectedLanguage } = useUserProgress();
+  const { selectedLanguage, user } = useUserProgress();
   const [lang, setLang] = useState("");
   const [chapter, setChapter] = useState("");
   const [verse, setVerse] = useState("");
   const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
 
   const CHAPTER_VERSE_COUNTS: Record<number, number> = {
     1: 47, 2: 72, 3: 43, 4: 42, 5: 29, 6: 47, 7: 30, 8: 28, 9: 34,
@@ -4407,12 +4453,21 @@ export function HelpCorrection() {
     label: `Verse ${i + 1}`,
   }));
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!lang || !chapter || !verse || !message.trim()) {
       toast.error(t("allFieldsRequired", selectedLanguage) || "All fields are required.");
       return;
     }
-    toast.success(t("correctionSubmittedToast", selectedLanguage) || "Correction submitted. Thank you!");
+    setSending(true);
+    try {
+      await sendCorrectionEmail(lang, chapter, verse, message.trim(), user?.email || undefined);
+      toast.success(t("correctionSubmittedToast", selectedLanguage) || "Correction submitted. Thank you!");
+      setLang(""); setChapter(""); setVerse(""); setMessage("");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to submit. Try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -4440,9 +4495,10 @@ export function HelpCorrection() {
 
         <button
           onClick={handleSubmit}
-          className="w-full h-12 rounded-full bg-primary text-white font-medium active:scale-[0.98] transition"
+          disabled={sending}
+          className="w-full h-12 rounded-full bg-primary text-white font-medium active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {t("submitCorrectionBtn", selectedLanguage)}
+          {sending ? "Submitting..." : t("submitCorrectionBtn", selectedLanguage)}
         </button>
       </div>
     </ScreenWrapper>
