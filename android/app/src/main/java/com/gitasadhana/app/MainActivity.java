@@ -1,4 +1,4 @@
-package com.gitachapters.app;
+package com.gitasadhana.app;
 
 import com.getcapacitor.BridgeActivity;
 

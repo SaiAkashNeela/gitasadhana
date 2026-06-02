@@ -3697,8 +3697,8 @@ export function Profile() {
       try {
         const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
         const result = await SignInWithApple.authorize({
-          clientId: "com.gitachapters.app",
-          redirectURI: "https://gita-1fe63.firebaseapp.com/__/auth/handler",
+          clientId: "com.gitasadhana.app",
+          redirectURI: "https://gitasadhana-app.firebaseapp.com/__/auth/handler",
           scopes: "email name",
         });
         const credential = new OAuthProvider("apple.com").credential({

@@ -9,11 +9,12 @@ import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: "***REMOVED***",
-  authDomain: "gita-1fe63.firebaseapp.com",
-  projectId: "gita-1fe63",
-  storageBucket: "gita-1fe63.firebasestorage.app",
-  messagingSenderId: "397599373842",
-  appId: "1:397599373842:android:e19f24860156c93a8376cb",
+  authDomain: "gitasadhana-app.firebaseapp.com",
+  projectId: "gitasadhana-app",
+  storageBucket: "gitasadhana-app.firebasestorage.app",
+  messagingSenderId: "822836118890",
+  appId: "1:822836118890:web:16ae4ff0ea730954165113",
+  measurementId: "G-GQ23CEM0FG",
 };
 
 // Initialize Firebase
