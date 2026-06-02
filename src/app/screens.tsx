@@ -80,7 +80,7 @@ import {
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { auth, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "@/lib/firebase";
 import { seedGitaDatabase, SeedingProgress } from "@/lib/seeding";
-import { sendContactEmail, sendCorrectionEmail } from "@/lib/api/email.functions";
+import { sendContactEmail, sendCorrectionEmail, sendWelcomeEmail } from "@/lib/api/email.functions";
 import { useGitaAI } from "@/hooks/useGitaAI";
 import { getReminderConfig, updateReminderSettings, formatTime12Hour, localizedReminders } from "@/lib/notifications";
 import { t } from "@/lib/i18n";
@@ -3745,6 +3745,10 @@ export function Profile() {
         const credential = GoogleAuthProvider.credential(idToken);
         const result = await signInWithCredential(auth, credential);
         console.log("Firebase sign-in success:", result.user.email);
+        const isNew = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
+        if (isNew && result.user.email) {
+          sendWelcomeEmail(result.user.email, result.user.displayName || "Seeker").catch(() => {});
+        }
         toast.success(t("googleSignInSuccessToast", selectedLanguage));
       } catch (e: any) {
         console.error("Native Google sign-in failed:", e);
@@ -3753,7 +3757,11 @@ export function Profile() {
     } else {
       try {
         const { signInWithPopup } = await import("firebase/auth");
-        await signInWithPopup(auth, new GoogleAuthProvider());
+        const webGoogleResult = await signInWithPopup(auth, new GoogleAuthProvider());
+        const isNewWebGoogle = webGoogleResult.user.metadata.creationTime === webGoogleResult.user.metadata.lastSignInTime;
+        if (isNewWebGoogle && webGoogleResult.user.email) {
+          sendWelcomeEmail(webGoogleResult.user.email, webGoogleResult.user.displayName || "Seeker").catch(() => {});
+        }
         toast.success(t("googleSignInSuccessToast", selectedLanguage));
       } catch (e: any) {
         console.error("Web Google sign-in failed:", e);
@@ -3775,7 +3783,11 @@ export function Profile() {
           idToken: result.response.identityToken,
           rawNonce: (result.response as any).nonce,
         });
-        await signInWithCredential(auth, credential);
+        const appleResult = await signInWithCredential(auth, credential);
+        const isNewApple = appleResult.user.metadata.creationTime === appleResult.user.metadata.lastSignInTime;
+        if (isNewApple && appleResult.user.email) {
+          sendWelcomeEmail(appleResult.user.email, appleResult.user.displayName || "Seeker").catch(() => {});
+        }
         toast.success(t("appleSignInSuccessToast", selectedLanguage));
       } catch (e: any) {
         console.error("Apple sign-in failed:", e);
@@ -3784,7 +3796,11 @@ export function Profile() {
     } else {
       try {
         const { signInWithPopup } = await import("firebase/auth");
-        await signInWithPopup(auth, new OAuthProvider("apple.com"));
+        const webAppleResult = await signInWithPopup(auth, new OAuthProvider("apple.com"));
+        const isNewWebApple = webAppleResult.user.metadata.creationTime === webAppleResult.user.metadata.lastSignInTime;
+        if (isNewWebApple && webAppleResult.user.email) {
+          sendWelcomeEmail(webAppleResult.user.email, webAppleResult.user.displayName || "Seeker").catch(() => {});
+        }
         toast.success(t("appleSignInSuccessToast", selectedLanguage));
       } catch (e: any) {
         console.error("Web Apple sign-in failed:", e);

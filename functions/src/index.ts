@@ -14,8 +14,6 @@ const geminiApiKey = defineSecret("GEMINI_API_KEY");
 const geminiModel = defineSecret("GEMINI_MODEL_ID");
 
 const ADMIN_EMAIL = "hello@gitasadhana.com";
-// Once you host the logo PNG publicly, replace this URL:
-const LOGO_URL = "https://gitasadhana.com/favicon.png";
 
 function getSES() {
   return new SESClient({
@@ -54,16 +52,7 @@ function emailShell(bodyContent: string): string {
           <!-- Header / Logo -->
           <tr>
             <td align="center" style="padding:30px 20px 20px 20px;">
-              <table border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="padding-right:12px;">
-                    <img src="${LOGO_URL}" width="36" height="36" alt="Gita Sadhana" style="border-radius:8px;" />
-                  </td>
-                  <td style="font-family:'Georgia',serif;font-size:24px;letter-spacing:1px;color:#4A3320;">
-                    Gita Sadhana
-                  </td>
-                </tr>
-              </table>
+              <span style="font-family:'Georgia',serif;font-size:24px;letter-spacing:1px;color:#4A3320;">Gita Sadhana</span>
               <table width="120" border="0" cellpadding="0" cellspacing="0" style="margin-top:15px;">
                 <tr><td style="border-top:1px solid #EBDDCB;">&nbsp;</td></tr>
               </table>
@@ -501,5 +490,60 @@ TONE: calm, warm, wise, devotional. Grounded in scripture. No speculation beyond
       }
       throw new HttpsError("internal", "AI service unavailable. Please try again.");
     }
+  }
+);
+
+// ─── Welcome Email ────────────────────────────────────────────────────────────
+
+export const sendWelcomeEmail = onCall(
+  { secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail], region: "us-central1" },
+  async (request) => {
+    const { email, name } = request.data as { email: string; name: string };
+    if (!email) throw new HttpsError("invalid-argument", "Email is required.");
+
+    const ses = getSES();
+    const displayName = name || "Seeker";
+
+    await sendEmail(
+      ses,
+      email,
+      "Welcome to Gita Sadhana — Your Journey Begins",
+      emailShell(`
+        <tr>
+          <td class="fluid-padding" style="padding:15px 40px 20px 40px;">
+            <h2 style="margin:0 0 15px 0;font-family:'Georgia',serif;font-weight:normal;font-size:22px;color:#4A3320;">
+              Namaste, ${displayName} 🙏
+            </h2>
+            <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;line-height:1.7;color:#5C4A3D;">
+              Welcome to Gita Sadhana. You have taken the first step on a timeless journey through the wisdom of the Bhagavad Gita.<br/><br/>
+              Every day, a fresh verse awaits you — to read, reflect, and carry into life. Let the Gita be your guide through clarity, purpose, and peace.
+            </p>
+          </td>
+        </tr>
+        ${cardRow(`
+          <p style="margin:0 0 20px 0;font-family:'Arial',sans-serif;font-size:12px;color:#B37D4E;text-transform:uppercase;letter-spacing:1px;">☼ Begin With This Verse</p>
+          <p style="margin:0 0 15px 0;font-family:'Georgia',serif;font-size:18px;line-height:1.6;color:#4A3320;">
+            कर्मण्येवाधिकारस्ते मा फलेषु कदाचन ।<br/>
+            मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ।।
+          </p>
+          <p style="margin:0 0 20px 0;font-family:'Arial',sans-serif;font-size:13px;color:#9A7B5E;">— Bhagavad Gita 2.47</p>
+          <p style="margin:0 0 20px 0;font-size:14px;color:#D4B28C;">❦</p>
+          <p style="margin:0;font-family:'Arial',sans-serif;font-size:14px;line-height:1.7;color:#5C4A3D;">
+            You have a right to perform your prescribed duties, but you are not entitled to the fruits of your actions. Never consider yourself the cause of the results, and never be attached to inaction.
+          </p>
+        `)}
+        <tr>
+          <td class="fluid-padding" style="padding:0 40px 20px 40px;">
+            <p style="margin:0;font-family:'Arial',sans-serif;font-size:14px;line-height:1.7;color:#5C4A3D;">
+              Your account is now set up with cloud sync — your bookmarks, notes, and reading progress are safely backed up across all your devices.
+            </p>
+          </td>
+        </tr>
+        ${ctaRow("Open Gita Sadhana", "https://gitasadhana.com")}
+      `),
+      `Namaste ${displayName}!\n\nWelcome to Gita Sadhana. Your journey through the Bhagavad Gita begins now.\n\nYour bookmarks, notes, and progress are synced to your account.\n\nGita Sadhana Team`,
+    );
+
+    return { success: true };
   }
 );

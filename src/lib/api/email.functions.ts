@@ -37,6 +37,11 @@ export const sendCorrectionEmail = async (
  * @param frequency - Frequency ('daily', 'weekly', 'monthly', or 'none')
  * @returns Success response from Cloud Function or resolved promise if 'none'
  */
+export const sendWelcomeEmail = async (email: string, name: string) => {
+  const fn = httpsCallable(functions, "sendWelcomeEmail");
+  return fn({ email, name });
+};
+
 export const sendNewsletterEmail = async (
   email: string,
   frequency: "daily" | "weekly" | "monthly" | "none"
