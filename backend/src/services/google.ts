@@ -14,7 +14,7 @@ export type GoogleIdentity = {
 export async function verifyGoogleIdToken(idToken: string) {
   const verified = await jwtVerify(idToken, googleJwks, {
     issuer: ["accounts.google.com", "https://accounts.google.com"],
-    audience: config.googleClientId,
+    audience: config.googleClientIds,
   });
 
   const payload = verified.payload;
@@ -34,4 +34,3 @@ export async function verifyGoogleIdToken(idToken: string) {
     emailVerified: payload.email_verified === true,
   } satisfies GoogleIdentity;
 }
-

@@ -27,9 +27,9 @@ export function getApiBaseUrl() {
   const configured = import.meta.env.VITE_API_BASE_URL as string | undefined;
   if (configured) return trimTrailingSlash(configured);
   if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
-    return "http://10.0.2.2:3001";
+    return "http://10.0.2.2:5001";
   }
-  return "http://localhost:3001";
+  return "http://localhost:5001";
 }
 
 export async function apiRequest<T>(

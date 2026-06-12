@@ -13,9 +13,15 @@ type SignInResponse = {
 
 const googleWebClientId =
   import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID ??
+  import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID ??
   import.meta.env.VITE_GOOGLE_CLIENT_ID ??
   import.meta.env.GOOGLE_CLIENT_ID ??
   "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com";
+
+const googleAndroidClientId =
+  import.meta.env.VITE_GOOGLE_ANDROID_CLIENT_ID ??
+  import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID ??
+  googleWebClientId;
 
 const googleIosClientId =
   import.meta.env.VITE_GOOGLE_IOS_CLIENT_ID ??
@@ -120,6 +126,7 @@ export async function signInWithGoogle() {
     scopes: ["profile", "email"],
     clientId: googleWebClientId,
     serverClientId: googleWebClientId,
+    androidClientId: googleAndroidClientId,
     iosClientId: googleIosClientId,
     grantOfflineAccess: true,
   });

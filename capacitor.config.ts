@@ -12,6 +12,13 @@ const config: CapacitorConfig = {
       scopes: ["profile", "email"],
       clientId:
         process.env.VITE_GOOGLE_WEB_CLIENT_ID ||
+        process.env.VITE_GOOGLE_ANDROID_CLIENT_ID ||
+        process.env.VITE_GOOGLE_CLIENT_ID ||
+        process.env.GOOGLE_CLIENT_ID ||
+        "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com",
+      androidClientId:
+        process.env.VITE_GOOGLE_ANDROID_CLIENT_ID ||
+        process.env.VITE_GOOGLE_WEB_CLIENT_ID ||
         process.env.VITE_GOOGLE_CLIENT_ID ||
         process.env.GOOGLE_CLIENT_ID ||
         "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com",

@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { buildGoogleClientIds } from "./services/google-client-ids.js";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -12,12 +13,25 @@ function optional(name: string, fallback = ""): string {
   return process.env[name] || fallback;
 }
 
+const googleWebClientId =
+  optional("GOOGLE_WEB_CLIENT_ID") ||
+  optional("GOOGLE_CLIENT_ID", "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com");
+const googleAndroidClientId =
+  optional("GOOGLE_ANDROID_CLIENT_ID") ||
+  optional("GOOGLE_CLIENT_ID", "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com");
+const googleIosClientId =
+  optional("GOOGLE_IOS_CLIENT_ID") ||
+  optional("GOOGLE_CLIENT_ID", "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com");
+
 export const config = {
   port: Number(process.env.PORT || 5001),
   nodeEnv: process.env.NODE_ENV || "production",
   mongoUri: required("MONGODB_URI"),
   jwtSecret: required("JWT_SECRET"),
-  googleClientId: optional("GOOGLE_CLIENT_ID", "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com"),
+  googleWebClientId,
+  googleAndroidClientId,
+  googleIosClientId,
+  googleClientIds: buildGoogleClientIds(googleWebClientId, googleAndroidClientId, googleIosClientId),
   appleClientId: optional("APPLE_CLIENT_ID", "com.gitasadhana.ios"),
   emailApiKey: optional("EMAIL_API_KEY"),
   emailFrom: optional("EMAIL_FROM", "hello@mails.gitasadhana.com"),
