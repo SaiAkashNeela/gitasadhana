@@ -1,29 +1,29 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import { defineSecret } from "firebase-functions/v2/params";
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { GoogleGenAI } from "@google/genai";
 import * as admin from "firebase-admin";
 
 admin.initializeApp();
 
-const awsAccessKeyId = defineSecret("AWS_SES_ACCESS_KEY_ID");
-const awsSecretAccessKey = defineSecret("AWS_SES_SECRET_ACCESS_KEY");
-const awsRegion = defineSecret("AWS_SES_REGION");
-const sesFromEmail = defineSecret("SES_FROM_EMAIL");
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
-const geminiModel = defineSecret("GEMINI_MODEL_ID");
+function getEmailApiKey(): string {
+  const key = process.env.EMAIL_API_KEY;
+  if (!key) throw new Error("EMAIL_API_KEY environment variable is not set.");
+  return key;
+}
+
+function getGeminiApiKey(): string {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error("GEMINI_API_KEY environment variable is not set.");
+  return key;
+}
+
+function getGeminiModelId(): string {
+  const model = process.env.GEMINI_MODEL_ID;
+  if (!model) throw new Error("GEMINI_MODEL_ID environment variable is not set.");
+  return model;
+}
 
 const ADMIN_EMAIL = "hello@gitasadhana.com";
 
-function getSES() {
-  return new SESClient({
-    region: awsRegion.value(),
-    credentials: {
-      accessKeyId: awsAccessKeyId.value(),
-      secretAccessKey: awsSecretAccessKey.value(),
-    },
-  });
-}
 
 function emailShell(bodyContent: string): string {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -117,34 +117,39 @@ function ctaRow(label: string, url: string): string {
   </tr>`;
 }
 
-async function sendEmail(ses: SESClient, to: string, subject: string, html: string, text: string, replyTo?: string) {
-  await ses.send(new SendEmailCommand({
-    Source: sesFromEmail.value(),
-    Destination: { ToAddresses: [to] },
-    Message: {
-      Subject: { Data: subject },
-      Body: {
-        Html: { Data: html },
-        Text: { Data: text },
-      },
+async function sendEmail(to: string, subject: string, html: string, replyTo?: string) {
+  const apiKey = getEmailApiKey();
+  const response = await fetch("https://ses-api.geeksdesigns.com/v1/send", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
     },
-    ...(replyTo ? { ReplyToAddresses: [replyTo] } : {}),
-  }));
+    body: JSON.stringify({
+      to,
+      subject,
+      body: html,
+      from: "hello@mails.gitasadhana.com",
+      ...(replyTo ? { replyTo } : {})
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to send email: ${response.status} ${response.statusText} - ${errorText}`);
+  }
 }
 
 // ─── Contact Form ────────────────────────────────────────────────────────────
 
 export const sendContactEmail = onCall(
-  { secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail], region: "us-central1" },
+  { region: "us-central1" },
   async (request) => {
     const { email, message } = request.data as { email: string; message: string };
     if (!email || !message?.trim()) throw new HttpsError("invalid-argument", "Email and message are required.");
 
-    const ses = getSES();
-
     // Admin notification
     await sendEmail(
-      ses,
       ADMIN_EMAIL,
       `Contact Form: Message from ${email}`,
       emailShell(`
@@ -160,13 +165,11 @@ export const sendContactEmail = onCall(
           <p style="margin:0;font-family:'Arial',sans-serif;font-size:15px;line-height:1.7;color:#5C4A3D;">${message.replace(/\n/g, "<br/>")}</p>
         `)}
       `),
-      `New contact message from ${email}:\n\n${message}`,
       email,
     );
 
     // User confirmation
     await sendEmail(
-      ses,
       email,
       "We received your message — Gita Sadhana",
       emailShell(`
@@ -185,7 +188,6 @@ export const sendContactEmail = onCall(
         `)}
         ${ctaRow("Continue Reading", "https://gitasadhana.com")}
       `),
-      `Thank you for reaching out!\n\nWe received your message and will reply within 1-2 business days.\n\nYour message:\n"${message}"\n\nGita Sadhana Team`,
     );
 
     return { success: true };
@@ -195,7 +197,7 @@ export const sendContactEmail = onCall(
 // ─── Verse / Language Correction ─────────────────────────────────────────────
 
 export const sendCorrectionEmail = onCall(
-  { secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail], region: "us-central1" },
+  { region: "us-central1" },
   async (request) => {
     const { language, chapter, verse, message, email } = request.data as {
       language: string; chapter: string; verse: string; message: string; email?: string;
@@ -204,11 +206,8 @@ export const sendCorrectionEmail = onCall(
       throw new HttpsError("invalid-argument", "All fields are required.");
     }
 
-    const ses = getSES();
-
     // Admin notification
     await sendEmail(
-      ses,
       ADMIN_EMAIL,
       `Correction Report: ${language} | Ch ${chapter}.${verse}`,
       emailShell(`
@@ -245,14 +244,12 @@ export const sendCorrectionEmail = onCall(
           </table>
         `)}
       `),
-      `Correction: ${language} | Chapter ${chapter} Verse ${verse}\n\nIssue:\n${message}${email ? `\n\nReported by: ${email}` : ""}`,
       email,
     );
 
     // User confirmation (only if email provided)
     if (email) {
       await sendEmail(
-        ses,
         email,
         "Your correction has been submitted — Gita Sadhana",
         emailShell(`
@@ -274,7 +271,6 @@ export const sendCorrectionEmail = onCall(
           `)}
           ${ctaRow("Continue Reading", "https://gitasadhana.com")}
         `),
-        `Thank you for submitting a correction!\n\nWe received your report for:\nLanguage: ${language}\nChapter: ${chapter}\nVerse: ${verse}\n\nYour note:\n"${message}"\n\nOur team will review it and update if needed.\n\nGita Sadhana Team`,
       );
     }
 
@@ -285,7 +281,7 @@ export const sendCorrectionEmail = onCall(
 // ─── Newsletter Subscription ──────────────────────────────────────────────────
 
 export const sendNewsletterEmail = onCall(
-  { secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail], region: "us-central1" },
+  { region: "us-central1" },
   async (request) => {
     const { email, frequency } = request.data as {
       email: string;
@@ -295,7 +291,6 @@ export const sendNewsletterEmail = onCall(
     if (!email || !frequency) throw new HttpsError("invalid-argument", "Email and frequency are required.");
     if (!["daily", "weekly", "monthly"].includes(frequency)) throw new HttpsError("invalid-argument", "Invalid frequency.");
 
-    const ses = getSES();
     const frequencyLabel: Record<string, string> = { daily: "Daily", weekly: "Weekly", monthly: "Monthly" };
     const frequencyDesc: Record<string, string> = {
       daily: "every day to start your morning with wisdom",
@@ -305,7 +300,6 @@ export const sendNewsletterEmail = onCall(
 
     // User confirmation
     await sendEmail(
-      ses,
       email,
       `You're subscribed to ${frequencyLabel[frequency]} Wisdom — Gita Sadhana`,
       emailShell(`
@@ -341,13 +335,11 @@ export const sendNewsletterEmail = onCall(
           </td>
         </tr>
       `),
-      `Namaste!\n\nYou are subscribed to Gita Sadhana's ${frequencyLabel[frequency]} Digest.\n\nYou will receive curated verses from the Bhagavad Gita ${frequencyDesc[frequency]}.\n\nTo unsubscribe, reply to this email.\n\nGita Sadhana Team`,
       ADMIN_EMAIL,
     );
 
     // Admin notification
     await sendEmail(
-      ses,
       ADMIN_EMAIL,
       `New Newsletter Subscriber: ${email} (${frequencyLabel[frequency]})`,
       emailShell(`
@@ -363,7 +355,6 @@ export const sendNewsletterEmail = onCall(
           </td>
         </tr>
       `),
-      `New subscriber: ${email} (${frequencyLabel[frequency]})`,
     );
 
     return { success: true };
@@ -384,7 +375,6 @@ function sanitiseInput(input: string): string {
 
 export const gitaChat = onCall(
   {
-    secrets: [geminiApiKey, geminiModel],
     region: "us-central1",
   },
   async (request) => {
@@ -462,7 +452,7 @@ LANGUAGE RULE — ABSOLUTE:
 
 TONE: calm, warm, wise, devotional. Grounded in scripture. No speculation beyond what the Gita and its commentaries teach. Concise but complete.`;
 
-    const ai = new GoogleGenAI({ apiKey: geminiApiKey.value() });
+    const ai = new GoogleGenAI({ apiKey: getGeminiApiKey() });
 
     // Last 20 turns only — prevents context stuffing attacks
     const safeHistory = history.slice(-20).map((m) => ({
@@ -472,7 +462,7 @@ TONE: calm, warm, wise, devotional. Grounded in scripture. No speculation beyond
 
     try {
       const chat = ai.chats.create({
-        model: geminiModel.value(),
+        model: getGeminiModelId(),
         config: { systemInstruction },
         history: safeHistory,
       });
@@ -496,16 +486,14 @@ TONE: calm, warm, wise, devotional. Grounded in scripture. No speculation beyond
 // ─── Welcome Email ────────────────────────────────────────────────────────────
 
 export const sendWelcomeEmail = onCall(
-  { secrets: [awsAccessKeyId, awsSecretAccessKey, awsRegion, sesFromEmail], region: "us-central1" },
+  { region: "us-central1" },
   async (request) => {
     const { email, name } = request.data as { email: string; name: string };
     if (!email) throw new HttpsError("invalid-argument", "Email is required.");
 
-    const ses = getSES();
     const displayName = name || "Seeker";
 
     await sendEmail(
-      ses,
       email,
       "Welcome to Gita Sadhana — Your Journey Begins",
       emailShell(`
@@ -541,7 +529,6 @@ export const sendWelcomeEmail = onCall(
         </tr>
         ${ctaRow("Open Gita Sadhana", "https://gitasadhana.com")}
       `),
-      `Namaste ${displayName}!\n\nWelcome to Gita Sadhana. Your journey through the Bhagavad Gita begins now.\n\nYour bookmarks, notes, and progress are synced to your account.\n\nGita Sadhana Team`,
     );
 
     return { success: true };
