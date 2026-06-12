@@ -1731,10 +1731,10 @@ export const translations: Record<string, Partial<Record<SupportedLanguage, stri
     sa: "प्रवर्तयतु"
   },
   overwriteExistingRecordsPrompt: {
-    en: "This will overwrite existing Gita records on Firestore with standard aggregated text. Proceed?",
-    hi: "यह Firestore पर मौजूद गीता रिकॉर्ड्स को मानक संकलित पाठ से बदल देगा। आगे बढ़ें?",
-    te: "ఇది Firestore లో ఉన్న Gita రికార్డులను ప్రామాణిక సమగ్ర పాఠంతో భర్తీ చేస్తుంది. కొనసాగించాలా?",
-    sa: "एतत् Firestore मध्ये विद्यमानं गीता-दत्तांशं मानकसमाहितपाठेन प्रतिस्थापयिष्यति। प्रवर्तयतु वा?"
+    en: "This will refresh the backend Gita cache with the standard aggregated text. Proceed?",
+    hi: "यह बैकएंड पर मौजूद गीता कैश को मानक संकलित पाठ से ताज़ा करेगा। आगे बढ़ें?",
+    te: "ఇది బ్యాక్‌ఎండ్‌లో ఉన్న Gita క్యాష్‌ను ప్రామాణిక సమగ్ర పాఠంతో తాజాపరుస్తుంది. కొనసాగించాలా?",
+    sa: "एतत् बैकएण्ड्-स्थं गीता-संचयं मानकसमाहितपाठेन नूतनीकरिष्यति। प्रवर्तयतु वा?"
   }
   
   };

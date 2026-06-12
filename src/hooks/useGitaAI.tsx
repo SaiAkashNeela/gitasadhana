@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { httpsCallable } from "firebase/functions";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { functions, db } from "@/lib/firebase";
+import { apiRequest } from "@/lib/backend";
+import { auth } from "@/lib/auth";
 
 export interface ChatMessage {
   id: string;
@@ -37,49 +36,48 @@ export function useGitaAI(uid: string | null) {
   const syncDirtyRef = useRef(false);
   const syncTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Persist to localStorage whenever messages change
   useEffect(() => {
     saveLocal(messages);
     if (uid) syncDirtyRef.current = true;
   }, [messages, uid]);
 
-  // Cloud sync helpers
   const pushToCloud = useCallback(async (msgs: ChatMessage[]) => {
-    if (!uid) return;
+    if (!auth.currentUser) return;
     try {
-      await setDoc(
-        doc(db, "gitaAiChats", uid),
-        { messages: msgs, updatedAt: new Date().toISOString() },
-        { merge: true },
-      );
+      await apiRequest("/chat/me", {
+        method: "PUT",
+        body: {
+          messages: msgs,
+          language: language ?? "en",
+        },
+      });
       syncDirtyRef.current = false;
     } catch (e) {
       console.error("Gita AI sync failed:", e);
     }
-  }, [uid]);
+  }, [language]);
 
   const pullFromCloud = useCallback(async (): Promise<ChatMessage[]> => {
-    if (!uid) return [];
+    if (!auth.currentUser) return [];
     try {
-      const snap = await getDoc(doc(db, "gitaAiChats", uid));
-      if (snap.exists()) return (snap.data().messages as ChatMessage[]) ?? [];
+      const result = await apiRequest<{ messages: ChatMessage[] }>("/chat/me");
+      return result.messages ?? [];
     } catch (e) {
       console.error("Gita AI pull failed:", e);
     }
     return [];
-  }, [uid]);
+  }, []);
 
-  // On login: merge cloud + local
   useEffect(() => {
-    if (!uid) return;
+    if (!uid || !auth.currentUser) return;
     pullFromCloud().then((cloud) => {
       setMessages((local) => {
         if (cloud.length === 0) return local;
         const merged = [...local, ...cloud];
         const seen = new Set<string>();
-        const unique = merged.filter((m) => {
-          if (seen.has(m.id)) return false;
-          seen.add(m.id);
+        const unique = merged.filter((message) => {
+          if (seen.has(message.id)) return false;
+          seen.add(message.id);
           return true;
         });
         unique.sort((a, b) => a.ts - b.ts);
@@ -89,12 +87,14 @@ export function useGitaAI(uid: string | null) {
     });
   }, [uid, pullFromCloud]);
 
-  // 10-min sync interval
   useEffect(() => {
     if (!uid) return;
     syncTimerRef.current = setInterval(() => {
       if (syncDirtyRef.current) {
-        setMessages((m) => { pushToCloud(m); return m; });
+        setMessages((current) => {
+          void pushToCloud(current);
+          return current;
+        });
       }
     }, SYNC_INTERVAL_MS);
     return () => {
@@ -121,49 +121,44 @@ export function useGitaAI(uid: string | null) {
     setSending(true);
     setError(null);
 
-    // Build history for API (last 20 messages, exclude the one just added)
-    const historyForApi = messages.slice(-20).map((m) => ({
-      role: m.role,
-      text: m.text,
+    const historyForApi = messages.slice(-20).map((message) => ({
+      role: message.role,
+      text: message.text,
     }));
 
     try {
-      const fn = httpsCallable(functions, "gitaChat");
-      const result = await fn({
-        message: text.trim(),
-        history: historyForApi,
-        language: language ?? "en",
-        uid: uid ?? "anonymous",
-      }) as { data: { reply: string | null; limitReached: boolean } };
+      const result = await apiRequest<{ reply: string | null; limitReached: boolean }>("/ai/chat", {
+        method: "POST",
+        body: {
+          message: text.trim(),
+          history: historyForApi,
+          language: language ?? "en",
+        },
+      });
 
-      if (result.data.limitReached) {
+      if (result.limitReached) {
         setLimitReached(true);
-        setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
+        setMessages((prev) => prev.filter((message) => message.id !== userMsg.id));
         return;
       }
 
       const modelMsg: ChatMessage = {
         id: `${Date.now()}-model`,
         role: "model",
-        text: result.data.reply ?? "",
+        text: result.reply ?? "",
         ts: Date.now(),
       };
       setMessages((prev) => [...prev, modelMsg]);
     } catch (e: any) {
-      const code = e?.code ?? "";
-      if (code === "functions/resource-exhausted") {
+      const message = String(e?.message ?? "");
+      if (message.toLowerCase().includes("rate")) {
         setError("Rate limit reached. Please try again in a moment.");
-      } else if (
-        e?.message?.toLowerCase().includes("network") ||
-        e?.message?.toLowerCase().includes("offline") ||
-        code === "functions/unavailable"
-      ) {
+      } else if (message.toLowerCase().includes("network") || message.toLowerCase().includes("offline") || message.toLowerCase().includes("temporarily unavailable")) {
         setError("offline");
       } else {
         setError("Something went wrong. Please try again.");
       }
-      // Remove the optimistic user message on failure
-      setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
+      setMessages((prev) => prev.filter((entry) => entry.id !== userMsg.id));
     } finally {
       setSending(false);
     }
@@ -175,7 +170,6 @@ export function useGitaAI(uid: string | null) {
     setLimitReached(false);
   };
 
-  // Force sync before logout — call this and await before signing out
   const forceSyncBeforeLogout = async () => {
     const current = loadLocal();
     await pushToCloud(current);

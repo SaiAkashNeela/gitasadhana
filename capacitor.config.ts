@@ -10,7 +10,23 @@ const config: CapacitorConfig = {
   plugins: {
     GoogleAuth: {
       scopes: ["profile", "email"],
-      webClientId: "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com",
+      clientId:
+        process.env.VITE_GOOGLE_WEB_CLIENT_ID ||
+        process.env.VITE_GOOGLE_CLIENT_ID ||
+        process.env.GOOGLE_CLIENT_ID ||
+        "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com",
+      iosClientId:
+        process.env.VITE_GOOGLE_IOS_CLIENT_ID ||
+        process.env.GOOGLE_IOS_CLIENT_ID ||
+        process.env.VITE_GOOGLE_WEB_CLIENT_ID ||
+        process.env.VITE_GOOGLE_CLIENT_ID ||
+        process.env.GOOGLE_CLIENT_ID ||
+        "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com",
+      serverClientId:
+        process.env.VITE_GOOGLE_WEB_CLIENT_ID ||
+        process.env.VITE_GOOGLE_CLIENT_ID ||
+        process.env.GOOGLE_CLIENT_ID ||
+        "822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com",
       forceCodeForRefreshToken: true,
     },
   },

@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
-import { onAuthStateChanged, User, deleteUser } from "firebase/auth";
-import { doc, getDoc, setDoc, onSnapshot, deleteDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { auth, deleteCurrentUserAccount, restoreAuthSession } from "@/lib/auth";
+import { apiRequest, type AuthUser } from "@/lib/backend";
 import { toast } from "sonner";
 import gitaProcessedData from "@/app/gita-processed.json";
 import { getReminderConfig, scheduleDailyReminder } from "@/lib/notifications";
@@ -45,7 +44,7 @@ export interface UserProfile {
 }
 
 interface UserProgressContextType {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   profile: UserProfile;
   bookmarks: string[]; // List of bookmarked verse IDs (e.g. "2.47")
@@ -99,7 +98,7 @@ const UserProgressContext = createContext<UserProgressContextType | undefined>(u
 const SYNC_INTERVAL_MS = 60 * 1000;
 
 export function UserProgressProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const syncDirtyRef = useRef(false);
 
@@ -159,6 +158,10 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     document.documentElement.style.setProperty("--app-font-size", `${fontSize}px`);
+  }, []);
+
+  useEffect(() => {
+    void restoreAuthSession();
   }, []);
 
   // 1. Load initial local storage data for Guests
@@ -309,7 +312,21 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         setProfile(prev => ({ ...prev, minutes: prev.minutes + 1 }));
       }
       if (syncDirtyRef.current) {
-        syncStateToCloud();
+        syncStateToCloud(
+          bookmarks,
+          notes,
+          history,
+          favorites,
+          profile,
+          selectedLanguage,
+          downloadedVerses,
+          downloadedChapters,
+          isGitaDownloaded,
+          true,
+          completedVerses,
+          readVerses,
+          readDates,
+        );
       }
     }, SYNC_INTERVAL_MS);
     return () => clearInterval(interval);
@@ -324,170 +341,83 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
   // 3. Listen to Auth State Changes (Run exactly once on mount to prevent expensive re-subscriptions, cleans up properly)
   useEffect(() => {
-    let unsubDoc: (() => void) | null = null;
-
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    let cancelled = false;
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       setUser(currentUser);
-
-      // Cancel any existing snapshot listener
-      if (unsubDoc) {
-        unsubDoc();
-        unsubDoc = null;
-      }
 
       if (currentUser) {
         setLoading(true);
-        console.log(`👤 User logged in: ${currentUser.email}`);
+        const localBookmarks = JSON.parse(localStorage.getItem("gita_bookmarks") || "[]");
+        const localNotes = JSON.parse(localStorage.getItem("gita_notes") || "[]");
+        const localHistory = JSON.parse(localStorage.getItem("gita_history") || "[]");
+        const localFavorites = JSON.parse(localStorage.getItem("gita_favorites") || "[]");
+        const localCompleted = JSON.parse(localStorage.getItem("gita_completed") || "[]");
+        const localReadVerses = JSON.parse(localStorage.getItem("gita_read_verses") || "[]");
+        const localProfile = JSON.parse(localStorage.getItem("gita_profile") || `{"streak": 1, "versesRead": 0, "bookmarks": 0, "minutes": 0}`);
+        const localLang = localStorage.getItem("gita_language") || "en";
+        const localDownloadedVerses = JSON.parse(localStorage.getItem("gita_downloaded_verses") || "[]");
+        const localDownloadedChapters = JSON.parse(localStorage.getItem("gita_downloaded_chapters") || "[]");
+        const localIsGitaDownloaded = localStorage.getItem("gita_is_gita_downloaded") === "true";
+        const localReadDates = JSON.parse(localStorage.getItem("gita_read_dates") || "[]");
 
-        // Setup a real-time snapshot listener on the user's Firestore document
-        const userDocRef = doc(db, "users", currentUser.uid);
-        unsubDoc = onSnapshot(
-          userDocRef,
-          async (docSnap) => {
-            if (docSnap.exists()) {
-              const data = docSnap.data();
-              console.log("☁️ Syncing down remote progress from cloud...", data);
+        try {
+          const response = await apiRequest<{ profile: any }>("/users/me/sync", {
+            method: "POST",
+            body: {
+              name: currentUser.displayName,
+              email: currentUser.email,
+              streak: localProfile.streak || 1,
+              versesRead: localProfile.versesRead || 0,
+              bookmarks: localBookmarks,
+              notes: localNotes,
+              history: localHistory,
+              favorites: localFavorites,
+              completedVerses: localCompleted,
+              readVerses: localReadVerses,
+              language: localLang,
+              downloadedVerses: localDownloadedVerses,
+              downloadedChapters: localDownloadedChapters,
+              isGitaDownloaded: localIsGitaDownloaded,
+              readDates: localReadDates,
+              minutes: localProfile.minutes || 0,
+              createdAt: localProfile.createdAt || currentUser.metadata.creationTime || new Date().toISOString(),
+            },
+          });
 
-              // Merge state with array-equality checks to prevent infinite React rendering/HMR loops from new empty array instances
-              setBookmarks((prev) => {
-                const combined = Array.from(new Set([...prev, ...(data.bookmarks || [])]));
-                if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
-                return combined;
-              });
+          if (cancelled) return;
 
-              setFavorites((prev) => {
-                const combined = Array.from(new Set([...prev, ...(data.favorites || [])]));
-                if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
-                return combined;
-              });
-
-              setCompletedVerses((prev) => {
-                const combined = Array.from(new Set([...prev, ...(data.completedVerses || [])]));
-                if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
-                return combined;
-              });
-
-              setReadVerses((prev) => {
-                const combined = Array.from(new Set([...prev, ...(data.readVerses || [])]));
-                if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
-                return combined;
-              });
-
-              setReadDates((prev) => {
-                const combined = Array.from(new Set([...prev, ...(data.readDates || [])]));
-                if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
-                return combined;
-              });
-
-              setDownloadedVerses((prev) => {
-                const combined = Array.from(new Set([...prev, ...(data.downloadedVerses || [])]));
-                if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
-                return combined;
-              });
-
-              setDownloadedChapters((prev) => {
-                const combined = Array.from(new Set([...prev, ...(data.downloadedChapters || [])]));
-                if (prev.length === combined.length && prev.every((v, i) => v === combined[i])) return prev;
-                return combined;
-              });
-
-              setIsGitaDownloaded((prev) => prev || !!data.isGitaDownloaded);
-
-              setNotes((prev) => {
-                const remoteNotes: UserNote[] = data.notes || [];
-                const combined = [...prev, ...remoteNotes];
-                const unique = combined.reduce<Record<string, UserNote>>((acc, n) => { acc[n.id] = acc[n.id] ?? n; return acc; }, {});
-                const updated = Object.values(unique);
-                if (prev.length === updated.length && prev.every((n, i) => n.id === updated[i].id && n.title === updated[i].title && n.body === updated[i].body)) {
-                  return prev;
-                }
-                return updated;
-              });
-
-              setHistory((prev) => {
-                const remoteHist: HistoryItem[] = data.history || [];
-                const combined = [...prev, ...remoteHist];
-                const unique = combined.reduce<Record<string, HistoryItem>>((acc, h) => { acc[h.id] = acc[h.id] ?? h; return acc; }, {});
-                const updated = Object.values(unique);
-                if (prev.length === updated.length && prev.every((h, i) => h.id === updated[i].id && h.chapter === updated[i].chapter && h.verse === updated[i].verse)) {
-                  return prev;
-                }
-                return updated;
-              });
-
-              setProfile((prev) => {
-                const name = currentUser.displayName || data.name || "Seeker";
-                const email = currentUser.email || data.email || "";
-                const streak = Math.max(prev.streak, data.streak ?? 1);
-                const versesRead = Math.max(prev.versesRead, data.readVerses?.length || data.versesRead || 0);
-                const bookmarksCount = Math.max(prev.bookmarks, data.bookmarks?.length || 0);
-                const minutes = Math.max(prev.minutes, data.minutes || 0);
-                const createdAt = data.createdAt || prev.createdAt || currentUser.metadata.creationTime || new Date().toISOString();
-
-                if (
-                  prev.name === name &&
-                  prev.email === email &&
-                  prev.streak === streak &&
-                  prev.versesRead === versesRead &&
-                  prev.bookmarks === bookmarksCount &&
-                  prev.minutes === minutes &&
-                  prev.createdAt === createdAt
-                ) {
-                  return prev;
-                }
-                return { name, email, streak, versesRead, bookmarks: bookmarksCount, minutes, createdAt };
-              });
-
-              if (data.language) {
-                setSelectedLanguage((prev) => {
-                  if (prev === data.language) return prev;
-                  localStorage.setItem("gita_language", data.language);
-                  return data.language;
-                });
-              }
-            } else {
-              // First time logging in: Sync local progress up as initial backup (read from localStorage cache to prevent stale closures)
-              console.log("☁️ Seeding local progress to Firestore...");
-              const localBookmarks = JSON.parse(localStorage.getItem("gita_bookmarks") || "[]");
-              const localNotes = JSON.parse(localStorage.getItem("gita_notes") || "[]");
-              const localHistory = JSON.parse(localStorage.getItem("gita_history") || "[]");
-              const localFavorites = JSON.parse(localStorage.getItem("gita_favorites") || "[]");
-              const localCompleted = JSON.parse(localStorage.getItem("gita_completed") || "[]");
-              const localReadVerses = JSON.parse(localStorage.getItem("gita_read_verses") || "[]");
-              const localProfile = JSON.parse(localStorage.getItem("gita_profile") || `{"streak": 1, "versesRead": 0, "bookmarks": 0, "minutes": 0}`);
-              const localLang = localStorage.getItem("gita_language") || "en";
-              const localDownloadedVerses = JSON.parse(localStorage.getItem("gita_downloaded_verses") || "[]");
-              const localDownloadedChapters = JSON.parse(localStorage.getItem("gita_downloaded_chapters") || "[]");
-              const localIsGitaDownloaded = localStorage.getItem("gita_is_gita_downloaded") === "true";
-              const localReadDates = JSON.parse(localStorage.getItem("gita_read_dates") || "[]");
-
-              await setDoc(userDocRef, {
-                name: currentUser.displayName || "Seeker",
-                email: currentUser.email || "",
-                streak: localProfile.streak || 1,
-                versesRead: localProfile.versesRead || 0,
-                bookmarks: localBookmarks,
-                notes: localNotes,
-                history: localHistory,
-                favorites: localFavorites,
-                completedVerses: localCompleted,
-                readVerses: localReadVerses,
-                language: localLang,
-                downloadedVerses: localDownloadedVerses,
-                downloadedChapters: localDownloadedChapters,
-                isGitaDownloaded: localIsGitaDownloaded,
-                readDates: localReadDates,
-                createdAt: localProfile.createdAt || currentUser.metadata.creationTime || new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              });
-            }
-            setLoading(false);
-          },
-          (err) => {
-            console.error("Firestore sync error:", err);
-            setLoading(false);
-          },
-        );
+          const data = response.profile;
+          setBookmarks(data.bookmarks || []);
+          setFavorites(data.favorites || []);
+          setCompletedVerses(data.completedVerses || []);
+          setReadVerses(data.readVerses || []);
+          setReadDates(data.readDates || []);
+          setDownloadedVerses(data.downloadedVerses || []);
+          setDownloadedChapters(data.downloadedChapters || []);
+          setIsGitaDownloaded(!!data.isGitaDownloaded);
+          setNotes(data.notes || []);
+          setHistory(data.history || []);
+          setProfile({
+            name: data.name || currentUser.displayName || "Seeker",
+            email: data.email || currentUser.email || "",
+            streak: data.streak ?? 1,
+            versesRead: data.versesRead ?? (data.readVerses?.length || 0),
+            bookmarks: data.bookmarks?.length || 0,
+            minutes: data.minutes ?? 0,
+            createdAt: data.createdAt || currentUser.metadata.creationTime || new Date().toISOString(),
+          });
+          if (data.language) {
+            setSelectedLanguage((prev) => {
+              if (prev === data.language) return prev;
+              localStorage.setItem("gita_language", data.language);
+              return data.language;
+            });
+          }
+        } catch (err) {
+          console.error("Backend sync error:", err);
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
       } else {
         setLoading(false);
       }
@@ -495,7 +425,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
     return () => {
       unsubscribe();
-      if (unsubDoc) unsubDoc();
+      cancelled = true;
     };
   }, []);
 
@@ -527,12 +457,11 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   ) => {
     if (!user) return;
 
-    const doWrite = async (u: typeof user) => {
+    const doWrite = async () => {
       try {
-        const userDocRef = doc(db, "users", u.uid);
-        await setDoc(
-          userDocRef,
-          {
+        const response = await apiRequest<{ profile: any }>("/users/me/sync", {
+          method: "POST",
+          body: {
             name: updatedProfile.name,
             email: updatedProfile.email,
             streak: updatedProfile.streak,
@@ -548,11 +477,22 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
             completedVerses: updatedCompleted,
             readVerses: updatedReadVerses,
             readDates: updatedReadDates,
+            minutes: updatedProfile.minutes,
             createdAt: updatedProfile.createdAt || new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
           },
-          { merge: true },
-        );
+        });
+        const data = response.profile;
+        if (data) {
+          setProfile({
+            name: data.name || updatedProfile.name,
+            email: data.email || updatedProfile.email,
+            streak: data.streak ?? updatedProfile.streak,
+            versesRead: data.versesRead ?? updatedProfile.versesRead,
+            bookmarks: data.bookmarks?.length || updatedBookmarks.length,
+            minutes: data.minutes ?? updatedProfile.minutes,
+            createdAt: data.createdAt || updatedProfile.createdAt || new Date().toISOString(),
+          });
+        }
         syncDirtyRef.current = false;
         console.log("☁️ Successfully backed up progress to cloud.");
       } catch (e) {
@@ -561,7 +501,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     };
 
     if (force) {
-      await doWrite(user);
+      await doWrite();
     } else {
       syncDirtyRef.current = true;
     }
@@ -709,10 +649,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
   const deleteAccountAndData = async () => {
     if (!user) return;
     try {
-      await deleteDoc(doc(db, "users", user.uid));
-    } catch {}
-    try {
-      await deleteUser(user);
+      await deleteCurrentUserAccount();
     } catch {}
     localStorage.clear();
     setUser(null);

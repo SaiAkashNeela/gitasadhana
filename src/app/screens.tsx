@@ -52,7 +52,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Capacitor } from "@capacitor/core";
-import { GoogleAuth } from "@codetrix-studio/capacitor-google-auth";
 
 import {
   ScreenWrapper,
@@ -80,7 +79,7 @@ import {
   Verse,
 } from "@/hooks/useGitaData";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import { auth, GoogleAuthProvider, OAuthProvider, signInWithCredential } from "@/lib/firebase";
+import { signInWithGoogle, signInWithApple } from "@/lib/auth";
 import { seedGitaDatabase, SeedingProgress } from "@/lib/seeding";
 import { sendContactEmail, sendCorrectionEmail, sendWelcomeEmail } from "@/lib/api/email.functions";
 import { useGitaAI } from "@/hooks/useGitaAI";
@@ -3699,7 +3698,7 @@ export function Profile() {
   const handleSeedDatabase = async () => {
     if (seedingProgress.status === "running") return;
 
-    toast("This will overwrite existing Gita records on Firestore with standard aggregated text. Proceed?", {
+    toast("This will refresh the backend Gita cache with standard aggregated text. Proceed?", {
       action: {
         label: "Proceed",
         onClick: async () => {
@@ -3736,80 +3735,38 @@ export function Profile() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (Capacitor.isNativePlatform()) {
-      try {
-        await GoogleAuth.initialize({
-          scopes: ["profile", "email"],
-          grantOfflineAccess: true,
-        });
-        const nativeUser = await GoogleAuth.signIn();
-        console.log("Google idToken:", nativeUser.authentication.idToken ? "present" : "MISSING");
-        const idToken = nativeUser.authentication.idToken;
-        if (!idToken) throw new Error("No idToken returned from Google Sign-In");
-        const credential = GoogleAuthProvider.credential(idToken);
-        const result = await signInWithCredential(auth, credential);
-        console.log("Firebase sign-in success:", result.user.email);
-        const isNew = result.user.metadata.creationTime === result.user.metadata.lastSignInTime;
-        if (isNew && result.user.email) {
-          sendWelcomeEmail(result.user.email, result.user.displayName || "Seeker").catch(() => {});
-        }
-        toast.success(t("googleSignInSuccessToast", selectedLanguage));
-      } catch (e: any) {
-        console.error("Native Google sign-in failed:", e);
-        toast.error(`${t("signInFailToast", selectedLanguage)}: ${e.message || e}`);
+    try {
+      const result = await signInWithGoogle();
+      if (result.isNewUser && result.user.email) {
+        sendWelcomeEmail(result.user.email, result.user.displayName || "Seeker").catch(() => {});
       }
-    } else {
-      try {
-        const { signInWithPopup } = await import("firebase/auth");
-        const webGoogleResult = await signInWithPopup(auth, new GoogleAuthProvider());
-        const isNewWebGoogle = webGoogleResult.user.metadata.creationTime === webGoogleResult.user.metadata.lastSignInTime;
-        if (isNewWebGoogle && webGoogleResult.user.email) {
-          sendWelcomeEmail(webGoogleResult.user.email, webGoogleResult.user.displayName || "Seeker").catch(() => {});
-        }
-        toast.success(t("googleSignInSuccessToast", selectedLanguage));
-      } catch (e: any) {
-        console.error("Web Google sign-in failed:", e);
-        toast.error(`${t("signInFailToast", selectedLanguage)}: ${e.message || e}`);
+      toast.success(t("googleSignInSuccessToast", selectedLanguage));
+    } catch (e: any) {
+      const message = e?.message || e;
+      if (!Capacitor.isNativePlatform()) {
+        toast.error("Google sign-in is available in the native app only.");
+        return;
       }
+      console.error("Google sign-in failed:", e);
+      toast.error(`${t("signInFailToast", selectedLanguage)}: ${message}`);
     }
   };
 
   const handleAppleSignIn = async () => {
-    if (Capacitor.getPlatform() === "ios") {
-      try {
-        const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
-        const result = await SignInWithApple.authorize({
-          clientId: "com.gitasadhana.ios",
-          redirectURI: "https://gitasadhana-app.firebaseapp.com/__/auth/handler",
-          scopes: "email name",
-        });
-        const credential = new OAuthProvider("apple.com").credential({
-          idToken: result.response.identityToken,
-          rawNonce: (result.response as any).nonce,
-        });
-        const appleResult = await signInWithCredential(auth, credential);
-        const isNewApple = appleResult.user.metadata.creationTime === appleResult.user.metadata.lastSignInTime;
-        if (isNewApple && appleResult.user.email) {
-          sendWelcomeEmail(appleResult.user.email, appleResult.user.displayName || "Seeker").catch(() => {});
-        }
-        toast.success(t("appleSignInSuccessToast", selectedLanguage));
-      } catch (e: any) {
-        console.error("Apple sign-in failed:", e);
-        toast.error(`${t("appleSignInFailToast", selectedLanguage)}: ${e.message || e}`);
+    try {
+      const result = await signInWithApple();
+      if (result.isNewUser && result.user.email) {
+        sendWelcomeEmail(result.user.email, result.user.displayName || "Seeker").catch(() => {});
       }
-    } else {
-      try {
-        const { signInWithPopup } = await import("firebase/auth");
-        const webAppleResult = await signInWithPopup(auth, new OAuthProvider("apple.com"));
-        const isNewWebApple = webAppleResult.user.metadata.creationTime === webAppleResult.user.metadata.lastSignInTime;
-        if (isNewWebApple && webAppleResult.user.email) {
-          sendWelcomeEmail(webAppleResult.user.email, webAppleResult.user.displayName || "Seeker").catch(() => {});
-        }
-        toast.success(t("appleSignInSuccessToast", selectedLanguage));
-      } catch (e: any) {
-        console.error("Web Apple sign-in failed:", e);
-        toast.error(`${t("appleSignInFailToast", selectedLanguage)}: ${e.message || e}`);
+      toast.success(t("appleSignInSuccessToast", selectedLanguage));
+    } catch (e: any) {
+      const message = e?.message || e;
+      if (!Capacitor.isNativePlatform()) {
+        toast.error("Apple sign-in is available in the native app only.");
+        return;
       }
+      console.error("Apple sign-in failed:", e);
+      toast.error(`${t("appleSignInFailToast", selectedLanguage)}: ${message}`);
     }
   };
 
@@ -4367,7 +4324,7 @@ export function HelpPrivacy() {
           },
           {
             title: "Third-Party Services",
-            body: "We use Firebase (Google) for authentication and data sync, and Cloudflare R2 for audio storage. These services operate under their own privacy policies. We encourage you to review them. We do not use advertising SDKs or trackers.",
+            body: "We use our own Node.js backend and MongoDB for authentication and data sync, and Cloudflare R2 for audio storage. These services operate under their own privacy policies. We encourage you to review them. We do not use advertising SDKs or trackers.",
           },
           {
             title: "Data Retention & Deletion",

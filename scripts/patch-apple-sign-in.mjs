@@ -214,9 +214,6 @@ public class GoogleAuth: CAPPlugin {
     func getClientIdValue() -> String? {
         if let id = getConfig().getString("iosClientId") { return id }
         if let id = getConfig().getString("clientId") { return id }
-        if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-           let dict = NSDictionary(contentsOfFile: path) as? [String: AnyObject],
-           let id = dict["CLIENT_ID"] as? String { return id }
         return nil
     }
 
