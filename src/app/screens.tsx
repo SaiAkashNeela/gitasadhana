@@ -3940,7 +3940,7 @@ export function Profile() {
 
             <div className="w-full flex items-center gap-3 px-4 py-3.5">
               <Type size={18} className="text-primary shrink-0" />
-              <span className="flex-1 text-sm text-foreground">{t("fontSizeLabel", selectedLanguage) || "Font Size"}</span>
+              <span className="flex-1 text-sm text-foreground">{t("fontSizeLabel", selectedLanguage)}</span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"

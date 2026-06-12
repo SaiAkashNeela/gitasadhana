@@ -1391,6 +1391,12 @@ export const translations: Record<string, Partial<Record<SupportedLanguage, stri
     pa: "ਆਟੋ-ਪਲੇ ਆਡੀਓ",
     ne: "स्वतः-प्ले अडियो"
   },
+  fontSizeLabel: {
+    en: "Font Size",
+    hi: "अक्षर आकार",
+    te: "అక్షర పరిమాణం",
+    sa: "अक्षरमानम्"
+  },
   onLabel: {
     en: "On",
     hi: "चालू",
@@ -2776,7 +2782,10 @@ export const additionalTranslations: Record<string, Partial<Record<SupportedLang
     ta: "ஆன்", kn: "ಆನ್", ml: "ഓൺ", bn: "चालू", gu: "ચાલુ", mr: "चालू", pa: "ਬੰਦ", ne: "चालू"
   },
   offLabel: {
-    ta: "ஆஃப்", kn: "ಆಫ್", ml: "ഓഫ്", bn: "বন্ধ", gu: "બંધ", mr: "बंद", pa: "ਬੰਦ", ne: "बन्द"
+    ta: "ஆஃப்", kn: "ಆಫ್", ml: "ഓഫ്", bn: "বন্ধ", gu: "બంધ", mr: "बंद", pa: "ਬੰਦ", ne: "बन्द"
+  },
+  fontSizeLabel: {
+    ta: "எழுத்து அளவு", kn: "ಅಕ್ಷರ ಗಾತ್ರ", ml: "ഫോണ്ട് വലുപ്പം", bn: "অক্ষরের আকার", gu: "ફોન્ટ કદ", mr: "अक्षर आकार", pa: "ਅੱਖਰ ਆਕਾਰ", ne: "अक्षर आकार"
   },
   manageNotificationPreferences: {
     ta: "அறிவிப்பு விருப்பங்களை நிர்வகிக்கவும்", kn: "ಸೂಚನೆ ಆದ್ಯತೆಗಳನ್ನು ನಿರ್ವಹಿಸಿ", ml: "അറിയിപ്പ് മുൻഗണനകൾ നിയന്ത്ரிக்கുക", bn: "বিজ্ঞপ্তি পছন্দ পরিচালনা করুন", gu: "સૂચના પસંદગીઓ મેનેજ કરો", mr: "सूचना प्राधान्ये व्यवस्थापित करा", pa: "ਨੋਟੀਫਿਕੇਸ਼ਨ ਤਰਜੀਹਾਂ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰੋ", ne: "सूचना प्राथमिकताहरू व्यवस्थापन गर्नुहोस्"
