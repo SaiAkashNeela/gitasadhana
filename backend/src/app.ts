@@ -7,9 +7,9 @@ import { mailRouter } from "./routes/mail.js";
 import { usersRouter } from "./routes/users.js";
 import { asyncHandler } from "./lib/http.js";
 import { handleGitaChat } from "./services/gitaChat.js";
-import { parseBearerToken } from "./lib/http.js";
 import { verifyAppToken } from "./services/jwt.js";
 import { UserModel } from "./models/User.js";
+import { resolveAiChatIdentity } from "./services/chat-identity.js";
 
 export function createApp() {
   const app = express();
@@ -28,24 +28,9 @@ export function createApp() {
   app.post(
     "/ai/chat",
     asyncHandler(async (req, res) => {
-      const token = parseBearerToken(req.headers.authorization);
-      if (!token) {
-        res.status(401).json({ message: "Unauthorized" });
-        return;
-      }
-
-      const verified = await verifyAppToken(token);
-      if (!verified.userId) {
-        res.status(401).json({ message: "Unauthorized" });
-        return;
-      }
-
-      const user = await UserModel.findById(verified.userId).exec();
-      if (!user) {
-        res.status(401).json({ message: "Unauthorized" });
-        return;
-      }
-      const profile = user.profile as any;
+      const identity = await resolveAiChatIdentity(req, { verifyToken: verifyAppToken });
+      const user = identity.isGuest ? null : await UserModel.findById(identity.userId).exec();
+      const profile = user ? (user.profile as any) : null;
 
       const body = req.body as {
         message?: string;
@@ -54,10 +39,10 @@ export function createApp() {
       };
 
       const result = await handleGitaChat({
-        userId: verified.userId,
+        userId: identity.userId,
         message: body.message ?? "",
         history: body.history ?? [],
-        language: body.language ?? profile.language ?? "en",
+        language: body.language ?? profile?.language ?? "en",
       });
 
       res.json(result);

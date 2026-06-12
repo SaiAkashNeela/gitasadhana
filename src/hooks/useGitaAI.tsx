@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { apiRequest } from "@/lib/backend";
 import { auth } from "@/lib/auth";
+import { getGuestSessionId } from "@/lib/guest-session";
 
 export interface ChatMessage {
   id: string;
@@ -133,6 +134,9 @@ export function useGitaAI(uid: string | null) {
           message: text.trim(),
           history: historyForApi,
           language: language ?? "en",
+        },
+        headers: auth.currentUser ? undefined : {
+          "x-guest-id": getGuestSessionId(),
         },
       });
 

@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { config } from "../config.js";
 import { AiUsageModel } from "../models/AiUsage.js";
+import { buildDailyUsageUpdate } from "./ai-usage.js";
 const DAILY_LIMIT = 30;
 const MAX_MESSAGE_LENGTH = 2000;
 
@@ -33,11 +34,7 @@ async function getDailyUsage(userId: string, day: string) {
 }
 
 async function incrementDailyUsage(userId: string, day: string) {
-  await AiUsageModel.updateOne(
-    { userId, day },
-    { $inc: { count: 1 }, $setOnInsert: { userId, day, count: 0 } },
-    { upsert: true },
-  ).exec();
+  await AiUsageModel.updateOne({ userId, day }, buildDailyUsageUpdate(userId, day), { upsert: true }).exec();
 }
 
 export async function handleGitaChat(payload: {
