@@ -76,6 +76,8 @@ interface UserProgressContextType {
   triggerSync: () => Promise<void>;
   autoPlayOnOpen: boolean;
   setAutoPlayOnOpen: (val: boolean) => void;
+  fontSize: number;
+  setFontSize: (val: number) => void;
 
   // Download APIs
   downloadedVerses: string[];
@@ -144,6 +146,20 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     setAutoPlayOnOpenState(val);
     localStorage.setItem("gita_auto_play", String(val));
   };
+
+  const [fontSize, setFontSizeState] = useState<number>(() => {
+    return parseInt(localStorage.getItem("gita_font_size") || "16", 10);
+  });
+
+  const setFontSize = (val: number) => {
+    setFontSizeState(val);
+    localStorage.setItem("gita_font_size", String(val));
+    document.documentElement.style.setProperty("--app-font-size", `${val}px`);
+  };
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--app-font-size", `${fontSize}px`);
+  }, []);
 
   // 1. Load initial local storage data for Guests
   useEffect(() => {
@@ -869,6 +885,8 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
         triggerSync,
         autoPlayOnOpen,
         setAutoPlayOnOpen,
+        fontSize,
+        setFontSize,
 
         completedVerses,
         toggleCompleted,
