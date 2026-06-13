@@ -3748,10 +3748,6 @@ export function Profile() {
       toast.success(t("googleSignInSuccessToast", selectedLanguage));
     } catch (e: any) {
       const message = e?.message || e;
-      if (!Capacitor.isNativePlatform()) {
-        toast.error("Google sign-in is available in the native app only.");
-        return;
-      }
       console.error("Google sign-in failed:", e);
       toast.error(`${t("signInFailToast", selectedLanguage)}: ${message}`);
     }

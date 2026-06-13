@@ -2,6 +2,23 @@ import { Capacitor } from "@capacitor/core";
 import { apiRequest, AuthSession, AuthUser } from "./backend";
 import { clearSession, loadSession, saveSession } from "./session-storage";
 
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential?: string }) => void;
+          }) => void;
+          renderButton: (element: HTMLElement, options: Record<string, unknown>) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
+
 type AuthListener = (user: AuthUser | null) => void;
 
 type SignInResponse = {
@@ -121,29 +138,125 @@ async function exchangeProviderToken(
   return response;
 }
 
-export async function signInWithGoogle() {
-  if (!Capacitor.isNativePlatform()) {
-    throw new Error("Google sign-in is available in the native app only.");
+async function loadGoogleScript() {
+  if (typeof document === "undefined") {
+    throw new Error("Google sign-in requires a browser environment.");
   }
 
-  const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
-  await GoogleAuth.initialize({
-    scopes: ["profile", "email"],
-    clientId: googleWebClientId,
-    grantOfflineAccess: true,
+  return new Promise<void>((resolve, reject) => {
+    if (window.google?.accounts?.id) {
+      resolve();
+      return;
+    }
+
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[data-google-signin="true"]',
+    );
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("Unable to load Google sign-in.")), {
+        once: true,
+      });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.dataset.googleSignin = "true";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Unable to load Google sign-in."));
+    document.head.appendChild(script);
   });
+}
 
-  const nativeUser = await GoogleAuth.signIn();
-  const idToken = nativeUser.authentication?.idToken;
-  if (!idToken) {
-    throw new Error("Google sign-in did not return an ID token.");
+export async function signInWithGoogle() {
+  if (Capacitor.isNativePlatform()) {
+    const { GoogleAuth } = await import("@codetrix-studio/capacitor-google-auth");
+    await GoogleAuth.initialize({
+      scopes: ["profile", "email"],
+      clientId: googleWebClientId,
+      grantOfflineAccess: true,
+    });
+
+    const nativeUser = await GoogleAuth.signIn();
+    const idToken = nativeUser.authentication?.idToken;
+    if (!idToken) {
+      throw new Error("Google sign-in did not return an ID token.");
+    }
+
+    return exchangeProviderToken("/auth/google", {
+      idToken,
+      displayName: nativeUser.name ?? "",
+      email: nativeUser.email ?? "",
+      photoURL: nativeUser.imageUrl ?? "",
+    });
   }
 
-  return exchangeProviderToken("/auth/google", {
-    idToken,
-    displayName: nativeUser.name ?? "",
-    email: nativeUser.email ?? "",
-    photoURL: nativeUser.imageUrl ?? "",
+  await loadGoogleScript();
+  if (!window.google?.accounts?.id) {
+    throw new Error("Google sign-in is unavailable.");
+  }
+
+  return new Promise<SignInResponse>((resolve, reject) => {
+    const container = document.createElement("div");
+    container.style.position = "fixed";
+    container.style.left = "-9999px";
+    container.style.top = "-9999px";
+    container.style.width = "320px";
+    container.style.height = "60px";
+    document.body.appendChild(container);
+
+    const cleanup = () => {
+      container.remove();
+    };
+
+    window.google.accounts.id.initialize({
+      client_id: googleWebClientId,
+      callback: async (response) => {
+        try {
+          if (!response.credential) {
+            throw new Error("Google sign-in did not return an ID token.");
+          }
+
+          const result = await exchangeProviderToken("/auth/google", {
+            idToken: response.credential,
+            displayName: "",
+            email: "",
+            photoURL: "",
+          });
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        } finally {
+          cleanup();
+        }
+      },
+    });
+
+    window.google.accounts.id.renderButton(container, {
+      theme: "outline",
+      size: "large",
+      shape: "pill",
+      text: "signin_with",
+      width: 320,
+    });
+
+    requestAnimationFrame(() => {
+      const button = container.querySelector("button,[role='button']");
+      if (button instanceof HTMLElement) {
+        button.click();
+        return;
+      }
+
+      try {
+        window.google?.accounts?.id?.prompt();
+      } catch (error) {
+        cleanup();
+        reject(error instanceof Error ? error : new Error("Unable to start Google sign-in."));
+      }
+    });
   });
 }
 
