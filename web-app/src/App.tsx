@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { auth, renderGoogleSignInButton, restoreAuthSession } from "./lib/auth";
 import { apiRequest } from "./lib/backend";
 import { getGuestSessionId } from "./lib/guest-session";
 import { type ChatMessage } from "./lib/app-types";
-import { useHashRoute } from "./lib/hash-route";
+import { usePathRoute } from "./lib/hash-route";
 import { ChapterPage } from "./pages/ChapterPage";
 import { ChaptersPage } from "./pages/ChaptersPage";
 import { AiPage } from "./pages/AiPage";
@@ -14,6 +14,9 @@ import { VersePage } from "./pages/VersePage";
 import type { AuthSession } from "./lib/backend";
 import { type LanguageCode } from "./lib/gita-data";
 import { t } from "./lib/mobile-i18n";
+import { SeoHead } from "./components/seo-head";
+import { getSeoData } from "./lib/seo";
+import { siteMetadata } from "../../src/lib/site-metadata";
 
 function readJson<T>(key: string, fallback: T) {
   try {
@@ -37,7 +40,7 @@ function writeJson(key: string, value: unknown) {
 }
 
 function App() {
-  const { route, navigate } = useHashRoute();
+  const { route, navigate } = usePathRoute();
   const [bookmarks, setBookmarks] = useState<string[]>(() =>
     readJson("gita_web_bookmarks", [] as string[]),
   );
@@ -86,6 +89,7 @@ function App() {
   const routeChapter =
     route.view === "chapter" || route.view === "verse" ? route.chapter : undefined;
   const routeVerse = route.view === "verse" ? route.verse : undefined;
+  const seo = useMemo(() => getSeoData(route, language), [route, language]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -145,11 +149,14 @@ function App() {
 
   return (
     <div id="top" className="min-h-screen">
+      <SeoHead seo={seo} language={language} />
       <TopNav
         route={route}
         signedInUser={signedInUser}
         googleButtonRef={googleButtonRef}
         language={language}
+        appStoreUrl={import.meta.env.VITE_APP_STORE_URL || siteMetadata.appStoreUrl}
+        playStoreUrl={import.meta.env.VITE_PLAY_STORE_URL || siteMetadata.playStoreUrl}
         onLanguageChange={setLanguage}
         onSignOut={() => {
           void auth.signOut().then(() => setSignedInUser(null));
@@ -196,11 +203,38 @@ function App() {
       )}
 
       <footer className="border-t border-black/5 bg-[rgba(250,244,233,0.8)]">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-8 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between md:px-6">
-          <p>
-            © {new Date().getFullYear()} GitaSadhana. {t("footerWithCare", language)}
-          </p>
-          <p className="font-serif text-base text-foreground">ॐ शान्तिः शान्तिः शान्तिः</p>
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 px-4 py-8 text-sm text-muted-foreground md:px-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <p>
+              © {new Date().getFullYear()} GitaSadhana. {t("footerWithCare", language)}
+            </p>
+            <p className="font-serif text-base text-foreground">ॐ शान्तिः शान्तिः शान्तिः</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.24em] text-amber-900/80">
+            <span>{siteMetadata.founderName}</span>
+            <span>•</span>
+            <a
+              className="transition hover:text-foreground"
+              href={siteMetadata.personalSiteUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              saiakashneela.com
+            </a>
+            <span>•</span>
+            <a
+              className="transition hover:text-foreground"
+              href={siteMetadata.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub
+            </a>
+            <span>•</span>
+            <a className="transition hover:text-foreground" href={siteMetadata.siteUrl}>
+              gitasadhana.com
+            </a>
+          </div>
         </div>
       </footer>
     </div>

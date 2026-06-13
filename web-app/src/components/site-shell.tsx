@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
-import { ChevronRight, Languages, LogOut, Pause, Play, Sparkles } from "lucide-react";
+import { Apple, ChevronRight, Languages, LogOut, Pause, Play, Sparkles } from "lucide-react";
 import type { AuthSession } from "../lib/backend";
 import type { AppRoute } from "../lib/hash-route";
 import { languageOptions, type LanguageCode } from "../lib/gita-data";
@@ -155,6 +155,8 @@ export function TopNav({
   signedInUser,
   googleButtonRef,
   language,
+  appStoreUrl,
+  playStoreUrl,
   onLanguageChange,
   onSignOut,
   onNavigate,
@@ -163,6 +165,8 @@ export function TopNav({
   signedInUser: AuthSession["user"] | null;
   googleButtonRef: RefObject<HTMLDivElement | null>;
   language: LanguageCode;
+  appStoreUrl?: string;
+  playStoreUrl?: string;
   onLanguageChange: (language: LanguageCode) => void;
   onSignOut: () => void;
   onNavigate: (route: AppRoute) => void;
@@ -208,6 +212,7 @@ export function TopNav({
           {navItem("ai", t("gitaAi", language))}
         </nav>
         <div className="flex items-center gap-3">
+          <StoreBadges appStoreUrl={appStoreUrl} playStoreUrl={playStoreUrl} compact />
           <label className="flex items-center gap-2 rounded-full border border-black/8 bg-white/80 px-3 py-2 text-sm text-muted-foreground">
             <Languages size={16} className="text-amber-700" />
             <span className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
@@ -253,6 +258,80 @@ export function TopNav({
         </div>
       </div>
     </header>
+  );
+}
+
+export function Breadcrumbs({ items }: { items: Array<{ label: string; href?: string }> }) {
+  return (
+    <nav aria-label="Breadcrumb" className="mb-5">
+      <ol className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.24em] text-muted-foreground">
+        {items.map((item, index) => (
+          <li key={`${item.label}-${index}`} className="flex items-center gap-2">
+            {item.href ? (
+              <a href={item.href} className="transition hover:text-foreground">
+                {item.label}
+              </a>
+            ) : (
+              <span className="text-foreground">{item.label}</span>
+            )}
+            {index < items.length - 1 && <span aria-hidden="true">/</span>}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+export function StoreBadges({
+  appStoreUrl,
+  playStoreUrl,
+  compact = false,
+}: {
+  appStoreUrl?: string;
+  playStoreUrl?: string;
+  compact?: boolean;
+}) {
+  const badgeClassName = compact
+    ? "inline-flex items-center gap-2 rounded-full border border-black/8 bg-white px-3 py-2 text-[11px] font-medium text-foreground transition hover:bg-white/90"
+    : "inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/85 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-white";
+
+  const playBadge = (
+    <a
+      href={playStoreUrl || undefined}
+      target={playStoreUrl ? "_blank" : undefined}
+      rel={playStoreUrl ? "noreferrer" : undefined}
+      aria-disabled={!playStoreUrl}
+      className={cn(
+        badgeClassName,
+        !playStoreUrl && "pointer-events-none cursor-not-allowed opacity-50",
+      )}
+    >
+      <Play size={compact ? 13 : 15} />
+      <span>Google Play</span>
+    </a>
+  );
+
+  const appBadge = (
+    <a
+      href={appStoreUrl || undefined}
+      target={appStoreUrl ? "_blank" : undefined}
+      rel={appStoreUrl ? "noreferrer" : undefined}
+      aria-disabled={!appStoreUrl}
+      className={cn(
+        badgeClassName,
+        !appStoreUrl && "pointer-events-none cursor-not-allowed opacity-50",
+      )}
+    >
+      <Apple size={compact ? 13 : 15} />
+      <span>App Store</span>
+    </a>
+  );
+
+  return (
+    <div className="hidden items-center gap-2 lg:flex">
+      {playBadge}
+      {appBadge}
+    </div>
   );
 }
 

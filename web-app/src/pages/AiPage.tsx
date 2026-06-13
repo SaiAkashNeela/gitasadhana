@@ -1,5 +1,5 @@
 import { Send } from "lucide-react";
-import { Card, PageFrame, SectionHeading } from "../components/site-shell";
+import { Breadcrumbs, Card, PageFrame, SectionHeading } from "../components/site-shell";
 import type { AuthSession } from "../lib/backend";
 import type { ChatMessage } from "../lib/app-types";
 import { getLanguageLabel, type LanguageCode } from "../lib/gita-data";
@@ -31,6 +31,7 @@ export function AiPage({
   return (
     <PageFrame>
       <section>
+        <Breadcrumbs items={[{ label: "GitaSadhana", href: "/" }, { label: "AI Guide" }]} />
         <SectionHeading
           eyebrow={t("assistant", language)}
           title={t("gitaAi", language)}

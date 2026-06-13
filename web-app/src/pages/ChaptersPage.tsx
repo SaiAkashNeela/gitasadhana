@@ -6,7 +6,7 @@ import {
   type LanguageCode,
 } from "../lib/gita-data";
 import type { AppRoute } from "../lib/hash-route";
-import { Card, PageFrame, SectionHeading } from "../components/site-shell";
+import { Breadcrumbs, Card, PageFrame, SectionHeading } from "../components/site-shell";
 import { t } from "../lib/mobile-i18n";
 
 export function ChaptersPage({
@@ -19,6 +19,7 @@ export function ChaptersPage({
   return (
     <PageFrame>
       <section>
+        <Breadcrumbs items={[{ label: "GitaSadhana", href: "/" }, { label: "Chapters" }]} />
         <SectionHeading
           eyebrow={t("chapters", language)}
           title={t("all18Chapters", language)}

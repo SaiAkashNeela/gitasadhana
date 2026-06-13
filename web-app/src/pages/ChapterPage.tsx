@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { ChevronRight, Heart, Headphones, Search } from "lucide-react";
-import { AudioBar, Card, PageFrame, SectionHeading, VerseListItem } from "../components/site-shell";
+import {
+  AudioBar,
+  Breadcrumbs,
+  Card,
+  PageFrame,
+  SectionHeading,
+  VerseListItem,
+} from "../components/site-shell";
 import {
   chapters,
   formatVerseRef,
@@ -78,6 +85,13 @@ export function ChapterPage({
   return (
     <PageFrame>
       <section className="space-y-6">
+        <Breadcrumbs
+          items={[
+            { label: "GitaSadhana", href: "/" },
+            { label: "Chapters", href: "/chapters" },
+            { label: `Chapter ${chapterNumber}` },
+          ]}
+        />
         <Card className="overflow-hidden border-amber-100 bg-[#fffaf2]">
           <div className="grid gap-0 lg:grid-cols-[0.94fr_1.06fr]">
             <div className="p-6 md:p-10 lg:p-12">

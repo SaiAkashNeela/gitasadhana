@@ -1,4 +1,4 @@
-import { Card, PageFrame, SectionHeading } from "../components/site-shell";
+import { Breadcrumbs, Card, PageFrame, SectionHeading } from "../components/site-shell";
 import {
   PLACEHOLDER_IMG,
   articles,
@@ -53,6 +53,7 @@ export function StudyPage({ language }: { language: LanguageCode }) {
   return (
     <PageFrame>
       <section className="space-y-10">
+        <Breadcrumbs items={[{ label: "GitaSadhana", href: "/" }, { label: "Study" }]} />
         <div>
           <SectionHeading
             eyebrow={t("study", language)}

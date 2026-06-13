@@ -91,7 +91,7 @@ import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import gitaProcessedData from "@/app/gita-processed.json";
 
-export const DEMO_IMG = "https://static.zingdelights.com/4.png";
+export const DEMO_IMG = "/favicon-logo.png";
 
 export function AnimatedImageBanner({
   className,

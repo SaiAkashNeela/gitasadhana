@@ -14,8 +14,8 @@ function clampNumber(value: string | undefined, min: number, max: number) {
   return Math.min(max, Math.max(min, parsed));
 }
 
-export function parseHash(hash: string): AppRoute {
-  const raw = hash.replace(/^#\/?/, "").trim();
+function parseRawRoute(rawRoute: string): AppRoute {
+  const raw = rawRoute.replace(/^#\/?/, "").replace(/^\/+/, "").trim();
   if (!raw || raw === "top" || raw === "home") return { view: "home" };
 
   const parts = raw.split("/").filter(Boolean);
@@ -39,41 +39,58 @@ export function parseHash(hash: string): AppRoute {
   return { view: "home" };
 }
 
-export function routeToHash(route: AppRoute) {
+export function parsePath(pathname: string, hash: string) {
+  const pathRoute = pathname.replace(/^\/+/, "");
+  if (pathRoute) return parseRawRoute(pathRoute);
+  return parseRawRoute(hash);
+}
+
+export function routeToPath(route: AppRoute) {
   switch (route.view) {
     case "home":
-      return "#home";
+      return "/";
     case "chapters":
-      return "#chapters";
+      return "/chapters";
     case "study":
-      return "#study";
+      return "/study";
     case "ai":
-      return "#ai";
+      return "/ai";
     case "chapter":
-      return `#chapter/${route.chapter}`;
+      return `/chapter/${route.chapter}`;
     case "verse":
-      return `#verse/${route.chapter}/${route.verse}`;
+      return `/verse/${route.chapter}/${route.verse}`;
   }
 }
 
-export function useHashRoute() {
-  const [route, setRoute] = useState<AppRoute>(() => parseHash(window.location.hash));
+export function usePathRoute() {
+  const [route, setRoute] = useState<AppRoute>(() =>
+    parsePath(window.location.pathname, window.location.hash),
+  );
 
   useEffect(() => {
-    const update = () => setRoute(parseHash(window.location.hash));
-    window.addEventListener("hashchange", update);
-    update();
-    return () => window.removeEventListener("hashchange", update);
+    const sync = () => setRoute(parsePath(window.location.pathname, window.location.hash));
+    window.addEventListener("popstate", sync);
+    window.addEventListener("hashchange", sync);
+    sync();
+    return () => {
+      window.removeEventListener("popstate", sync);
+      window.removeEventListener("hashchange", sync);
+    };
   }, []);
 
   const navigate = (next: AppRoute) => {
-    const hash = routeToHash(next);
-    if (window.location.hash === hash) {
+    const path = routeToPath(next);
+    if (window.location.pathname === path) {
       setRoute(next);
       return;
     }
-    window.location.hash = hash;
+    window.history.pushState({}, "", path);
+    setRoute(next);
   };
 
   return { route, navigate };
 }
+
+export const parseHash = parseRawRoute;
+export const routeToHash = routeToPath;
+export const useHashRoute = usePathRoute;

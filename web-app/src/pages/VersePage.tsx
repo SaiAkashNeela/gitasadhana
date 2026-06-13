@@ -1,6 +1,6 @@
 import { useMemo, type Dispatch, type SetStateAction } from "react";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
-import { AudioBar, Card, PageFrame, SectionHeading } from "../components/site-shell";
+import { AudioBar, Breadcrumbs, Card, PageFrame, SectionHeading } from "../components/site-shell";
 import {
   PLACEHOLDER_IMG,
   chapters,
@@ -55,6 +55,14 @@ export function VersePage({
   return (
     <PageFrame>
       <section className="space-y-6">
+        <Breadcrumbs
+          items={[
+            { label: "GitaSadhana", href: "/" },
+            { label: "Chapters", href: "/chapters" },
+            { label: `Chapter ${verse.chapter}`, href: `/chapter/${verse.chapter}` },
+            { label: `Verse ${ref}` },
+          ]}
+        />
         <SectionHeading
           eyebrow={`${t("verseLabel", language)} ${ref}`}
           title={getChapterTitle(chapter.chapter_number, language)}

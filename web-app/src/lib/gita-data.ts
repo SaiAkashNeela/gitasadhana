@@ -1,4 +1,4 @@
-export const PLACEHOLDER_IMG = "https://static.zingdelights.com/4.png";
+export const PLACEHOLDER_IMG = "/favicon-logo.png";
 
 export const languageOptions = [
   { code: "en", label: "English" },
