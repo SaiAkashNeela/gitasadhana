@@ -1,4 +1,4 @@
-package com.gitasadhana.app;
+package com.gitasadhana.android;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -25,7 +25,7 @@ function readEnvValue(name: string): string {
 }
 
 const config: CapacitorConfig = {
-  appId: "com.gitasadhana.app",
+  appId: "com.gitasadhana.android",
   appName: "Gita Sadhana",
   webDir: "dist",
   server: {
