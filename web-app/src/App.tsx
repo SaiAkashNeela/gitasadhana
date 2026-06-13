@@ -85,6 +85,13 @@ function App() {
   }, [language]);
 
   useEffect(() => {
+    const existingLanguage = readString("gita_web_language", "");
+    if (!existingLanguage) {
+      writeJson("gita_web_language", "en");
+    }
+  }, []);
+
+  useEffect(() => {
     if (signedInUser || !googleButtonRef.current) return;
     void renderGoogleSignInButton(googleButtonRef.current).catch((error) => {
       console.error(error);

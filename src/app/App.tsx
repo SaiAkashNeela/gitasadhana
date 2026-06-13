@@ -36,6 +36,7 @@ import {
   HelpCorrection,
   GitaAI,
 } from "./screens";
+import { hasCompletedOnboarding } from "@/lib/notifications";
 
 // Instantiate TanStack React Query Client
 const queryClient = new QueryClient({
@@ -55,7 +56,10 @@ export default function App() {
           <Toaster position="bottom-center" richColors duration={1000} />
           <HashRouter>
             <Routes>
-              <Route path="/" element={<Welcome />} />
+              <Route
+                path="/"
+                element={hasCompletedOnboarding() ? <Navigate to="/home" replace /> : <Welcome />}
+              />
               <Route path="/onboarding/:step" element={<Onboarding />} />
               <Route path="/language" element={<LanguageSelect />} />
               <Route path="/home" element={<HomeScreen />} />
