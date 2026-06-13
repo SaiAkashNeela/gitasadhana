@@ -61,7 +61,9 @@ export async function restoreAuthSession() {
   }
 
   try {
-    const result = await apiRequest<{ user: AuthSession["user"] }>("/auth/me", { token: currentSession.token });
+    const result = await apiRequest<{ user: AuthSession["user"] }>("/auth/me", {
+      token: currentSession.token,
+    });
     await persistSession({ ...currentSession, user: result.user });
     return currentSession;
   } catch {

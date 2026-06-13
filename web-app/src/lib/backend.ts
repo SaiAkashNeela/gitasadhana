@@ -47,11 +47,12 @@ export async function apiRequest<T>(
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const message = typeof payload?.message === "string"
-      ? payload.message
-      : typeof payload?.error === "string"
-        ? payload.error
-        : `Request failed with status ${response.status}`;
+    const message =
+      typeof payload?.message === "string"
+        ? payload.message
+        : typeof payload?.error === "string"
+          ? payload.error
+          : `Request failed with status ${response.status}`;
     throw new Error(message);
   }
 
