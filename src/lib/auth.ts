@@ -130,9 +130,6 @@ export async function signInWithGoogle() {
   await GoogleAuth.initialize({
     scopes: ["profile", "email"],
     clientId: googleWebClientId,
-    serverClientId: googleWebClientId,
-    androidClientId: googleAndroidClientId,
-    iosClientId: googleIosClientId,
     grantOfflineAccess: true,
   });
 
@@ -144,7 +141,7 @@ export async function signInWithGoogle() {
 
   return exchangeProviderToken("/auth/google", {
     idToken,
-    displayName: nativeUser.displayName ?? "",
+    displayName: nativeUser.name ?? "",
     email: nativeUser.email ?? "",
     photoURL: nativeUser.imageUrl ?? "",
   });

@@ -78,6 +78,7 @@ import {
   useVerseDetail,
   useQuotes,
   Verse,
+  Quote,
 } from "@/hooks/useGitaData";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { signInWithGoogle, signInWithApple } from "@/lib/auth";
@@ -3680,7 +3681,7 @@ export function Profile() {
         setCachedPhotoURL(dataUrl);
         localStorage.setItem("gita_photo_cache", JSON.stringify({ dataUrl, ts: Date.now() }));
       })
-      .catch(() => setCachedPhotoURL(user.photoURL));
+      .catch(() => setCachedPhotoURL(user.photoURL ?? ""));
   }, [user?.photoURL, cachedPhotoURL]);
   
   // Seeding state
