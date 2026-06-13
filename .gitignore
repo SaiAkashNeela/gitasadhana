@@ -18,6 +18,8 @@ dist-ssr
 .nitro
 *.local
 functions/.env
+*.ipa
+ios/*.ipa
 
 # Wrangler / Cloudflare
 .wrangler/

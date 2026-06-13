@@ -18,7 +18,8 @@
     "version:sync": "node scripts/sync-native-version.mjs",
     "build:android:debug": "./scripts/build-android-debug.sh",
     "build:android:release": "./scripts/build-android-release.sh",
-    "build:ios": "./scripts/build-ios.sh"
+    "build:ios": "./scripts/build-ios.sh",
+    "build:ios:release": "./scripts/build-ios-release.sh"
   },
   "dependencies": {
     "@aparajita/capacitor-secure-storage": "^8.0.0",
