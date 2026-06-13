@@ -86,6 +86,7 @@ import { seedGitaDatabase, SeedingProgress } from "@/lib/seeding";
 import { sendContactEmail, sendCorrectionEmail, sendWelcomeEmail } from "@/lib/api/email.functions";
 import { useGitaAI } from "@/hooks/useGitaAI";
 import { getReminderConfig, updateReminderSettings, formatTime12Hour, localizedReminders } from "@/lib/notifications";
+import { markOnboardingCompleted } from "@/lib/notifications";
 import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import gitaProcessedData from "@/app/gita-processed.json";
@@ -309,7 +310,11 @@ export function Onboarding() {
         {/* CTA Terracotta Button */}
         <div className="px-6 mt-2 mb-4 shrink-0 animate-fade-up delay-250">
           <Link to="/language">
-            <button type="button" className="w-full h-12 rounded-full bg-[#C06D31] hover:bg-[#A65B25] active:scale-[0.985] transition-all duration-200 shadow-md text-white font-serif text-lg tracking-wide flex items-center justify-center gap-2 group">
+            <button
+              type="button"
+              onClick={() => markOnboardingCompleted()}
+              className="w-full h-12 rounded-full bg-[#C06D31] hover:bg-[#A65B25] active:scale-[0.985] transition-all duration-200 shadow-md text-white font-serif text-lg tracking-wide flex items-center justify-center gap-2 group"
+            >
               <span>{t("continueBtn", selectedLanguage)}</span>
               <span className="text-xl transition-transform duration-200 group-hover:translate-x-1">➔</span>
             </button>

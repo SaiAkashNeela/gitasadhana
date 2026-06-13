@@ -1,5 +1,10 @@
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { toast } from "sonner";
+import {
+  NOTIFICATION_PERMISSION_CLOSED_MESSAGE,
+  shouldRequestNotificationPermission,
+  shouldShowNotificationPermissionNudge,
+} from "@/lib/notificationPermission";
 
 export interface ReminderConfig {
   enabled: boolean;
@@ -8,6 +13,15 @@ export interface ReminderConfig {
 
 // Key for Local Storage
 const REMINDER_STORAGE_KEY = "gita_reminder_config";
+const ONBOARDING_COMPLETE_KEY = "gita_onboarding_complete";
+
+export function hasCompletedOnboarding(): boolean {
+  return localStorage.getItem(ONBOARDING_COMPLETE_KEY) === "true";
+}
+
+export function markOnboardingCompleted(): void {
+  localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
+}
 
 /**
  * Loads the current reminder configuration from local storage.
@@ -30,10 +44,21 @@ export function getReminderConfig(): ReminderConfig {
  */
 export async function requestNotificationPermissions(): Promise<boolean> {
   try {
+    if (!shouldRequestNotificationPermission(hasCompletedOnboarding())) {
+      return false;
+    }
+
     const status = await LocalNotifications.checkPermissions();
     if (status.display !== "granted") {
       const request = await LocalNotifications.requestPermissions();
-      return request.display === "granted";
+      const granted = request.display === "granted";
+      if (!granted) {
+        localStorage.setItem("gita_notifications_permission_closed", "true");
+        toast.warning(NOTIFICATION_PERMISSION_CLOSED_MESSAGE);
+      } else {
+        localStorage.removeItem("gita_notifications_permission_closed");
+      }
+      return granted;
     }
     return true;
   } catch (e) {
@@ -183,6 +208,11 @@ const getNotificationTexts = (lang: string, lastRead: string) => {
  */
 export async function scheduleDailyReminder(timeString: string): Promise<boolean> {
   try {
+    if (!hasCompletedOnboarding()) {
+      console.log("⏭️ Skipping notification permission prompt until onboarding is complete.");
+      return false;
+    }
+
     // 1. Cancel previous notifications to prevent duplicates
     await cancelDailyReminder();
 
@@ -295,13 +325,20 @@ export async function updateReminderSettings(enabled: boolean, time: string): Pr
     const success = await scheduleDailyReminder(time);
     if (success) {
       toast.success(`Reminder set for ${formatTime12Hour(time)} daily!`);
-    } else {
-      toast.error("Failed to schedule reminders. Please check your notification settings.");
     }
   } else {
     await cancelDailyReminder();
     toast.info("Daily reminders disabled");
   }
+}
+
+export async function shouldNudgeForNotificationPermission(): Promise<boolean> {
+  if (!shouldShowNotificationPermissionNudge({ onboardingComplete: hasCompletedOnboarding() })) {
+    return false;
+  }
+
+  const status = await LocalNotifications.checkPermissions();
+  return status.display !== "granted";
 }
 
 /**

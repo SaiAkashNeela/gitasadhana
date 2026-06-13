@@ -3,7 +3,13 @@ import { auth, deleteCurrentUserAccount, restoreAuthSession } from "@/lib/auth";
 import { apiRequest, type AuthUser } from "@/lib/backend";
 import { toast } from "sonner";
 import gitaProcessedData from "@/app/gita-processed.json";
-import { getReminderConfig, scheduleDailyReminder } from "@/lib/notifications";
+import {
+  getReminderConfig,
+  hasCompletedOnboarding,
+  scheduleDailyReminder,
+  shouldNudgeForNotificationPermission,
+} from "@/lib/notifications";
+import { NOTIFICATION_PERMISSION_CLOSED_MESSAGE } from "@/lib/notificationPermission";
 
 export interface AppNotification {
   id: string;
@@ -162,6 +168,24 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     void restoreAuthSession();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const showNotificationNudge = async () => {
+      if (!hasCompletedOnboarding()) return;
+      const shouldNudge = await shouldNudgeForNotificationPermission();
+      if (!cancelled && shouldNudge) {
+        toast.info(NOTIFICATION_PERMISSION_CLOSED_MESSAGE);
+      }
+    };
+
+    void showNotificationNudge();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // 1. Load initial local storage data for Guests
@@ -514,7 +538,7 @@ export function UserProgressProvider({ children }: { children: React.ReactNode }
     
     // Reschedule push notifications in the newly selected language if enabled
     const reminderConfig = getReminderConfig();
-    if (reminderConfig.enabled) {
+    if (reminderConfig.enabled && hasCompletedOnboarding()) {
       scheduleDailyReminder(reminderConfig.time).catch((err) => {
         console.error("Failed to reschedule reminders on language change:", err);
       });
