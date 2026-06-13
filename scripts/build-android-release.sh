@@ -8,11 +8,15 @@ echo "🚀 Starting Android Play Store Release Build Process..."
 echo "🎨 Building Web Assets..."
 bun run build
 
-# 2. Sync Capacitor
+# 2. Sync app version into native targets
+echo "🏷️  Syncing native versions..."
+bun run version:sync
+
+# 3. Sync Capacitor
 echo "🔄 Syncing Capacitor web assets & plugins..."
 npx cap sync android
 
-# 3. Compile Android Release AAB (Android App Bundle)
+# 4. Compile Android Release AAB (Android App Bundle)
 echo "🤖 Building Android Release AAB (Play Store)..."
 cd android
 ./gradlew bundleRelease
