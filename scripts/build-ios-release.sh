@@ -82,16 +82,14 @@ xcodebuild \
 
 version=$(node -e "const fs=require('fs'); const v=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); process.stdout.write(String(v.marketingVersion ?? '1.0.0')); " "$version_file")
 versioned_ipa="ios/gita-sadhana-v${version}.ipa"
-ipa_source=""
-if [ -f "$export_path/App.ipa" ]; then
-  ipa_source="$export_path/App.ipa"
-elif [ -f "$export_path/GitaSadhana.ipa" ]; then
-  ipa_source="$export_path/GitaSadhana.ipa"
-fi
+ipa_source="$(find "$export_path" -maxdepth 1 -type f -name '*.ipa' -print -quit)"
 
-if [ -n "$ipa_source" ]; then
+if [ -n "$ipa_source" ] && [ -f "$ipa_source" ]; then
   mkdir -p ios
   cp "$ipa_source" "$versioned_ipa"
+else
+  echo "⚠️  No IPA was exported from Xcode."
+  exit 1
 fi
 
 cp "$version_file" app-version.json
