@@ -24,6 +24,8 @@ const urls = [
   { loc: "/chapters", priority: "0.9", changefreq: "weekly" },
   { loc: "/study", priority: "0.8", changefreq: "weekly" },
   { loc: "/ai", priority: "0.8", changefreq: "weekly" },
+  { loc: "/privacy", priority: "0.4", changefreq: "yearly" },
+  { loc: "/terms", priority: "0.4", changefreq: "yearly" },
   ...chapters.map((chapter) => ({
     loc: `/chapter/${chapter.chapter_number}`,
     priority: "0.85",

@@ -9,6 +9,10 @@ import { ChaptersPage } from "./pages/ChaptersPage";
 import { AiPage } from "./pages/AiPage";
 import { HomePage } from "./pages/HomePage";
 import { StudyPage } from "./pages/StudyPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
+import { TermsPage } from "./pages/TermsPage";
+import { ContactPage } from "./pages/ContactPage";
+import { ReportPage } from "./pages/ReportPage";
 import { TopNav } from "./components/site-shell";
 import { VersePage } from "./pages/VersePage";
 import type { AuthSession } from "./lib/backend";
@@ -17,6 +21,7 @@ import { t } from "./lib/mobile-i18n";
 import { SeoHead } from "./components/seo-head";
 import { getSeoData } from "./lib/seo";
 import { siteMetadata } from "../../src/lib/site-metadata";
+import { Toaster } from "./components/ui/sonner";
 
 function readJson<T>(key: string, fallback: T) {
   try {
@@ -182,6 +187,22 @@ function App() {
           language={language}
         />
       )}
+      {route.view === "privacy" && <PrivacyPage language={language} onNavigate={navigate} />}
+      {route.view === "terms" && <TermsPage language={language} onNavigate={navigate} />}
+      {route.view === "contact" && (
+        <ContactPage
+          language={language}
+          signedInEmail={signedInUser?.email ?? null}
+          onNavigate={navigate}
+        />
+      )}
+      {route.view === "report" && (
+        <ReportPage
+          language={language}
+          signedInEmail={signedInUser?.email ?? null}
+          onNavigate={navigate}
+        />
+      )}
       {route.view === "chapter" && (
         <ChapterPage
           chapterNumber={route.chapter}
@@ -234,9 +255,42 @@ function App() {
             <a className="transition hover:text-foreground" href={siteMetadata.siteUrl}>
               gitasadhana.com
             </a>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => navigate({ view: "privacy" })}
+              className="transition hover:text-foreground"
+            >
+              Privacy
+            </button>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => navigate({ view: "terms" })}
+              className="transition hover:text-foreground"
+            >
+              Terms
+            </button>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => navigate({ view: "contact" })}
+              className="transition hover:text-foreground"
+            >
+              Contact
+            </button>
+            <span>•</span>
+            <button
+              type="button"
+              onClick={() => navigate({ view: "report" })}
+              className="transition hover:text-foreground"
+            >
+              Report
+            </button>
           </div>
         </div>
       </footer>
+      <Toaster richColors position="top-right" />
     </div>
   );
 }

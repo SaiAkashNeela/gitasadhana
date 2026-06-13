@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { Apple, ChevronRight, Languages, LogOut, Pause, Play, Sparkles } from "lucide-react";
 import type { AuthSession } from "../lib/backend";
 import type { AppRoute } from "../lib/hash-route";
 import { languageOptions, type LanguageCode } from "../lib/gita-data";
 import { t } from "../lib/mobile-i18n";
 import { cn } from "../lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -171,6 +172,11 @@ export function TopNav({
   onSignOut: () => void;
   onNavigate: (route: AppRoute) => void;
 }) {
+  const languageLabel = useMemo(
+    () => languageOptions.find((option) => option.code === language)?.label ?? "English",
+    [language],
+  );
+
   const navItem = (view: AppRoute["view"], label: string) => {
     const active = route.view === view;
     return (
@@ -213,23 +219,58 @@ export function TopNav({
         </nav>
         <div className="flex items-center gap-3">
           <StoreBadges appStoreUrl={appStoreUrl} playStoreUrl={playStoreUrl} compact />
-          <label className="flex items-center gap-2 rounded-full border border-black/8 bg-white/80 px-3 py-2 text-sm text-muted-foreground">
-            <Languages size={16} className="text-amber-700" />
-            <span className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-              {t("language", language)}
-            </span>
-            <select
+          <div className="hidden sm:block">
+            <Select
               value={language}
-              onChange={(event) => onLanguageChange(event.target.value as LanguageCode)}
-              className="w-[132px] bg-transparent text-sm text-foreground outline-none"
+              onValueChange={(value) => onLanguageChange(value as LanguageCode)}
             >
-              {languageOptions.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+              <SelectTrigger className="h-12 min-w-[198px] rounded-full border border-black/8 bg-white/85 px-4 text-sm text-foreground shadow-sm shadow-amber-900/5 ring-0 focus:ring-0">
+                <span className="inline-flex items-center gap-2">
+                  <Languages size={16} className="text-amber-700" />
+                </span>
+                <SelectValue
+                  className="ml-2 truncate text-base font-medium text-foreground"
+                  placeholder={languageLabel}
+                />
+              </SelectTrigger>
+              <SelectContent
+                align="end"
+                className="rounded-[22px] border border-black/10 bg-[rgba(255,252,246,0.98)] shadow-[0_24px_60px_-24px_rgba(86,58,24,0.35)]"
+              >
+                {languageOptions.map((option) => (
+                  <SelectItem key={option.code} value={option.code}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="sm:hidden">
+            <Select
+              value={language}
+              onValueChange={(value) => onLanguageChange(value as LanguageCode)}
+            >
+              <SelectTrigger className="h-11 min-w-[152px] rounded-full border border-black/8 bg-white/85 px-3 text-sm text-foreground shadow-sm shadow-amber-900/5 ring-0 focus:ring-0">
+                <span className="inline-flex items-center gap-2">
+                  <Languages size={16} className="text-amber-700" />
+                </span>
+                <SelectValue
+                  className="ml-2 truncate text-sm font-medium text-foreground"
+                  placeholder={languageLabel}
+                />
+              </SelectTrigger>
+              <SelectContent
+                align="end"
+                className="rounded-[22px] border border-black/10 bg-[rgba(255,252,246,0.98)] shadow-[0_24px_60px_-24px_rgba(86,58,24,0.35)]"
+              >
+                {languageOptions.map((option) => (
+                  <SelectItem key={option.code} value={option.code}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           {signedInUser ? (
             <>
               <div className="hidden items-center gap-3 rounded-full border border-black/5 bg-white/80 px-3 py-2 md:flex">

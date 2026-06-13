@@ -34,6 +34,14 @@ function routeLabel(route: AppRoute, language: LanguageCode) {
       return "Bhagavad Gita Study";
     case "ai":
       return "Gita AI";
+    case "privacy":
+      return "Privacy Policy";
+    case "terms":
+      return "Terms of Service";
+    case "contact":
+      return "Contact Us";
+    case "report":
+      return "Report a Verse Correction";
     case "chapter":
       return getChapterTitle(route.chapter, language);
     case "verse":
@@ -56,6 +64,14 @@ function breadcrumbItems(route: AppRoute, language: LanguageCode) {
       return [home, studyCrumb];
     case "ai":
       return [home, aiCrumb];
+    case "privacy":
+      return [home, { label: "Privacy Policy" }];
+    case "terms":
+      return [home, { label: "Terms of Service" }];
+    case "contact":
+      return [home, { label: "Contact Us" }];
+    case "report":
+      return [home, { label: "Report a Verse Correction" }];
     case "chapter":
       return [home, chaptersCrumb, { label: routeLabel(route, language) }];
     case "verse":
@@ -366,6 +382,82 @@ export function getSeoData(route: AppRoute, language: LanguageCode): SeoData {
           buildWebPageSchema(canonicalUrl, title, description, "website", breadcrumbItemsList),
           buildFaqSchema(aiFaq())!,
         ].filter(Boolean) as JsonLd[],
+      };
+    }
+    case "privacy": {
+      const title = "Privacy Policy | GitaSadhana";
+      const description =
+        "Read how GitaSadhana handles personal data, offline storage, and privacy.";
+      return {
+        title,
+        description,
+        canonicalPath,
+        canonicalUrl,
+        ogType: "website",
+        robots: "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+        keywords: [...siteMetadata.keywords, "privacy policy", "data deletion"],
+        breadcrumbItems: breadcrumbItemsList,
+        jsonLd: [
+          buildOrganizationSchema(),
+          buildWebPageSchema(canonicalUrl, title, description, "website", breadcrumbItemsList),
+        ],
+      };
+    }
+    case "terms": {
+      const title = "Terms of Service | GitaSadhana";
+      const description =
+        "Read the terms of service for GitaSadhana, including usage, content, and account rules.";
+      return {
+        title,
+        description,
+        canonicalPath,
+        canonicalUrl,
+        ogType: "website",
+        robots: "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+        keywords: [...siteMetadata.keywords, "terms of service", "usage terms"],
+        breadcrumbItems: breadcrumbItemsList,
+        jsonLd: [
+          buildOrganizationSchema(),
+          buildWebPageSchema(canonicalUrl, title, description, "website", breadcrumbItemsList),
+        ],
+      };
+    }
+    case "contact": {
+      const title = "Contact Us | GitaSadhana";
+      const description =
+        "Contact the GitaSadhana team for support, feedback, or partnership inquiries.";
+      return {
+        title,
+        description,
+        canonicalPath,
+        canonicalUrl,
+        ogType: "website",
+        robots: "noindex,nofollow",
+        keywords: [...siteMetadata.keywords, "contact GitaSadhana"],
+        breadcrumbItems: breadcrumbItemsList,
+        jsonLd: [
+          buildOrganizationSchema(),
+          buildWebPageSchema(canonicalUrl, title, description, "website", breadcrumbItemsList),
+        ],
+      };
+    }
+    case "report": {
+      const title = "Report a Verse Correction | GitaSadhana";
+      const description =
+        "Submit a verse correction, translation issue, or content report to the GitaSadhana team.";
+      return {
+        title,
+        description,
+        canonicalPath,
+        canonicalUrl,
+        ogType: "website",
+        robots: "noindex,nofollow",
+        keywords: [...siteMetadata.keywords, "verse correction", "report issue"],
+        breadcrumbItems: breadcrumbItemsList,
+        jsonLd: [
+          buildOrganizationSchema(),
+          buildWebPageSchema(canonicalUrl, title, description, "website", breadcrumbItemsList),
+        ],
       };
     }
     case "chapter": {

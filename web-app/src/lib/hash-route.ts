@@ -5,6 +5,10 @@ export type AppRoute =
   | { view: "chapters" }
   | { view: "study" }
   | { view: "ai" }
+  | { view: "privacy" }
+  | { view: "terms" }
+  | { view: "contact" }
+  | { view: "report" }
   | { view: "chapter"; chapter: number }
   | { view: "verse"; chapter: number; verse: number };
 
@@ -24,6 +28,10 @@ function parseRawRoute(rawRoute: string): AppRoute {
   if (section === "chapters") return { view: "chapters" };
   if (section === "study") return { view: "study" };
   if (section === "ai") return { view: "ai" };
+  if (section === "privacy") return { view: "privacy" };
+  if (section === "terms") return { view: "terms" };
+  if (section === "contact") return { view: "contact" };
+  if (section === "report") return { view: "report" };
 
   if (section === "chapter") {
     const chapter = clampNumber(a, 1, 18);
@@ -55,6 +63,14 @@ export function routeToPath(route: AppRoute) {
       return "/study";
     case "ai":
       return "/ai";
+    case "privacy":
+      return "/privacy";
+    case "terms":
+      return "/terms";
+    case "contact":
+      return "/contact";
+    case "report":
+      return "/report";
     case "chapter":
       return `/chapter/${route.chapter}`;
     case "verse":
