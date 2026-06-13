@@ -1,0 +1,139 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-saffron: var(--saffron);
+  --color-maroon: var(--maroon);
+  --color-peacock: var(--peacock);
+  --color-cream: var(--cream);
+  --color-sand: var(--sand);
+  --color-ivory: var(--ivory);
+  --font-display: "Cormorant Garamond", "Cormorant", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sanskrit: "Tiro Devanagari Sanskrit", "Noto Serif Devanagari", serif;
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.985 0.012 85);
+  --foreground: oklch(0.25 0.04 50);
+
+  --card: oklch(0.995 0.008 85);
+  --card-foreground: oklch(0.25 0.04 50);
+  --popover: oklch(0.995 0.008 85);
+  --popover-foreground: oklch(0.25 0.04 50);
+
+  --primary: oklch(0.62 0.16 55);            /* deep saffron */
+  --primary-foreground: oklch(0.99 0.005 85);
+  --secondary: oklch(0.94 0.03 85);          /* sand */
+  --secondary-foreground: oklch(0.3 0.05 50);
+  --muted: oklch(0.96 0.02 85);
+  --muted-foreground: oklch(0.5 0.03 60);
+  --accent: oklch(0.92 0.05 85);
+  --accent-foreground: oklch(0.3 0.05 50);
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.025 80);
+  --input: oklch(0.92 0.02 80);
+  --ring: oklch(0.62 0.16 55);
+
+  --saffron: oklch(0.62 0.16 55);
+  --gold: oklch(0.78 0.13 80);
+  --maroon: oklch(0.38 0.12 25);
+  --peacock: oklch(0.5 0.09 215);
+  --cream: oklch(0.97 0.02 85);
+  --sand: oklch(0.92 0.04 80);
+  --ivory: oklch(0.98 0.015 85);
+}
+
+.dark {
+  --background: oklch(0.18 0.02 50);
+  --foreground: oklch(0.96 0.02 85);
+  --card: oklch(0.22 0.025 50);
+  --card-foreground: oklch(0.96 0.02 85);
+  --popover: oklch(0.22 0.025 50);
+  --popover-foreground: oklch(0.96 0.02 85);
+  --primary: oklch(0.72 0.15 60);
+  --primary-foreground: oklch(0.18 0.02 50);
+  --secondary: oklch(0.28 0.03 50);
+  --secondary-foreground: oklch(0.96 0.02 85);
+  --muted: oklch(0.26 0.02 50);
+  --muted-foreground: oklch(0.72 0.03 70);
+  --accent: oklch(0.3 0.04 50);
+  --accent-foreground: oklch(0.96 0.02 85);
+  --border: oklch(0.32 0.02 50);
+  --input: oklch(0.3 0.02 50);
+  --ring: oklch(0.72 0.15 60);
+  --saffron: oklch(0.72 0.15 60);
+  --gold: oklch(0.82 0.13 80);
+  --cream: oklch(0.24 0.025 50);
+  --sand: oklch(0.28 0.03 60);
+  --ivory: oklch(0.22 0.025 50);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; }
+}
+
+@utility gita-gradient {
+  background-image: linear-gradient(135deg, oklch(0.62 0.16 55) 0%, oklch(0.78 0.13 80) 100%);
+}
+
+@utility text-gradient-gold {
+  background-image: linear-gradient(135deg, oklch(0.55 0.17 50), oklch(0.72 0.14 75));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility ornament-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--color-gold);
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@utility animate-float {
+  animation: float-slow 6s ease-in-out infinite;
+}
