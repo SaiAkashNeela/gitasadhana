@@ -42,7 +42,7 @@ export const termsSections = [
   },
   {
     title: "User Accounts",
-    body: "You may use the app as a guest or sign in with Google or Apple. By creating an account, you agree to provide accurate information and keep your credentials secure. You are responsible for all activity under your account.",
+    body: "You may use the app as a guest or sign in with Google. By creating an account, you agree to provide accurate information and keep your credentials secure. You are responsible for all activity under your account.",
   },
   {
     title: "Content & Intellectual Property",

@@ -148,8 +148,8 @@ export async function signInWithGoogle() {
 }
 
 export async function signInWithApple() {
-  if (!Capacitor.isNativePlatform()) {
-    throw new Error("Apple sign-in is available in the native app only.");
+  if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "ios") {
+    throw new Error("Apple sign-in is available on iOS only.");
   }
 
   const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");

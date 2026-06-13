@@ -14,6 +14,7 @@
     "backend:build": "npm --prefix backend run build",
     "backend:start": "npm --prefix backend run start",
     "postinstall": "node scripts/patch-apple-sign-in.mjs",
+    "version:bump": "node scripts/bump-version.mjs",
     "version:sync": "node scripts/sync-native-version.mjs",
     "build:android:debug": "./scripts/build-android-debug.sh",
     "build:android:release": "./scripts/build-android-release.sh",

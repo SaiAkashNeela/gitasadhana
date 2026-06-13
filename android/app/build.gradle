@@ -1,8 +1,48 @@
+import java.util.Properties
+
 apply plugin: 'com.android.application'
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+def releaseKeystoreFile =
+        System.getenv("ANDROID_KEYSTORE_FILE") ?:
+        keystoreProperties.getProperty("storeFile") ?:
+        "/Users/saiakashneela/android-certs/gitasadhana/gita.jks"
+def releaseKeystorePassword =
+        System.getenv("ANDROID_KEYSTORE_PASSWORD") ?:
+        keystoreProperties.getProperty("storePassword") ?:
+        "***REMOVED***"
+def releaseKeyAlias =
+        System.getenv("ANDROID_KEY_ALIAS") ?:
+        keystoreProperties.getProperty("keyAlias") ?:
+        "Key0"
+def releaseKeyPassword =
+        System.getenv("ANDROID_KEY_PASSWORD") ?:
+        keystoreProperties.getProperty("keyPassword") ?:
+        "***REMOVED***"
+def releaseSigningConfigured =
+        releaseKeystoreFile &&
+        releaseKeystorePassword &&
+        releaseKeyAlias &&
+        releaseKeyPassword
 
 android {
     namespace = "com.gitasadhana.android"
     compileSdk = rootProject.ext.compileSdkVersion
+    signingConfigs {
+        release {
+            if (releaseSigningConfigured) {
+                storeFile rootProject.file(releaseKeystoreFile)
+                storePassword releaseKeystorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
     defaultConfig {
         applicationId "com.gitasadhana.android"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -20,7 +60,23 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (releaseSigningConfigured) {
+                signingConfig signingConfigs.release
+            }
         }
+    }
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    def releaseTasksRequested = taskGraph.allTasks.any { task ->
+        task.name.toLowerCase().contains("release")
+    }
+
+    if (releaseTasksRequested && !releaseSigningConfigured) {
+        throw new GradleException(
+                "Release signing is not configured. Set ANDROID_KEYSTORE_FILE, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, and ANDROID_KEY_PASSWORD, " +
+                "or create android/keystore.properties."
+        )
     }
 }
 

@@ -3766,8 +3766,8 @@ export function Profile() {
       toast.success(t("appleSignInSuccessToast", selectedLanguage));
     } catch (e: any) {
       const message = e?.message || e;
-      if (!Capacitor.isNativePlatform()) {
-        toast.error("Apple sign-in is available in the native app only.");
+      if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "ios") {
+        toast.error("Apple sign-in is available on iOS only.");
         return;
       }
       console.error("Apple sign-in failed:", e);
@@ -3840,7 +3840,7 @@ export function Profile() {
                 </svg>
                 {t("continueWithGoogle", selectedLanguage)}
               </button>
-              {(Capacitor.getPlatform() === "ios" || !Capacitor.isNativePlatform()) && (
+              {Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios" && (
                 <button type="button"
                   onClick={handleAppleSignIn}
                   className="w-full h-11 rounded-full bg-foreground text-background font-semibold flex items-center justify-center gap-2 text-sm shadow-soft active:scale-[0.98] transition cursor-pointer"
@@ -4374,7 +4374,7 @@ export function HelpTerms() {
           },
           {
             title: "User Accounts",
-            body: "You may use the app as a guest or sign in with Google or Apple. By creating an account, you agree to provide accurate information and keep your credentials secure. You are responsible for all activity under your account.",
+            body: "You may use the app as a guest or sign in with Google. By creating an account, you agree to provide accurate information and keep your credentials secure. You are responsible for all activity under your account.",
           },
           {
             title: "Content & Intellectual Property",

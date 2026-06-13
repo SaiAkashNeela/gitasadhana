@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 
 const rootDir = process.cwd();
-const versionFile = resolve(rootDir, "app-version.json");
+const versionFile = resolve(rootDir, process.env.VERSION_FILE ?? "app-version.json");
 const androidGradleFile = resolve(rootDir, "android/app/build.gradle");
 const iosProjectFile = resolve(
   rootDir,
