@@ -28,6 +28,11 @@ const googleIosClientId =
   import.meta.env.GOOGLE_IOS_CLIENT_ID ??
   googleWebClientId;
 
+const appleBundleId =
+  import.meta.env.VITE_APPLE_BUNDLE_ID ??
+  import.meta.env.VITE_APPLE_CLIENT_ID ??
+  "com.gitasadhana.ios";
+
 const listeners = new Set<AuthListener>();
 let currentSession: AuthSession | null = null;
 
@@ -152,8 +157,8 @@ export async function signInWithApple() {
 
   const { SignInWithApple } = await import("@capacitor-community/apple-sign-in");
   const result = await SignInWithApple.authorize({
-    clientId: import.meta.env.VITE_APPLE_CLIENT_ID ?? "com.gitasadhana.ios",
-    redirectURI: import.meta.env.VITE_APPLE_REDIRECT_URI ?? "https://gitasadhana.com/auth/apple/callback",
+    clientId: appleBundleId,
+    redirectURI: import.meta.env.VITE_APPLE_REDIRECT_URI ?? "com.gitasadhana.ios://callback",
     scopes: "email name",
   });
 

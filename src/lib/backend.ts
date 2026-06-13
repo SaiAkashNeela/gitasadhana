@@ -24,7 +24,13 @@ function trimTrailingSlash(value: string) {
 }
 
 export function getApiBaseUrl() {
+  const androidConfigured = import.meta.env.VITE_ANDROID_API_BASE_URL as string | undefined;
+  const iosConfigured = import.meta.env.VITE_IOS_API_BASE_URL as string | undefined;
   const configured = import.meta.env.VITE_API_BASE_URL as string | undefined;
+  if (Capacitor.isNativePlatform()) {
+    if (Capacitor.getPlatform() === "android" && androidConfigured) return trimTrailingSlash(androidConfigured);
+    if (Capacitor.getPlatform() === "ios" && iosConfigured) return trimTrailingSlash(iosConfigured);
+  }
   if (configured) return trimTrailingSlash(configured);
   if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
     return "http://10.0.2.2:5001";

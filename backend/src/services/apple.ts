@@ -13,7 +13,7 @@ export type AppleIdentity = {
 export async function verifyAppleIdentityToken(identityToken: string) {
   const verified = await jwtVerify(identityToken, appleJwks, {
     issuer: "https://appleid.apple.com",
-    audience: config.appleClientId,
+    audience: config.appleBundleId,
   });
 
   const payload = verified.payload;
@@ -30,4 +30,3 @@ export async function verifyAppleIdentityToken(identityToken: string) {
     emailVerified: payload.email_verified === "true" || payload.email_verified === true,
   } satisfies AppleIdentity;
 }
-

@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { buildGoogleClientIds } from "./services/google-client-ids.js";
+import { resolveAppleBundleId } from "./services/apple-bundle-id.js";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -32,7 +33,7 @@ export const config = {
   googleAndroidClientId,
   googleIosClientId,
   googleClientIds: buildGoogleClientIds(googleWebClientId, googleAndroidClientId, googleIosClientId),
-  appleClientId: optional("APPLE_CLIENT_ID", "com.gitasadhana.ios"),
+  appleBundleId: resolveAppleBundleId(),
   emailApiKey: optional("EMAIL_API_KEY"),
   emailFrom: optional("EMAIL_FROM", "hello@mails.gitasadhana.com"),
   emailReplyTo: optional("EMAIL_REPLY_TO", "hello@gitasadhana.com"),

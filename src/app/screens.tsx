@@ -152,6 +152,32 @@ const supportedLanguages = [
   { code: "ne", name: "Nepali", native: "नेपाली" },
 ];
 
+function GitaAiAvatar({
+  className,
+  iconSize,
+}: {
+  className: string;
+  iconSize: number;
+}) {
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-full border border-amber-200/70 bg-[radial-gradient(circle_at_30%_25%,rgba(255,255,255,0.95),rgba(251,191,36,0.95)_38%,rgba(234,88,12,0.98)_100%)] shadow-soft flex items-center justify-center",
+        className,
+      )}
+      aria-hidden="true"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.45),transparent_30%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(145deg,transparent_0%,rgba(255,255,255,0.08)_50%,transparent_100%)]" />
+      <Sparkles size={Math.max(10, Math.round(iconSize * 0.32))} className="absolute right-[12%] top-[14%] text-white/90" />
+      <Flower2
+        size={iconSize}
+        className="relative z-10 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+      />
+    </div>
+  );
+}
+
 /* ───────────────────────── 1. Welcome ───────────────────────── */
 export function Welcome() {
   const { selectedLanguage } = useUserProgress();
@@ -4592,9 +4618,7 @@ export function GitaAI() {
           </button>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center pb-safe">
-          <div className="size-20 rounded-full overflow-hidden shadow-soft mb-6 border-2 border-primary/20">
-            <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
-          </div>
+          <GitaAiAvatar className="size-20 mb-6" iconSize={40} />
           <h1 className="font-serif text-2xl text-foreground mb-2">Gita AI</h1>
           <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
             A calm, devotional guide to the wisdom of the Bhagavad Gita.<br/>
@@ -4624,9 +4648,7 @@ export function GitaAI() {
         <button type="button" onClick={() => nav(-1)} className="size-10 rounded-full bg-card/70 flex items-center justify-center text-foreground/70 hover:text-foreground transition shrink-0">
           <ChevronLeft size={20} />
         </button>
-        <div className="size-9 rounded-full overflow-hidden border border-primary/20 shrink-0">
-          <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
-        </div>
+        <GitaAiAvatar className="size-9 shrink-0" iconSize={18} />
         <div className="flex-1 min-w-0">
           <p className="font-serif text-base text-foreground leading-tight">Gita AI</p>
           <p className="text-[11px] text-muted-foreground">
@@ -4642,9 +4664,7 @@ export function GitaAI() {
       <div className="flex-1 overflow-y-auto scroll-hide px-4 py-4 space-y-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12 select-none">
-            <div className="size-16 rounded-full overflow-hidden border-2 border-primary/20 shadow-soft mb-4">
-              <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
-            </div>
+            <GitaAiAvatar className="size-16 mb-4" iconSize={32} />
             <h2 className="font-serif text-lg text-foreground mb-2">Hare Krishna 🙏</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Ask me anything about the Bhagavad Gita, Lord Krishna, or how to use this app.
@@ -4670,9 +4690,7 @@ export function GitaAI() {
         {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             {msg.role === "model" && (
-              <div className="size-7 rounded-full overflow-hidden border border-primary/20 shrink-0 mt-0.5">
-                <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
-              </div>
+              <GitaAiAvatar className="size-7 shrink-0 mt-0.5" iconSize={14} />
             )}
             <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
               msg.role === "user"
@@ -4686,9 +4704,7 @@ export function GitaAI() {
 
         {sending && (
           <div className="flex gap-2.5 justify-start">
-            <div className="size-7 rounded-full overflow-hidden border border-primary/20 shrink-0 mt-0.5">
-              <img src="/favicon-logo.png" alt="Gita AI" className="w-full h-full object-cover" />
-            </div>
+            <GitaAiAvatar className="size-7 shrink-0 mt-0.5" iconSize={14} />
             <div className="bg-card border border-border/60 px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1 items-center">
               <span className="size-2 rounded-full bg-primary/60 animate-bounce [animation-delay:0ms]" />
               <span className="size-2 rounded-full bg-primary/60 animate-bounce [animation-delay:150ms]" />
