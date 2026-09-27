@@ -1,0 +1,84 @@
+{
+  "expo": {
+    "name": "Gita Sadhana",
+    "slug": "gita-sadhana",
+    "version": "1.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "gitasadhana",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#F4F1EA",
+    "ios": {
+      "bundleIdentifier": "com.gitasadhana.ios",
+      "buildNumber": "4",
+      "supportsTablet": false,
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "icon": "./assets/images/icon.png"
+    },
+    "android": {
+      "package": "com.gitasadhana.android",
+      "versionCode": 4,
+      "adaptiveIcon": {
+        "backgroundColor": "#FEF2E0",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/favicon.png",
+      "name": "Gita Sadhana",
+      "shortName": "Gita Sadhana",
+      "description": "Explore Bhagavad Gita chapters, verses, translations, audio recitation, and AI guidance.",
+      "themeColor": "#12151F"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FEF2E0",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "dark": {
+            "backgroundColor": "#FEF2E0",
+            "image": "./assets/images/splash-icon.png"
+          }
+        }
+      ],
+      "expo-sqlite",
+      "expo-secure-store",
+      [
+        "expo-audio",
+        {
+          "enableBackgroundPlayback": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#2F4A8A"
+        }
+      ],
+      "expo-apple-authentication",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.822836118890-sufsueg8u9be6t9kc0cf60crl5eiaies"
+        }
+      ],
+      "expo-asset",
+      "expo-localization"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
