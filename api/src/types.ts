@@ -1,7 +1,7 @@
 export type Env = {
   DB: D1Database;
+  AI: Ai;
   JWT_SECRET: string;
-  GEMINI_API_KEY?: string;
   EMAIL_API_KEY?: string;
   GOOGLE_CLIENT_IDS: string;
   APPLE_BUNDLE_ID: string;
@@ -9,6 +9,9 @@ export type Env = {
   EMAIL_REPLY_TO: string;
   ADMIN_EMAIL: string;
   APP_URL: string;
+  AI_GATEWAY_ID: string;
+  VERTEX_PROJECT_ID: string;
+  VERTEX_LOCATION: string;
   GEMINI_MODEL_ID: string;
   AI_DAILY_LIMIT: string;
 };

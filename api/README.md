@@ -7,7 +7,10 @@ contract, so both the new Expo app and the old Capacitor builds work against it.
 - **Database:** D1 (SQLite) — `users` (identity + progress profile as JSON), `chats`, `ai_usage`
 - **Sign-in:** Google ID tokens and Apple identity tokens verified with `jose` against the
   providers' public keys; the app gets its own 365-day HS256 token
-- **Gita AI:** Gemini REST API, 30 requests per user (or guest device) per day
+- **Gita AI:** Gemini 2.5 Flash on Vertex AI (`arivulabs-platform`, `asia-south1`), called through
+  the account's **AI Gateway "default"** via the Worker's `AI` binding. The gateway injects the
+  Vertex credentials stored in it (BYOK), so no model key lives in the Worker, and every call is
+  logged in the gateway dashboard. 30 requests per user (or guest device) per day
 - **Mail:** the same SES relay the old backend used
 
 Live: `https://gita-sadhana-api.mrsan.workers.dev`
@@ -27,9 +30,9 @@ Live: `https://gita-sadhana-api.mrsan.workers.dev`
 ```bash
 cd api
 npm install
-cp .dev.vars.example .dev.vars          # JWT_SECRET, GEMINI_API_KEY, EMAIL_API_KEY
+cp .dev.vars.example .dev.vars          # JWT_SECRET, EMAIL_API_KEY
 npm run db:migrate:local
-npm run dev                             # http://localhost:8787
+npm run dev                             # http://localhost:8787 (Gita AI needs `npx wrangler dev --remote`)
 npm test
 ```
 
@@ -39,7 +42,6 @@ Point the app at it with `EXPO_PUBLIC_API_BASE_URL=http://localhost:8787` in the
 
 ```bash
 npm run db:migrate:remote               # after adding a file to migrations/
-npx wrangler secret put GEMINI_API_KEY  # enables Gita AI
 npx wrangler secret put EMAIL_API_KEY   # enables contact / correction / welcome mail
 npm run deploy
 ```

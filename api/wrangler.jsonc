@@ -5,6 +5,9 @@
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  // Gita AI goes through AI Gateway ("default"), which injects the Vertex AI credentials
+  // stored in the gateway — no model API key lives in this Worker.
+  "ai": { "binding": "AI" },
   "d1_databases": [
     {
       "binding": "DB",
@@ -14,7 +17,7 @@
       "migrations_dir": "migrations"
     }
   ],
-  // Public configuration. Secrets (JWT_SECRET, GEMINI_API_KEY, EMAIL_API_KEY) are set with
+  // Public configuration. Secrets (JWT_SECRET, EMAIL_API_KEY) are set with
   // `wrangler secret put` in production and in .dev.vars locally.
   "vars": {
     "GOOGLE_CLIENT_IDS": "822836118890-c0phehllvd4s2409adtgo13f1ipg997k.apps.googleusercontent.com,822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com,822836118890-4sq4ob2r4cjuab36fgoh9n1pgduit6pj.apps.googleusercontent.com,822836118890-sufsueg8u9be6t9kc0cf60crl5eiaies.apps.googleusercontent.com",
@@ -23,6 +26,9 @@
     "EMAIL_REPLY_TO": "hello@gitasadhana.com",
     "ADMIN_EMAIL": "hello@gitasadhana.com",
     "APP_URL": "https://gitasadhana.com",
+    "AI_GATEWAY_ID": "default",
+    "VERTEX_PROJECT_ID": "arivulabs-platform",
+    "VERTEX_LOCATION": "asia-south1",
     "GEMINI_MODEL_ID": "gemini-2.5-flash",
     "AI_DAILY_LIMIT": "30"
   }

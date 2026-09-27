@@ -34,7 +34,6 @@ export async function handleGitaChat(
   env: Env,
   p: { userId: string; message: string; history: { role: "user" | "model"; text: string }[]; language: string },
 ) {
-  if (!env.GEMINI_API_KEY) throw new HttpError(503, "Gita AI isn't available right now. Please try again later.");
   const message = sanitise(p.message);
   if (!message) throw new HttpError(400, "Message is required.");
   if (message.length > MAX_MESSAGE_LENGTH) throw new HttpError(400, "Message too long.");
@@ -49,16 +48,16 @@ export async function handleGitaChat(
     { role: "user", parts: [{ text: message }] },
   ];
 
+  // Vertex AI via AI Gateway: the gateway adds the stored service-account credentials, and
+  // every call shows up in the gateway's logs and analytics.
   let res: Response;
   try {
-    res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${env.GEMINI_MODEL_ID}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
-        body: JSON.stringify({ systemInstruction: { parts: [{ text: systemInstruction(p.language) }] }, contents }),
-      },
-    );
+    res = await env.AI.gateway(env.AI_GATEWAY_ID).run({
+      provider: "google-vertex-ai",
+      endpoint: `v1/projects/${env.VERTEX_PROJECT_ID}/locations/${env.VERTEX_LOCATION}/publishers/google/models/${env.GEMINI_MODEL_ID}:generateContent`,
+      headers: { "Content-Type": "application/json", "cf-aig-metadata": { app: "gita-sadhana", user: p.userId.startsWith("guest:") ? "guest" : "member" } },
+      query: { systemInstruction: { parts: [{ text: systemInstruction(p.language) }] }, contents },
+    });
   } catch {
     throw new HttpError(503, "Service temporarily unavailable.");
   }
