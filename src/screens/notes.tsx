@@ -6,10 +6,16 @@ import { Button, IconButton } from "@/components/button";
 import { Column, Screen } from "@/components/layout";
 import { EmptyState } from "@/components/misc";
 import { Text } from "@/components/text";
-import { t } from "@/i18n";
+import { localeFor, t } from "@/i18n";
 import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
 import { radius, spacing, type, fonts } from "@/theme";
+
+/** Notes saved by the old app hold "Sep 27"; new ones hold an ISO date. */
+function noteDate(value: string, lang: string) {
+  const d = new Date(value);
+  return value.includes("T") && !Number.isNaN(d.getTime()) ? d.toLocaleDateString(localeFor(lang), { month: "short", day: "numeric" }) : value;
+}
 
 export function NotesScreen() {
   const { colors } = useTheme();
@@ -50,10 +56,11 @@ export function NotesScreen() {
                 <View style={{ flexDirection: "row", alignItems: "flex-start", gap: spacing.md }}>
                   <View style={{ flex: 1, gap: 2 }}>
                     <Text variant="subheading" style={{ fontFamily: fonts.display }}>
-                      {n.title}
+                      {n.title === "Reflection" ? t("reflection", language) : n.title}
                     </Text>
                     <Text variant="caption" tone="soft">
-                      {n.date} · {t("verseLabel", language)} {n.verseId}
+                      {noteDate(n.date, language)}
+                      {n.verseId === "General" ? ` · ${t("noteGeneral", language)}` : ` · ${t("verseLabel", language)} ${n.verseId}`}
                     </Text>
                   </View>
                   <IconButton icon="trash" label={t("delete", language)} size={17} color={colors.inkFaint} onPress={() => deleteNote(n.id)} />

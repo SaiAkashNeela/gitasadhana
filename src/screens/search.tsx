@@ -12,13 +12,13 @@ import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
 import { spacing } from "@/theme";
 
-const SUGGESTED = ["karma", "atman", "devotion", "fear", "meditation", "duty"];
+const SUGGESTED = ["searchKarma", "searchSoul", "searchDevotion", "searchFear", "searchMeditation", "searchDuty"];
 
 export function SearchScreen() {
   const { colors } = useTheme();
   const { language } = useProgress();
   const [q, setQ] = useState("");
-  const [recent, setRecent] = useStored<string[]>("gita_recent_searches", ["letting go", "steady mind"]);
+  const [recent, setRecent] = useStored<string[]>("gita_recent_searches", []);
 
   const run = (term: string) => {
     const value = term.trim();
@@ -44,7 +44,7 @@ export function SearchScreen() {
         <Column gap={spacing.md}>
           <SectionHeader title={t("suggestedLabel", language)} />
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing.sm }}>
-            {SUGGESTED.map((s) => (
+            {SUGGESTED.map((key) => t(key, language)).map((s) => (
               <Chip key={s} label={s} onPress={() => run(s)} />
             ))}
           </View>

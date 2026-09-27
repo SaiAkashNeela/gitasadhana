@@ -4,21 +4,21 @@ import { View } from "react-native";
 import { Column, Screen } from "@/components/layout";
 import { Group, Row } from "@/components/list";
 import { EmptyState } from "@/components/misc";
-import { pick, t } from "@/i18n";
+import { localeFor, pick, t } from "@/i18n";
 import { getChapter } from "@/lib/gita";
 import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
 
-function formatHistoryDate(value: string) {
+function formatHistoryDate(value: string, lang: string) {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
   const same = (a: Date, b: Date) => a.toDateString() === b.toDateString();
-  if (same(d, today)) return "Today";
-  if (same(d, yesterday)) return "Yesterday";
-  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  if (same(d, today)) return t("Today", lang);
+  if (same(d, yesterday)) return t("yesterday", lang);
+  return d.toLocaleDateString(localeFor(lang), { month: "short", day: "numeric", year: "numeric" });
 }
 
 export function HistoryScreen() {
@@ -38,7 +38,7 @@ export function HistoryScreen() {
                 <Row
                   key={h.id}
                   title={`${t("chapterLabel", language)} ${h.chapter}, ${t("verseLabel", language).toLowerCase()} ${h.verse}`}
-                  subtitle={`${pick(getChapter(h.chapter)?.title, language)} · ${formatHistoryDate(h.date)}`}
+                  subtitle={`${pick(getChapter(h.chapter)?.title, language)} · ${formatHistoryDate(h.date, language)}`}
                   onPress={() => router.push(`/verse/${h.chapter}.${h.verse}`)}
                 />
               ))}

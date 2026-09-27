@@ -8,7 +8,7 @@ import { Column, Screen } from "@/components/layout";
 import { Group, Row } from "@/components/list";
 import { Segmented, Stat } from "@/components/misc";
 import { Text } from "@/components/text";
-import { t } from "@/i18n";
+import { localeFor, t } from "@/i18n";
 import { formatTime12Hour, useReminderConfig } from "@/lib/reminders-config";
 import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
@@ -26,6 +26,7 @@ const addDays = (d: Date, n: number) => {
 export function JourneyScreen() {
   const { colors } = useTheme();
   const { profile, readDates, language } = useProgress();
+  const loc = localeFor(language);
   const reminder = useReminderConfig();
   const [mode, setMode] = useState<"week" | "month" | "custom">("week");
   const [weekOffset, setWeekOffset] = useState(0);
@@ -39,7 +40,7 @@ export function JourneyScreen() {
   const today = new Date();
   const weekEnd = addDays(today, -weekOffset);
   const week = Array.from({ length: 7 }, (_, i) => addDays(weekEnd, i - 6));
-  const weekLabel = `${week[0].toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${weekEnd.toLocaleDateString(undefined, {
+  const weekLabel = `${week[0].toLocaleDateString(loc, { month: "short", day: "numeric" })} – ${weekEnd.toLocaleDateString(loc, {
     month: "short",
     day: "numeric",
   })}`;
@@ -107,7 +108,7 @@ export function JourneyScreen() {
                   {week.map((d) => (
                     <View key={dateKey(d)} style={{ alignItems: "center", gap: spacing.xs, flex: 1 }}>
                       <Text variant="caption" tone="faint">
-                        {d.toLocaleDateString(undefined, { weekday: "narrow" })}
+                        {d.toLocaleDateString(loc, { weekday: "narrow" })}
                       </Text>
                       <DayDot day={d.getDate()} active={read.has(dateKey(d))} />
                     </View>
@@ -137,7 +138,7 @@ export function JourneyScreen() {
             {mode === "custom" && (
               <Text variant="caption" tone="soft" center>
                 {range.start && range.end
-                  ? `${new Date(`${range.start}T00:00:00`).toLocaleDateString()} – ${new Date(`${range.end}T00:00:00`).toLocaleDateString()}`
+                  ? `${new Date(`${range.start}T00:00:00`).toLocaleDateString(loc)} – ${new Date(`${range.end}T00:00:00`).toLocaleDateString(loc)}`
                   : t("customRangeHint", language)}
               </Text>
             )}
@@ -228,6 +229,8 @@ function MonthGrid({
   const m = month.getMonth();
   const first = new Date(year, m, 1).getDay();
   const total = new Date(year, m + 1, 0).getDate();
+  const { language } = useProgress();
+  const loc = localeFor(language);
   const now = new Date();
   const cells: (Date | null)[] = [...Array.from({ length: first }, () => null), ...Array.from({ length: total }, (_, i) => new Date(year, m, i + 1))];
   const shift = (n: number) => onMonth(new Date(year, m + n, 1));
@@ -235,16 +238,16 @@ function MonthGrid({
   return (
     <View style={{ gap: spacing.md }}>
       <PeriodHeader
-        label={month.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+        label={month.toLocaleDateString(loc, { month: "long", year: "numeric" })}
         onPrev={() => shift(-1)}
         onNext={() => shift(1)}
         nextDisabled={year === now.getFullYear() && m >= now.getMonth()}
         badge={badge}
       />
       <View style={{ flexDirection: "row" }}>
-        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-          <Text key={i} variant="caption" tone="faint" center style={{ flex: 1 }}>
-            {d}
+        {Array.from({ length: 7 }, (_, i) => new Date(2026, 2, 1 + i)).map((d, i) => (
+          <Text key={i} variant="caption" tone="faint" center style={{ flex: 1 }} numberOfLines={1}>
+            {d.toLocaleDateString(loc, { weekday: "narrow" })}
           </Text>
         ))}
       </View>
@@ -259,7 +262,7 @@ function MonthGrid({
           return (
             <View key={key} style={{ width: `${100 / 7}%`, alignItems: "center" }}>
               {selectable && !future ? (
-                <Pressable accessibilityRole="button" accessibilityLabel={d.toDateString()} onPress={() => onPick(key)} hitSlop={2}>
+                <Pressable accessibilityRole="button" accessibilityLabel={d.toLocaleDateString(loc, { dateStyle: "full" } as Intl.DateTimeFormatOptions)} onPress={() => onPick(key)} hitSlop={2}>
                   {cell}
                 </Pressable>
               ) : (

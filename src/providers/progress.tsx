@@ -390,7 +390,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       verseId,
       title,
       body,
-      date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      date: new Date().toISOString(),
     };
     setNotes((prev) => [note, ...prev]);
     markDirty();

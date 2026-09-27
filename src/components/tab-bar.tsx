@@ -31,7 +31,7 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
   return (
     <View style={{ pointerEvents: "box-none", position: "absolute", left: 0, right: 0, bottom: 0 }}>
       {(audio.currentVerse || showUpNext) && (
-        <View style={{ paddingBottom: spacing.sm }}>
+        <View style={{ paddingBottom: spacing.sm, paddingHorizontal: spacing.md, alignItems: "center" }}>
           <MiniPlayer showUpNext={showUpNext} />
         </View>
       )}

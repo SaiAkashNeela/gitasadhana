@@ -22,7 +22,7 @@ export function FloatingPlayer() {
   const insets = useSafeAreaInsets();
   if (!currentVerse) return null;
   return (
-    <View style={{ pointerEvents: "box-none", position: "absolute", left: 0, right: 0, bottom: insets.bottom + spacing.sm }}>
+    <View style={{ pointerEvents: "box-none", position: "absolute", left: 0, right: 0, bottom: insets.bottom + spacing.sm, paddingHorizontal: spacing.md, alignItems: "center" }}>
       <MiniPlayer showUpNext={false} />
     </View>
   );

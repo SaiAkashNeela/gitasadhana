@@ -33,6 +33,13 @@ export function tf(key: string, lang: string, vars: Record<string, string | numb
   return t(key, lang).replace(/\{(\w+)\}/g, (m, name) => (name in vars ? String(vars[name]) : m));
 }
 
+/** BCP-47 locale for dates and month names. Sanskrit has no date locale; Hindi is closest. */
+export function localeFor(lang: string) {
+  if (lang === "en") return "en-IN";
+  if (lang === "sa") return "hi-IN";
+  return CODES.includes(lang) ? `${lang}-IN` : "en-IN";
+}
+
 export function languageName(code: string) {
   return LANGUAGES.find((l) => l.code === code)?.name ?? "English";
 }
