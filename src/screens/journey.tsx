@@ -161,13 +161,14 @@ export function JourneyScreen() {
 
 function PeriodHeader({ label, onPrev, onNext, nextDisabled, badge }: { label: string; onPrev: () => void; onNext: () => void; nextDisabled?: boolean; badge: string }) {
   const { colors } = useTheme();
+  const { language } = useProgress();
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.xs }}>
-      <IconButton icon="chevronLeft" label="Previous" size={16} onPress={onPrev} />
+      <IconButton icon="chevronLeft" label={t("previousPeriod", language)} size={16} onPress={onPrev} />
       <Text variant="callout" style={{ fontFamily: fonts.display, flexShrink: 1 }} numberOfLines={1}>
         {label}
       </Text>
-      <IconButton icon="chevronRight" label="Next" size={16} onPress={onNext} disabled={nextDisabled} />
+      <IconButton icon="chevronRight" label={t("nextPeriod", language)} size={16} onPress={onNext} disabled={nextDisabled} />
       <View style={{ flex: 1 }} />
       <View style={{ paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: radius.full, backgroundColor: colors.accentSoft }}>
         <Text variant="caption" tone="accent" style={{ fontWeight: "600" }}>

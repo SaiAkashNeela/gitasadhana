@@ -1,6 +1,7 @@
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AppState } from "react-native";
 
+import { t, tf } from "@/i18n";
 import { apiRequest, type AuthUser } from "@/lib/api";
 import { auth, deleteCurrentUserAccount, restoreAuthSession } from "@/lib/auth";
 import * as downloads from "@/lib/downloads";
@@ -481,7 +482,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     try {
       await downloads.downloadVerse(language, id, (f) => setTask(key, f));
     } catch {
-      toast.error("Download failed. Check your connection and try again.");
+      toast.error(t("downloadFailed", stateRef.current.language));
     } finally {
       setTask(key, null);
       setDiskVersion((v) => v + 1);
@@ -513,7 +514,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setTask(key, null);
     setDiskVersion((v) => v + 1);
     markDirty();
-    if (failed > 0) toast.error(`${failed} recitations could not be downloaded. Try again to resume.`);
+    if (failed > 0) toast.error(tf("someDownloadsFailed", stateRef.current.language, { n: failed }));
   };
 
   const downloadChapter = (n: number) => runBatch(`chapter:${n}`, versesInChapter(n).map((v) => v.id));
@@ -522,19 +523,19 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const deleteVerseDownload = (id: string) => {
     downloads.deleteVerse(language, id);
     setDiskVersion((v) => v + 1);
-    toast.success(`Removed offline audio for Verse ${id}`);
+    toast.success(tf("removedVerseAudioToast", language, { id }));
   };
 
   const deleteChapterDownload = (n: number) => {
     versesInChapter(n).forEach((v) => downloads.deleteVerse(language, v.id));
     setDiskVersion((v) => v + 1);
-    toast.success(`Cleared offline audio for Chapter ${n}`);
+    toast.success(tf("clearedChapterAudioToast", language, { n }));
   };
 
   const deleteWholeGita = () => {
     downloads.deleteAll(language);
     setDiskVersion((v) => v + 1);
-    toast.success("Cleared entire offline recitation library");
+    toast.success(t("clearedAllAudioToast", language));
   };
 
   const value: Progress = {

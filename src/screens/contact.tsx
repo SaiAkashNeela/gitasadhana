@@ -32,8 +32,8 @@ export function ContactScreen() {
       await sendContactEmail(email.trim(), message.trim());
       toast.success(t("messageSentToast", language));
       setMessage("");
-    } catch (e: any) {
-      setError(e?.message || "Failed to send. Try again.");
+    } catch {
+      setError(t("sendFailed", language));
     } finally {
       setSending(false);
     }

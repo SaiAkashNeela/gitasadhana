@@ -61,12 +61,12 @@
     "typecheck": "tsc --noEmit",
     "build:data": "node scripts/build-gita-data.mjs",
     "audit:scripts": "node scripts/audit-scripts.mjs",
-    "update:preview": "eas update --channel preview --environment preview --message",
-    "update:production": "eas update --channel production --environment production --message",
-    "build:ios": "eas build --platform ios --profile production",
-    "build:android": "eas build --platform android --profile production",
-    "api:dev": "npm --prefix api run dev",
-    "api:deploy": "npm --prefix api run deploy"
+    "update:preview": "bunx eas-cli update --channel preview --environment preview --message",
+    "update:production": "bunx eas-cli update --channel production --environment production --message",
+    "build:ios": "bunx eas-cli build --platform ios --profile production",
+    "build:android": "bunx eas-cli build --platform android --profile production",
+    "api:dev": "bun --cwd api run dev",
+    "api:deploy": "bun --cwd api run deploy"
   },
   "private": true
 }

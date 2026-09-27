@@ -9,32 +9,26 @@ import { Column, Screen } from "@/components/layout";
 import { Field } from "@/components/misc";
 import { Text } from "@/components/text";
 import { toast } from "@/components/toast";
-import { t } from "@/i18n";
+import { LANGUAGES, pick, t } from "@/i18n";
 import { sendCorrectionEmail } from "@/lib/email";
 import { chapters } from "@/lib/gita";
 import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
 import { radius, spacing } from "@/theme";
 
-// The same ten languages the original correction form offered.
-const LANGUAGE_OPTIONS = [
-  { value: "en", label: "English" },
-  { value: "hi", label: "Hindi" },
-  { value: "kn", label: "Kannada" },
-  { value: "te", label: "Telugu" },
-  { value: "ta", label: "Tamil" },
-  { value: "ml", label: "Malayalam" },
-  { value: "mr", label: "Marathi" },
-  { value: "gu", label: "Gujarati" },
-  { value: "bn", label: "Bengali" },
-  { value: "pa", label: "Punjabi" },
-];
+// The same ten languages the original correction form offered, shown in their own script.
+const CORRECTION_LANGUAGES = ["en", "hi", "kn", "te", "ta", "ml", "mr", "gu", "bn", "pa"];
+const LANGUAGE_OPTIONS = CORRECTION_LANGUAGES.map((code) => {
+  const l = LANGUAGES.find((x) => x.code === code)!;
+  return { value: code, label: l.native === l.name ? l.name : `${l.native} · ${l.name}` };
+});
 
 type Option = { value: string; label: string };
 
 function Picker({ label, value, options, onSelect, disabled }: { label: string; value: string; options: Option[]; onSelect: (v: string) => void; disabled?: boolean }) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { language } = useProgress();
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => o.value === value);
 
@@ -73,7 +67,7 @@ function Picker({ label, value, options, onSelect, disabled }: { label: string; 
               <Text variant="heading" style={{ flex: 1 }}>
                 {label}
               </Text>
-              <IconButton icon="close" label="Close" onPress={() => setOpen(false)} tone="filled" size={16} />
+              <IconButton icon="close" label={t("close", language)} onPress={() => setOpen(false)} tone="filled" size={16} />
             </View>
             <FlatList
               data={options}
@@ -121,9 +115,9 @@ export function CorrectionScreen() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const chapterOptions = chapters.map((c) => ({ value: String(c.number), label: `Chapter ${c.number}` }));
+  const chapterOptions = chapters.map((c) => ({ value: String(c.number), label: `${t("chapterLabel", language)} ${c.number} · ${pick(c.title, language)}` }));
   const count = chapter ? chapters[Number(chapter) - 1]?.verseCount ?? 0 : 0;
-  const verseOptions = Array.from({ length: count }, (_, i) => ({ value: String(i + 1), label: `Verse ${i + 1}` }));
+  const verseOptions = Array.from({ length: count }, (_, i) => ({ value: String(i + 1), label: `${t("verseLabel", language)} ${i + 1}` }));
 
   const submit = async () => {
     if (!lang || !chapter || !verse || !message.trim()) {
@@ -139,8 +133,8 @@ export function CorrectionScreen() {
       setChapter("");
       setVerse("");
       setMessage("");
-    } catch (e: any) {
-      setError(e?.message || "Failed to submit. Try again.");
+    } catch {
+      setError(t("sendFailed", language));
     } finally {
       setSending(false);
     }

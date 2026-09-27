@@ -114,4 +114,6 @@ export const stringFixes: Record<string, Record<string, string>> = {
   chooseLanguageBtn: { pa: "ਭਾਸ਼ਾ ਚੁਣੋ" },
   onboardingSlideBody2: { pa: "ਤੁਹਾਨੂੰ ਲਗਾਤਾਰ ਰੱਖਣ ਲਈ ਆਡੀਓ ਪਾਠ, ਨਿੱਜੀ ਨੋਟ ਅਤੇ ਰੋਜ਼ਾਨਾ ਲਗਾਤਾਰਤਾ।" },
   correctionSubmittedToast: { pa: "ਸੁਧਾਰ ਜਮ੍ਹਾਂ ਕੀਤਾ ਗਿਆ! ਤੁਹਾਡੇ ਯੋਗਦਾਨ ਲਈ ਧੰਨਵਾਦ।" },
+  allFieldsRequired: { ne: "सबै क्षेत्रहरू भर्न आवश्यक छ।" },
+  deleteAccount: { ne: "खाता मेटाउनुहोस्" },
 };

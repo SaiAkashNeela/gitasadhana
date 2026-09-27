@@ -2,6 +2,9 @@ import * as Clipboard from "expo-clipboard";
 import { Share } from "react-native";
 
 import { toast } from "@/components/toast";
+import { t } from "@/i18n";
+
+import { storage } from "./storage";
 
 /** Native share sheet; on web uses the Web Share API or copies to the clipboard. */
 export async function shareText(message: string, opts: { title?: string; url?: string; copiedLabel?: string } = {}) {
@@ -13,7 +16,7 @@ export async function shareText(message: string, opts: { title?: string; url?: s
         return;
       }
       await Clipboard.setStringAsync(opts.url ? `${message}\n${opts.url}` : message);
-      toast.success(opts.copiedLabel ?? "Copied to clipboard");
+      toast.success(opts.copiedLabel ?? t("copiedToClipboard", storage.getString("gita_language") || "en"));
       return;
     }
     await Share.share(

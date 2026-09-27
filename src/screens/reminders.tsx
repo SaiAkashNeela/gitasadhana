@@ -8,7 +8,7 @@ import { Group, SwitchRow } from "@/components/list";
 import { Chip } from "@/components/misc";
 import { Text } from "@/components/text";
 import { toast } from "@/components/toast";
-import { t } from "@/i18n";
+import { t, tf } from "@/i18n";
 import { formatTime12Hour, getReminderConfig, remindersSupported, updateReminderSettings } from "@/lib/reminders";
 import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
@@ -28,11 +28,11 @@ export function RemindersScreen() {
     setSaving(true);
     try {
       const res = await updateReminderSettings(enabled, time);
-      if (!enabled) toast.info("Daily reminders disabled");
-      else if (res.scheduled) toast.success(`Reminder set for ${formatTime12Hour(time)} daily!`);
+      if (!enabled) toast.info(t("remindersDisabledToast", language));
+      else if (res.scheduled) toast.success(tf("reminderSetToast", language, { time: formatTime12Hour(time) }));
       else if (res.permissionDenied)
-        toast.error("Notifications are closed. Please allow them so we can send you regular updates.", {
-          action: { label: "Settings", onPress: () => Linking.openSettings() },
+        toast.error(t("notificationsClosedToast", language), {
+          action: { label: t("openSettings", language), onPress: () => Linking.openSettings() },
         });
       else toast.success(t("changesSavedNote", language));
       if (router.canGoBack()) router.back();
@@ -51,7 +51,7 @@ export function RemindersScreen() {
           </Group>
           {!remindersSupported ? (
             <Text variant="footnote" tone="soft">
-              Reminders are delivered by the iOS and Android apps. Your choice is saved here.
+              {t("remindersNativeOnly", language)}
             </Text>
           ) : null}
         </Column>

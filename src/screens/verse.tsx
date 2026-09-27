@@ -12,7 +12,7 @@ import { ProgressRing } from "@/components/progress";
 import { SeekBar } from "@/components/seek-bar";
 import { Text } from "@/components/text";
 import { toast } from "@/components/toast";
-import { pick, t } from "@/i18n";
+import { pick, t, tf } from "@/i18n";
 import { audioLanguageFor } from "@/lib/audio-source";
 import { confirm } from "@/lib/confirm";
 import { downloadsSupported } from "@/lib/downloads";
@@ -115,10 +115,11 @@ export function VerseScreen() {
                 label={t("share", language)}
                 color={colors.inkSoft}
                 onPress={() =>
-                  shareText(
-                    `Hare Krishna! \nCheck out this wisdom from Bhagavad Gita (Verse ${id}):\n\n"${translation?.simple ?? ""}"\n\nRead more in Gita Sadhana App.`,
-                    { title: `Bhagavad Gita Verse ${id}`, url: "https://gitasadhana.com", copiedLabel: t("linkCopiedToast", language) },
-                  )
+                  shareText(tf("shareVerseMessage", language, { id, text: translation?.simple ?? "" }), {
+                    title: `${t("bhagavadGita", language)} ${id}`,
+                    url: "https://gitasadhana.com",
+                    copiedLabel: t("linkCopiedToast", language),
+                  })
                 }
               />
             </View>
@@ -175,7 +176,12 @@ export function VerseScreen() {
               {translation.simple}
             </Text>
           ) : tr.error ? (
-            <Button variant="secondary" size="sm" title="Retry" onPress={tr.retry} style={{ alignSelf: "flex-start" }} />
+            <View style={{ gap: spacing.sm, alignItems: "flex-start" }}>
+              <Text variant="footnote" tone="soft">
+                {t("translationLoadFailed", language)}
+              </Text>
+              <Button variant="secondary" size="sm" title={t("retry", language)} onPress={tr.retry} />
+            </View>
           ) : (
             <ActivityIndicator color={colors.accent} style={{ alignSelf: "flex-start" }} />
           )}
@@ -247,10 +253,10 @@ export function VerseScreen() {
               onPress={audio.toggleLooping}
             />
             <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.lg }}>
-              <IconButton icon="previous" label="Previous verse" onPress={() => go(prev, "start")} disabled={!prev} color={colors.ink} />
+              <IconButton icon="previous" label={t("previousVerse", language)} onPress={() => go(prev, "start")} disabled={!prev} color={colors.ink} />
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={playing ? "Pause" : "Play"}
+                accessibilityLabel={t(playing ? "pause" : "play", language)}
                 onPress={onPlay}
                 style={({ pressed }) => ({
                   width: 60,
@@ -268,12 +274,12 @@ export function VerseScreen() {
                   <Icon name={playing ? "pause" : "play"} size={26} color={colors.onAccent} />
                 )}
               </Pressable>
-              <IconButton icon="next" label="Next verse" onPress={() => go(next, "end")} disabled={!next} color={colors.ink} />
+              <IconButton icon="next" label={t("nextVerse", language)} onPress={() => go(next, "end")} disabled={!next} color={colors.ink} />
             </View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={`Playback speed ${audio.rate}x`}
+                accessibilityLabel={tf("playbackSpeedRate", language, { rate: audio.rate })}
                 onPress={audio.cycleRate}
                 hitSlop={6}
                 style={({ pressed }) => ({

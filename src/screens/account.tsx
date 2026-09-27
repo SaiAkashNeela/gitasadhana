@@ -39,9 +39,9 @@ export function AccountScreen() {
     if (!user?.email) return;
     try {
       await sendNewsletterEmail(user.email, value);
-    } catch (e: any) {
+    } catch {
       setPref(previous);
-      toast.error(e?.message ?? "Could not update email preferences.");
+      toast.error(t("emailPrefsFailed", language));
     }
   };
 

@@ -14,6 +14,10 @@ import { fixChapter, fixVerseText } from "./content-fixes.mjs";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const legacy = join(root, "capacitor-app");
 
+// Translations added for content the source lacked (made with scripts/translate.mjs).
+const verseFills = JSON.parse(readFileSync(join(root, "scripts/content/verse-fills.json"), "utf8"));
+const extraQuotes = JSON.parse(readFileSync(join(root, "scripts/content/quotes-hi-sa.json"), "utf8"));
+
 const processed = JSON.parse(readFileSync(join(legacy, "src/app/gita-processed.json"), "utf8"));
 const rawVerses = JSON.parse(readFileSync(join(legacy, "src/app/verses.json"), "utf8"));
 
@@ -60,9 +64,11 @@ mkdirSync(join(root, "assets/gita"), { recursive: true });
 for (const lang of languages) {
   const out = {};
   for (const v of verses) {
-    const t = v.translation?.[lang];
-    if (!t) continue;
     const id = `${v.chapter}.${v.verse}`;
+    const t = { ...v.translation?.[lang] };
+    const fill = verseFills[lang]?.[id];
+    if (fill) for (const f of ["simple", "deep", "essence"]) if (!t[f]) t[f] = fill[f];
+    if (!t.simple && !t.deep && !t.essence) continue;
     out[id] = [t.simple, t.deep, t.essence].map((x) => fixVerseText(x || "", lang, id));
   }
   writeFileSync(join(root, `assets/gita/${lang}.gita`), JSON.stringify(out));
@@ -77,6 +83,9 @@ for (const [lang, list] of Object.entries(processed.quotes)) {
     }))
     .filter((q) => q.text);
 }
+
+// The source has no Hindi or Sanskrit quotes.
+for (const [lang, list] of Object.entries(extraQuotes)) if (!quotes[lang]) quotes[lang] = list;
 
 writeFileSync(join(root, "src/data/chapters.json"), JSON.stringify(chapters));
 writeFileSync(join(root, "src/data/verses-core.json"), JSON.stringify(core));

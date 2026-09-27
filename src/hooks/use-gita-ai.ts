@@ -88,9 +88,11 @@ export function useGitaAI(uid: string | null) {
       setMessages((prev) => [...prev, { id: `${Date.now()}-model`, role: "model", text: res.reply ?? "", ts: Date.now() }]);
     } catch (e: any) {
       const msg = String(e?.message ?? "").toLowerCase();
-      if (msg.includes("rate")) setError("Rate limit reached. Please try again in a moment.");
+      // Errors are dictionary keys so the screen can show them in the reader's language.
+      if (msg.includes("rate")) setError("gitaAiRateLimited");
       else if (msg.includes("network") || msg.includes("offline") || msg.includes("temporarily unavailable")) setError("offline");
-      else setError(e?.message || "Something went wrong. Please try again.");
+      else if (msg.includes("available")) setError("gitaAiUnavailable");
+      else setError("gitaAiError");
       setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
     } finally {
       setSending(false);

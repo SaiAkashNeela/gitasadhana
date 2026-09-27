@@ -17,7 +17,7 @@ import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
 import { fonts, gutter, layout, radius, spacing, type } from "@/theme";
 
-const PROMPTS = ["What is the main teaching of the Bhagavad Gita?", "Explain the concept of Nishkama Karma", "Who is Lord Krishna?"];
+const PROMPTS = ["aiPrompt1", "aiPrompt2", "aiPrompt3"];
 
 export function GitaAIScreen() {
   const { colors } = useTheme();
@@ -101,7 +101,7 @@ export function GitaAIScreen() {
         <Notice icon="offline" title={t("gitaAiOfflineTitle", appLanguage)} body={t("gitaAiOfflineBody", appLanguage)} onDismiss={ai.clearError} dismissLabel={t("dismiss", appLanguage)} />
       )}
       {ai.error && ai.error !== "offline" && (
-        <Notice icon="warning" title={ai.error} onDismiss={ai.clearError} dismissLabel={t("dismiss", appLanguage)} danger />
+        <Notice icon="warning" title={t(ai.error, appLanguage)} onDismiss={ai.clearError} dismissLabel={t("dismiss", appLanguage)} danger />
       )}
     </View>
   );
@@ -122,7 +122,7 @@ export function GitaAIScreen() {
                   {languageName(ai.language ?? "en")}
                 </Text>
               </Pressable>
-              <IconButton icon="reset" label="Clear chat" color={colors.inkSoft} onPress={ai.clearChat} />
+              <IconButton icon="reset" label={t("clearChat", appLanguage)} color={colors.inkSoft} onPress={ai.clearChat} />
             </View>
           ),
         }}
@@ -154,7 +154,7 @@ export function GitaAIScreen() {
               {t("gitaAiEmptyBody", appLanguage)}
             </Text>
             <View style={{ alignSelf: "stretch", gap: spacing.sm, marginTop: spacing.md }}>
-              {PROMPTS.map((p) => (
+              {PROMPTS.map((key) => t(key, appLanguage)).map((p) => (
                 <Pressable
                   key={p}
                   accessibilityRole="button"
@@ -191,7 +191,7 @@ export function GitaAIScreen() {
         <View style={{ flexDirection: "row", alignItems: "flex-end", gap: spacing.sm, width: "100%", maxWidth: layout.maxWidth, alignSelf: "center" }}>
           <TextInput
             ref={inputRef}
-            accessibilityLabel="Message to Gita AI"
+            accessibilityLabel={t("messageToGitaAi", appLanguage)}
             value={input}
             onChangeText={setInput}
             placeholder={t("gitaAiPlaceholder", appLanguage)}
@@ -216,7 +216,7 @@ export function GitaAIScreen() {
               } as object,
             ]}
           />
-          <IconButton icon="send" label="Send" tone="accent" onPress={send} disabled={!input.trim() || ai.sending || ai.limitReached} size={18} style={{ width: 44, height: 44, borderRadius: 22 }} />
+          <IconButton icon="send" label={t("send", appLanguage)} tone="accent" onPress={send} disabled={!input.trim() || ai.sending || ai.limitReached} size={18} style={{ width: 44, height: 44, borderRadius: 22 }} />
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -265,7 +265,7 @@ function Notice({ icon, title, body, onDismiss, dismissLabel, danger }: { icon: 
           {body}
         </Text>
       ) : null}
-      {onDismiss ? <Button size="sm" variant="ghost" title={dismissLabel ?? "Dismiss"} onPress={onDismiss} /> : null}
+      {onDismiss ? <Button size="sm" variant="ghost" title={dismissLabel ?? ""} onPress={onDismiss} /> : null}
     </View>
   );
 }

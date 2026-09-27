@@ -215,6 +215,7 @@ export function DownloadsScreen() {
 
 function LibraryRow({ title, subtitle, onDelete, onOpen, divider }: { title: string; subtitle: string; onDelete: () => void; onOpen?: () => void; divider?: boolean }) {
   const { colors } = useTheme();
+  const { language } = useProgress();
   return (
     <View
       style={{
@@ -237,8 +238,8 @@ function LibraryRow({ title, subtitle, onDelete, onOpen, divider }: { title: str
           {subtitle}
         </Text>
       </View>
-      {onOpen && <IconButton icon="book" label="Open" size={18} color={colors.accent} onPress={onOpen} />}
-      <IconButton icon="trash" label="Delete" size={18} color={colors.danger} onPress={onDelete} />
+      {onOpen && <IconButton icon="book" label={t("open", language)} size={18} color={colors.accent} onPress={onOpen} />}
+      <IconButton icon="trash" label={t("delete", language)} size={18} color={colors.danger} onPress={onDelete} />
     </View>
   );
 }

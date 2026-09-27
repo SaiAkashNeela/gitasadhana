@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { View, type GestureResponderEvent } from "react-native";
 
+import { t } from "@/i18n";
 import { formatTime } from "@/providers/audio";
+import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
 import { spacing } from "@/theme";
 
@@ -20,6 +22,7 @@ export function SeekBar({
   disabled?: boolean;
 }) {
   const { colors } = useTheme();
+  const { language } = useProgress();
   const width = useRef(1);
   const [drag, setDrag] = useState<number | null>(null);
   const active = !disabled && duration > 0;
@@ -32,7 +35,7 @@ export function SeekBar({
     <View style={{ gap: spacing.xs }}>
       <View
         accessibilityRole="adjustable"
-        accessibilityLabel="Playback position"
+        accessibilityLabel={t("playbackPosition", language)}
         accessibilityValue={{ min: 0, max: Math.round(duration), now: Math.round(shown), text: formatTime(shown) }}
         accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
         onAccessibilityAction={(e) => {

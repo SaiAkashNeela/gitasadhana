@@ -3,6 +3,8 @@ import { useEffect, useRef } from "react";
 import { AppState } from "react-native";
 
 import { toast } from "@/components/toast";
+import { t } from "@/i18n";
+import { storage } from "@/lib/storage";
 
 const MIN_CHECK_INTERVAL_MS = 15 * 60 * 1000;
 
@@ -27,9 +29,10 @@ export function useOtaUpdates() {
         const fetched = await Updates.fetchUpdateAsync();
         if (!fetched.isNew) return;
         offered.current = true;
-        toast.info("A fresh update is ready.", {
+        const lang = storage.getString("gita_language") || "en";
+        toast.info(t("updateReady", lang), {
           duration: 12000,
-          action: { label: "Restart", onPress: () => void Updates.reloadAsync() },
+          action: { label: t("restart", lang), onPress: () => void Updates.reloadAsync() },
         });
       } catch {
         // Offline or the update server is unreachable; try again next time.

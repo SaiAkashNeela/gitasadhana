@@ -8,7 +8,7 @@ import { Column, Screen } from "@/components/layout";
 import { Stat } from "@/components/misc";
 import { ProgressBar } from "@/components/progress";
 import { Text } from "@/components/text";
-import { pick, t } from "@/i18n";
+import { pick, t, tf } from "@/i18n";
 import { downloadsSupported } from "@/lib/downloads";
 import { chapterArt, getChapter } from "@/lib/gita";
 import { confirm } from "@/lib/confirm";
@@ -47,7 +47,7 @@ export function ChapterScreen() {
               label={t("share", language)}
               color="#FFFFFF"
               onPress={() =>
-                shareText(`Bhagavad Gita — ${t("chapterLabel", language)} ${n}: ${title}\n${pick(chapter.summary, language)}`, {
+                shareText(tf("shareChapterMessage", language, { n, title, summary: pick(chapter.summary, language) }), {
                   title,
                   url: "https://gitasadhana.com",
                   copiedLabel: t("copiedToClipboardToast", language),

@@ -8,7 +8,7 @@ import { Chip } from "@/components/misc";
 import { SceneBanner } from "@/components/scene-banner";
 import { Text } from "@/components/text";
 import { toast } from "@/components/toast";
-import { t } from "@/i18n";
+import { t, tf } from "@/i18n";
 import { pickDaily } from "@/lib/daily";
 import { quotesFor } from "@/lib/gita";
 import { shareText } from "@/lib/share";
@@ -35,7 +35,7 @@ export function WisdomScreen() {
             {t("dailyWisdom", language)}
           </Text>
           <Text style={{ fontFamily: fonts.serif, fontSize: 19, lineHeight: 26, color: "#FFFFFF" }} numberOfLines={6}>
-            “{daily?.text ?? "When meditation is mastered, the mind is unwavering like the flame of a lamp in a windless place."}”
+            “{daily?.text ?? ""}”
           </Text>
           <Text variant="footnote" tone="light" style={{ opacity: 0.8 }}>
             {t("gitaQuote", language)}
@@ -89,7 +89,7 @@ export function WisdomScreen() {
                   label={t("share", language)}
                   color={colors.inkFaint}
                   size={19}
-                  onPress={() => shareText(`“${q.text}”\n— Bhagavad Gita`, { url: "https://gitasadhana.com", copiedLabel: t("copiedToClipboardToast", language) })}
+                  onPress={() => shareText(tf("shareQuoteMessage", language, { text: q.text }), { url: "https://gitasadhana.com", copiedLabel: t("copiedToClipboardToast", language) })}
                 />
               </View>
             </View>

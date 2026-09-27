@@ -145,6 +145,7 @@ export function loadTranslations(lang: string): Promise<TranslationTable> {
       return table;
     })
     .catch((e: Error) => {
+      if (__DEV__) console.warn(`[gita] could not load ${code} translations:`, e?.message ?? e);
       pending.delete(code);
       failures.set(code, e);
       notify();
@@ -161,7 +162,12 @@ function toTranslation(row?: [string, string, string]): Translation | null {
 
 function lookup(source: ReadonlyMap<string, TranslationTable>, id: string, lang: string): Translation | null {
   const key = normalizeVerseId(id);
-  const own = toTranslation(source.get(lang)?.[key]);
+  const code = translationAssets[lang] ? lang : "en";
+  const table = source.get(code);
+  // Never pass English off as the reader's language: until their table has loaded, show
+  // nothing (screens show a loader, or a retry if loading failed).
+  if (!table) return null;
+  const own = toTranslation(table[key]);
   const en = toTranslation(source.get("en")?.[key]);
   if (!own) return en;
   if (!en) return own;

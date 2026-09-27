@@ -1,5 +1,4 @@
 import type { IconProps as PhosphorProps, IconWeight } from "phosphor-react-native";
-import { AppleLogoIcon } from "phosphor-react-native/src/icons/AppleLogo";
 import { ArrowCircleUpIcon } from "phosphor-react-native/src/icons/ArrowCircleUp";
 import { ArrowClockwiseIcon } from "phosphor-react-native/src/icons/ArrowClockwise";
 import { ArrowCounterClockwiseIcon } from "phosphor-react-native/src/icons/ArrowCounterClockwise";
@@ -24,7 +23,6 @@ import { FileTextIcon } from "phosphor-react-native/src/icons/FileText";
 import { FlameIcon } from "phosphor-react-native/src/icons/Flame";
 import { FlowerLotusIcon } from "phosphor-react-native/src/icons/FlowerLotus";
 import { GearSixIcon } from "phosphor-react-native/src/icons/GearSix";
-import { GoogleLogoIcon } from "phosphor-react-native/src/icons/GoogleLogo";
 import { HandsPrayingIcon } from "phosphor-react-native/src/icons/HandsPraying";
 import { HeadphonesIcon } from "phosphor-react-native/src/icons/Headphones";
 import { HeartIcon } from "phosphor-react-native/src/icons/Heart";
@@ -138,8 +136,6 @@ const glyphs = {
   arrowUp: { icon: ArrowCircleUpIcon },
   warning: { icon: WarningIcon },
   words: { icon: BookIcon },
-  apple: { icon: AppleLogoIcon, weight: "fill" },
-  google: { icon: GoogleLogoIcon },
   stop: { icon: StopCircleIcon },
   namaste: { icon: HandsPrayingIcon },
   scroll: { icon: ScrollIcon },

@@ -9,7 +9,7 @@ import { EmptyState } from "@/components/misc";
 import { SeekBar } from "@/components/seek-bar";
 import { Text } from "@/components/text";
 import { toast } from "@/components/toast";
-import { pick, t } from "@/i18n";
+import { pick, t, tf } from "@/i18n";
 import { chapterArt, getChapter, useTranslations } from "@/lib/gita";
 import { tap } from "@/lib/haptics";
 import { shareText } from "@/lib/share";
@@ -40,7 +40,7 @@ export function PlayerScreen() {
             icon="share"
             label={t("share", language)}
             onPress={() =>
-              shareText(`Bhagavad Gita ${verse.id}\n\n“${tr.get(verse.id)?.simple ?? ""}”`, {
+              shareText(tf("shareVerseMessage", language, { id: verse.id, text: tr.get(verse.id)?.simple ?? "" }), {
                 url: "https://gitasadhana.com",
                 copiedLabel: t("copiedToClipboardToast", language),
               })
@@ -79,10 +79,10 @@ export function PlayerScreen() {
           </View>
           <SeekBar current={audio.currentTime} duration={audio.duration} onSeek={audio.seek} />
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.xxl }}>
-            <IconButton icon="back10" label="Back 10 seconds" size={26} onPress={() => audio.seek(audio.currentTime - 10)} />
+            <IconButton icon="back10" label={t("back10", language)} size={26} onPress={() => audio.seek(audio.currentTime - 10)} />
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={audio.isPlaying ? "Pause" : "Play"}
+              accessibilityLabel={t(audio.isPlaying ? "pause" : "play", language)}
               onPress={() => {
                 tap();
                 audio.toggle();
@@ -99,12 +99,12 @@ export function PlayerScreen() {
             >
               {audio.isBuffering ? <ActivityIndicator color={colors.onAccent} /> : <Icon name={audio.isPlaying ? "pause" : "play"} size={30} color={colors.onAccent} />}
             </Pressable>
-            <IconButton icon="forward10" label="Forward 10 seconds" size={26} onPress={() => audio.seek(Math.min(audio.duration, audio.currentTime + 10))} />
+            <IconButton icon="forward10" label={t("forward10", language)} size={26} onPress={() => audio.seek(Math.min(audio.duration, audio.currentTime + 10))} />
           </View>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={`Playback speed ${audio.rate}x`}
+              accessibilityLabel={tf("playbackSpeedRate", language, { rate: audio.rate })}
               onPress={audio.cycleRate}
               style={({ pressed }) => ({
                 minWidth: 52,

@@ -3,14 +3,14 @@ import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Pressable, View } from "react-native";
 
-import { Button, IconButton } from "@/components/button";
-import { Icon } from "@/components/icon";
+import { IconButton } from "@/components/button";
 import { Column, PageTitle, Screen, SectionHeader } from "@/components/layout";
 import { Group, Row, SwitchRow } from "@/components/list";
 import { Segmented, Stat } from "@/components/misc";
+import { AppleSignInButton, GoogleSignInButton } from "@/components/sign-in-buttons";
 import { Text } from "@/components/text";
 import { toast } from "@/components/toast";
-import { languageName, t } from "@/i18n";
+import { languageName, t, tf } from "@/i18n";
 import { isAppleSignInAvailable, signIn } from "@/lib/auth";
 import { SignInCancelled } from "@/lib/auth-providers";
 import { sendWelcomeEmail } from "@/lib/email";
@@ -24,6 +24,7 @@ export function ProfileScreen() {
   const { colors, preference, setPreference } = useTheme();
   const p = useProgress();
   const { user, profile, language } = p;
+  // True on every iOS build of the app; false on Android, web and in Expo Go (no native module).
   const [appleAvailable, setAppleAvailable] = useState(false);
   const [busy, setBusy] = useState<null | "google" | "apple">(null);
   const reminder = useReminderConfig();
@@ -43,7 +44,7 @@ export function ProfileScreen() {
     setBusy(provider);
     try {
       const res = await signIn(provider);
-      if (res.isNewUser && res.user.email) sendWelcomeEmail(res.user.email, res.user.displayName || "Seeker").catch(() => {});
+      if (res.isNewUser && res.user.email) sendWelcomeEmail(res.user.email, res.user.displayName || t("seeker", "en")).catch(() => {});
       toast.success(t(provider === "google" ? "googleSignInSuccessToast" : "appleSignInSuccessToast", language));
     } catch (e: any) {
       if (!(e instanceof SignInCancelled)) {
@@ -82,7 +83,7 @@ export function ProfileScreen() {
             )}
             <View style={{ flex: 1, gap: 2 }}>
               <Text variant="heading" numberOfLines={1}>
-                {profile.name}
+                {profile.name === "Seeker" ? t("seeker", language) : profile.name}
               </Text>
               <Text variant="footnote" tone="soft" numberOfLines={1}>
                 {profile.email}
@@ -97,29 +98,14 @@ export function ProfileScreen() {
               {t("backupProgressSub", language)}
             </Text>
             <View style={{ gap: spacing.sm, marginTop: spacing.xs }}>
-              {appleAvailable && (
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => doSignIn("apple")}
-                  disabled={!!busy}
-                  style={({ pressed }) => ({
-                    height: 50,
-                    borderRadius: radius.full,
-                    backgroundColor: colors.ink,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: spacing.sm,
-                    opacity: pressed || busy === "apple" ? 0.8 : 1,
-                  })}
-                >
-                  <Icon name="apple" size={18} color={colors.background} />
-                  <Text variant="bodyStrong" style={{ color: colors.background }}>
-                    {t("continueWithApple", language)}
-                  </Text>
-                </Pressable>
-              )}
-              <Button variant="secondary" icon="google" title={t("continueWithGoogle", language)} loading={busy === "google"} onPress={() => doSignIn("google")} />
+              {/* iOS: Apple and Google. Android and web: Google only. */}
+              {appleAvailable && <AppleSignInButton onPress={() => doSignIn("apple")} busy={!!busy} />}
+              <GoogleSignInButton
+                label={t("continueWithGoogle", language)}
+                loading={busy === "google"}
+                disabled={!!busy && busy !== "google"}
+                onPress={() => doSignIn("google")}
+              />
             </View>
           </View>
         )}
@@ -142,11 +128,11 @@ export function ProfileScreen() {
             chevron={false}
             right={
               <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.xs }}>
-                <IconButton icon="minus" label="Smaller text" size={16} tone="filled" disabled={p.fontSize <= 12} onPress={() => p.setFontSize(p.fontSize - 1)} />
+                <IconButton icon="minus" label={t("smallerText", language)} size={16} tone="filled" disabled={p.fontSize <= 12} onPress={() => p.setFontSize(p.fontSize - 1)} />
                 <Text variant="callout" center style={{ width: 28, fontVariant: ["tabular-nums"] }}>
                   {p.fontSize}
                 </Text>
-                <IconButton icon="plus" label="Larger text" size={16} tone="filled" disabled={p.fontSize >= 24} onPress={() => p.setFontSize(p.fontSize + 1)} />
+                <IconButton icon="plus" label={t("largerText", language)} size={16} tone="filled" disabled={p.fontSize >= 24} onPress={() => p.setFontSize(p.fontSize + 1)} />
               </View>
             }
           />
@@ -184,7 +170,7 @@ export function ProfileScreen() {
             value={`${p.downloadedVerses.length} ${t("tracks", language)}`}
             onPress={() => router.push("/downloads")}
           />
-          <Row icon="flame" title={t("dailyJourney", language)} value={`${profile.streak} days`} onPress={() => router.push("/journey")} />
+          <Row icon="flame" title={t("dailyJourney", language)} value={tf("streakDays", language, { n: profile.streak })} onPress={() => router.push("/journey")} />
         </Group>
       </Column>
 

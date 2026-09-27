@@ -5,7 +5,7 @@ import { createContext, use, useEffect, useRef, useState, type ReactNode } from 
 import { audioLanguageFor } from "@/lib/audio-source";
 import { playableUri } from "@/lib/downloads";
 import { art, getChapter, getVerse, type Verse } from "@/lib/gita";
-import { pick } from "@/i18n";
+import { pick, t } from "@/i18n";
 
 import { useProgress } from "./progress";
 
@@ -85,9 +85,9 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
     const chapter = getChapter(verse.chapter);
     const metadata = {
-      title: `${pick(chapter?.title, lang) || "Bhagavad Gita"} • Verse ${verse.verse}`,
+      title: `${pick(chapter?.title, lang) || t("bhagavadGita", lang)} • ${t("verseLabel", lang)} ${verse.verse}`,
       artist: "Gita Sadhana",
-      albumTitle: "Bhagavad Gita",
+      albumTitle: t("bhagavadGita", lang),
       artworkUrl: lockScreenArtwork(),
     };
     try {

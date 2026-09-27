@@ -54,7 +54,7 @@ export async function handleGitaChat(
   try {
     res = await env.AI.gateway(env.AI_GATEWAY_ID).run({
       provider: "google-vertex-ai",
-      endpoint: `v1/projects/${env.VERTEX_PROJECT_ID}/locations/${env.VERTEX_LOCATION}/publishers/google/models/${env.GEMINI_MODEL_ID}:generateContent`,
+      endpoint: `v1/projects/${env.VERTEX_PROJECT_ID}/locations/${env.VERTEX_LOCATION || "global"}/publishers/google/models/${env.GEMINI_MODEL_ID || "gemini-3.8-flash"}:generateContent`,
       headers: { "Content-Type": "application/json", "cf-aig-metadata": { app: "gita-sadhana", user: p.userId.startsWith("guest:") ? "guest" : "member" } },
       query: { systemInstruction: { parts: [{ text: systemInstruction(p.language) }] }, contents },
     });

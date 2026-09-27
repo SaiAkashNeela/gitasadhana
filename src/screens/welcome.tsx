@@ -24,7 +24,7 @@ export function WelcomeScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={{ height: height * 0.52 }}>
-        <Image source={art.welcome} style={{ flex: 1 }} contentFit="cover" accessibilityLabel="Bhagavad Gita" />
+        <Image source={art.welcome} style={{ flex: 1 }} contentFit="cover" accessibilityLabel={t("bhagavadGita", language)} />
         <LinearGradient
           colors={["transparent", colors.background]}
           style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 120 }}

@@ -38,7 +38,7 @@ export function HomeScreen() {
     <Screen inset="top" bottom="tabs">
       <Column>
         <PageTitle
-          subtitle={`${t("hariOm", language)}, ${profile.name}`}
+          subtitle={`${t("hariOm", language)}, ${profile.name === "Seeker" ? t("seeker", language) : profile.name}`}
           title={t("todaysVerse", language)}
           right={
             <>
@@ -70,7 +70,7 @@ export function HomeScreen() {
               {verseText ? `“${verseText}”` : ""}
             </Text>
             <Text variant="footnote" tone="light" style={{ opacity: 0.8 }}>
-              Bhagavad Gita {verseId}
+              {t("bhagavadGita", language)} {verseId}
             </Text>
           </SceneBanner>
         </Pressable>
@@ -188,7 +188,7 @@ export function HomeScreen() {
           })}
         >
           <Text style={{ fontFamily: fonts.devanagariMedium, fontSize: 22, lineHeight: 30, color: colors.flame }}>ॐ</Text>
-          <Text variant="scripture">“{dailyQuote?.text ?? "The soul is eternal."}”</Text>
+          <Text variant="scripture">“{dailyQuote?.text ?? ""}”</Text>
           <Text variant="footnote" tone="soft">
             {t("gitaQuote", language)}
           </Text>
