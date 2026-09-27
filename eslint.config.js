@@ -5,6 +5,6 @@ const expoConfig = require("eslint-config-expo/flat");
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ["dist/*", "capacitor-app/**", ".agents/**", ".claude/**"],
+    ignores: ["dist/*", "capacitor-app/**", "api/**", ".agents/**", ".claude/**"],
   },
 ]);

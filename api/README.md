@@ -1,0 +1,61 @@
+# Gita Sadhana API (Cloudflare Worker + D1)
+
+Replaces the Node/Express + MongoDB backend in `capacitor-app/backend` with the same HTTP
+contract, so both the new Expo app and the old Capacitor builds work against it.
+
+- **Runtime:** Cloudflare Workers, [Hono](https://hono.dev)
+- **Database:** D1 (SQLite) — `users` (identity + progress profile as JSON), `chats`, `ai_usage`
+- **Sign-in:** Google ID tokens and Apple identity tokens verified with `jose` against the
+  providers' public keys; the app gets its own 365-day HS256 token
+- **Gita AI:** Gemini REST API, 30 requests per user (or guest device) per day
+- **Mail:** the same SES relay the old backend used
+
+Live: `https://gita-sadhana-api.mrsan.workers.dev`
+
+| Route | |
+| --- | --- |
+| `GET /health` | liveness |
+| `POST /auth/google` · `POST /auth/apple` | exchange provider token → `{ token, user, isNewUser }` |
+| `GET /auth/me` · `POST /auth/logout` | session |
+| `GET /users/me` · `POST /users/me/sync` · `DELETE /users/me` | progress; sync `mode: "merge"` (sign-in) or `"replace"` |
+| `GET /chat/me` · `PUT /chat/me` | Gita AI history |
+| `POST /ai/chat` | Gita AI (bearer token or `x-guest-id`) |
+| `POST /mail/contact` · `/correction` · `/newsletter` · `/welcome` | email |
+
+## Develop
+
+```bash
+cd api
+npm install
+cp .dev.vars.example .dev.vars          # JWT_SECRET, GEMINI_API_KEY, EMAIL_API_KEY
+npm run db:migrate:local
+npm run dev                             # http://localhost:8787
+npm test
+```
+
+Point the app at it with `EXPO_PUBLIC_API_BASE_URL=http://localhost:8787` in the root `.env`.
+
+## Deploy
+
+```bash
+npm run db:migrate:remote               # after adding a file to migrations/
+npx wrangler secret put GEMINI_API_KEY  # enables Gita AI
+npx wrangler secret put EMAIL_API_KEY   # enables contact / correction / welcome mail
+npm run deploy
+```
+
+Custom domain: add `"routes": [{ "pattern": "api.gitasadhana.com", "custom_domain": true }]` to
+`wrangler.jsonc` (the zone must be on this Cloudflare account), deploy, and update
+`EXPO_PUBLIC_API_BASE_URL`.
+
+## Moving users over from MongoDB
+
+```bash
+mongoexport --uri "$MONGODB_URI" --collection users --jsonArray --out users.json
+mongoexport --uri "$MONGODB_URI" --collection chats --jsonArray --out chats.json
+node scripts/import-from-mongo.mjs users.json chats.json > import.sql
+npx wrangler d1 execute gita-sadhana --remote --file import.sql
+```
+
+User ids are kept, so if you also set the old backend's `JWT_SECRET` on the Worker, people who
+were signed in stay signed in.

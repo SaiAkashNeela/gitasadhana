@@ -202,6 +202,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest<{ profile: any }>("/users/me/sync", {
         method: "POST",
         body: {
+          // This device is signed in and holds the full state, so removals must stick.
+          mode: "replace",
           name: s.profile.name,
           email: s.profile.email,
           streak: s.profile.streak,

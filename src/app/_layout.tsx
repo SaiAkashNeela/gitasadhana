@@ -15,6 +15,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { ToastHost } from "@/components/toast";
 import { useNotificationRouting } from "@/hooks/use-notification-routing";
+import { useOtaUpdates } from "@/hooks/use-ota-updates";
 import { AudioProvider } from "@/providers/audio";
 import { ProgressProvider } from "@/providers/progress";
 import { ThemeProvider, useTheme } from "@/providers/theme";
@@ -58,6 +59,7 @@ export default function RootLayout() {
 function Navigator() {
   const { colors, scheme } = useTheme();
   useNotificationRouting();
+  useOtaUpdates();
   const base = scheme === "dark" ? DarkTheme : DefaultTheme;
   const navTheme = {
     ...base,

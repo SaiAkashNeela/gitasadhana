@@ -5,7 +5,8 @@ All 18 chapters and 701 verses with Sanskrit, transliteration, word meanings, tr
 reflections in 13 languages, verse-by-verse audio recitation, offline downloads, daily reminders,
 reading streaks, notes, bookmarks, cloud sync and Gita AI.
 
-The previous Capacitor app (and the Node/MongoDB backend it talks to) lives in `capacitor-app/`.
+The backend is a Cloudflare Worker with a D1 (SQLite) database in `api/` — see `api/README.md`.
+The previous Capacitor app and its Node/MongoDB backend live in `capacitor-app/`.
 
 ## Run
 
@@ -50,3 +51,29 @@ src/theme/       design tokens
 
 `eas.json` defines development / preview / production profiles. Bundle IDs match the store apps:
 `com.gitasadhana.ios` and `com.gitasadhana.android`.
+
+```bash
+npm run build:ios          # store builds (native changes, SDK upgrades, new native libraries)
+npm run build:android
+```
+
+## Over-the-air updates (no store review)
+
+Text, content, styling, images and any JavaScript change ship with EAS Update:
+
+```bash
+npm run update:preview -- "Fix Telugu title of chapter 3"      # test on preview builds first
+npm run update:production -- "Fix Telugu title of chapter 3"
+```
+
+Installed apps check for an update each time they're opened, download it in the background and
+offer a one-tap restart (`src/hooks/use-ota-updates.ts`). Anything that changes native code still
+needs a new store build.
+
+One-time setup (needs an Expo account):
+
+```bash
+eas login
+eas init                 # links the project (adds extra.eas.projectId)
+eas update:configure     # adds updates.url, runtimeVersion and build-profile channels
+```

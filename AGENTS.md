@@ -42,7 +42,9 @@ Docs: https://docs.expo.dev/eas/index.md
 
 ## This project
 
-- `capacitor-app/` is the retired Capacitor app plus its backend. Metro, TypeScript and ESLint ignore it; read from it, don't edit it.
+- `capacitor-app/` is the retired Capacitor app plus its old backend. Metro, TypeScript and ESLint ignore it; read from it, don't edit it.
+- `api/` is the Cloudflare Worker (Hono + D1) the app talks to; it has its own package.json, tsconfig and tests (`npm --prefix api test`).
+- Icons: `src/components/icon.tsx` maps names to Phosphor icons imported one file at a time (`phosphor-react-native/src/icons/<Name>`); never import from the package root (bundles every icon).
 - Gita content is generated: edit `scripts/build-gita-data.mjs` / `scripts/content-fixes.mjs`, then `npm run build:data` and `npm run audit:scripts`.
 - All colors, spacing and type come from `src/theme`; screens use `Text`, `Group`/`Row`, `Button` from `src/components`.
 - React Compiler is on: don't read mutable module state during render — expose it through `useSyncExternalStore` snapshots (see `src/lib/gita.ts`, `src/lib/storage.ts`).

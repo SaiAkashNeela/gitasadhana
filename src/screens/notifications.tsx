@@ -23,6 +23,9 @@ const ICONS: Record<AppNotification["iconType"], IconName> = {
   megaphone: "megaphone",
 };
 
+// Reminder copy carries emoji for the system notification; in the list the icon says it.
+const plain = (s: string) => s.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{1F549}]/gu, "").trim();
+
 function textsFor(n: AppNotification, lang: string) {
   const dict = localizedReminders[lang] ?? localizedReminders.en;
   const title = n.title.toLowerCase();
@@ -96,7 +99,7 @@ export function NotificationsScreen() {
                       <View style={{ flex: 1, gap: 3 }}>
                         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
                           <Text variant="callout" style={{ flex: 1, fontWeight: "600" }} numberOfLines={2}>
-                            {x.title}
+                            {plain(x.title)}
                           </Text>
                           {!n.read && <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: colors.accent }} />}
                           <Text variant="caption" tone="faint">

@@ -119,7 +119,7 @@ export function ProfileScreen() {
                   </Text>
                 </Pressable>
               )}
-              <Button variant="secondary" title={t("continueWithGoogle", language)} loading={busy === "google"} onPress={() => doSignIn("google")} />
+              <Button variant="secondary" icon="google" title={t("continueWithGoogle", language)} loading={busy === "google"} onPress={() => doSignIn("google")} />
             </View>
           </View>
         )}

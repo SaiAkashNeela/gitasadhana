@@ -21,7 +21,7 @@ export function EmptyState({ icon, title, body, action }: { icon: IconName; titl
           justifyContent: "center",
         }}
       >
-        <Icon name={icon} size={26} color={colors.accent} />
+        <Icon name={icon} size={30} weight="duotone" color={colors.accent} />
       </View>
       <Text variant="heading" center>
         {title}

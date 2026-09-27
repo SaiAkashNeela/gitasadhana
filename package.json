@@ -32,7 +32,9 @@
     "expo-status-bar": "~57.0.1",
     "expo-symbols": "~57.0.3",
     "expo-system-ui": "~57.0.4",
+    "expo-updates": "~57.0.23",
     "expo-web-browser": "~57.0.3",
+    "phosphor-react-native": "^3.0.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
@@ -58,7 +60,13 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "build:data": "node scripts/build-gita-data.mjs",
-    "audit:scripts": "node scripts/audit-scripts.mjs"
+    "audit:scripts": "node scripts/audit-scripts.mjs",
+    "update:preview": "eas update --channel preview --environment preview --message",
+    "update:production": "eas update --channel production --environment production --message",
+    "build:ios": "eas build --platform ios --profile production",
+    "build:android": "eas build --platform android --profile production",
+    "api:dev": "npm --prefix api run dev",
+    "api:deploy": "npm --prefix api run deploy"
   },
   "private": true
 }

@@ -12,12 +12,12 @@ import { Icon, type IconName } from "./icon";
 import { MiniPlayer } from "./mini-player";
 import { Text } from "./text";
 
-const TABS: Record<string, { label: string; icon: IconName; active: IconName }> = {
-  home: { label: "home", icon: "home", active: "homeFill" },
-  chapters: { label: "chapters", icon: "book", active: "bookFill" },
-  wisdom: { label: "wisdom", icon: "sparkles", active: "sparkles" },
-  bookmarks: { label: "saved", icon: "bookmark", active: "bookmarkFill" },
-  profile: { label: "profile", icon: "person", active: "personFill" },
+const TABS: Record<string, { label: string; icon: IconName }> = {
+  home: { label: "home", icon: "home" },
+  chapters: { label: "chapters", icon: "book" },
+  wisdom: { label: "wisdom", icon: "sparkles" },
+  bookmarks: { label: "saved", icon: "bookmark" },
+  profile: { label: "profile", icon: "person" },
 };
 
 /** Docked tab bar with the now-playing strip resting above it. */
@@ -65,7 +65,7 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
               }}
               style={{ flex: 1, height: layout.tabBarHeight, alignItems: "center", justifyContent: "center", gap: 3 }}
             >
-              <Icon name={focused ? meta.active : meta.icon} size={22} color={focused ? colors.accent : colors.inkFaint} />
+              <Icon name={meta.icon} weight={focused ? "fill" : "regular"} size={24} color={focused ? colors.accent : colors.inkFaint} />
               <Text variant="caption" numberOfLines={1} style={{ fontSize: 11.5, color: focused ? colors.accent : colors.inkFaint, fontWeight: focused ? "600" : "400" }}>
                 {label}
               </Text>

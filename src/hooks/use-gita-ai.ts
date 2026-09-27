@@ -90,7 +90,7 @@ export function useGitaAI(uid: string | null) {
       const msg = String(e?.message ?? "").toLowerCase();
       if (msg.includes("rate")) setError("Rate limit reached. Please try again in a moment.");
       else if (msg.includes("network") || msg.includes("offline") || msg.includes("temporarily unavailable")) setError("offline");
-      else setError("Something went wrong. Please try again.");
+      else setError(e?.message || "Something went wrong. Please try again.");
       setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
     } finally {
       setSending(false);

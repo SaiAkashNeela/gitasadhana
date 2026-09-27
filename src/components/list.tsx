@@ -54,7 +54,7 @@ export function Row({
   const { colors } = useTheme();
   const content = (
     <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.md, minHeight: 52, paddingHorizontal: spacing.lg, paddingVertical: spacing.md }}>
-      {icon && <Icon name={icon} size={20} color={destructive ? colors.danger : colors.accent} />}
+      {icon && <Icon name={icon} size={22} weight="duotone" color={destructive ? colors.danger : colors.accent} />}
       <View style={{ flex: 1, gap: 2 }}>
         <Text variant="callout" tone={destructive ? "danger" : "ink"}>
           {title}

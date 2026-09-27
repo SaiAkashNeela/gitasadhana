@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gita-sadhana-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "gita-sadhana",
+      // Created with `wrangler d1 create gita-sadhana --location apac`.
+      "database_id": "75caab03-0985-42ee-8ed8-4859bc96e947",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Public configuration. Secrets (JWT_SECRET, GEMINI_API_KEY, EMAIL_API_KEY) are set with
+  // `wrangler secret put` in production and in .dev.vars locally.
+  "vars": {
+    "GOOGLE_CLIENT_IDS": "822836118890-c0phehllvd4s2409adtgo13f1ipg997k.apps.googleusercontent.com,822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com,822836118890-4sq4ob2r4cjuab36fgoh9n1pgduit6pj.apps.googleusercontent.com,822836118890-sufsueg8u9be6t9kc0cf60crl5eiaies.apps.googleusercontent.com",
+    "APPLE_BUNDLE_ID": "com.gitasadhana.ios",
+    "EMAIL_FROM": "hello@mails.gitasadhana.com",
+    "EMAIL_REPLY_TO": "hello@gitasadhana.com",
+    "ADMIN_EMAIL": "hello@gitasadhana.com",
+    "APP_URL": "https://gitasadhana.com",
+    "GEMINI_MODEL_ID": "gemini-2.5-flash",
+    "AI_DAILY_LIMIT": "30"
+  }
+}
