@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <base href="/">
+  <!-- seo -->
+  <title>Verse | Gita Sadhana</title>
+  <meta name="description" content="Read, listen to and reflect on the Bhagavad Gita in 12 languages with Gita Sadhana.">
+  <meta name="robots" content="noindex, follow">
+  <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f121b" media="(prefers-color-scheme: dark)">
+  <meta name="application-name" content="Gita Sadhana">
+  <meta name="apple-mobile-web-app-title" content="Gita Sadhana">
+  <meta name="author" content="Sai Akash Neela">
+  <meta name="creator" content="Sai Akash Neela">
+  <link rel="author" href="https://saiakashneela.com">
+  <link rel="me" href="https://github.com/SaiAkashNeela">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Gita Sadhana">
+  <meta property="og:title" content="Verse | Gita Sadhana">
+  <meta property="og:description" content="Read, listen to and reflect on the Bhagavad Gita in 12 languages with Gita Sadhana.">
+  <meta property="og:url" content="https://gitasadhana.com/verse.html">
+  <meta property="og:image" content="https://gitasadhana.com/assets/og/en/home.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Verse | Gita Sadhana">
+  <meta property="og:locale" content="en_IN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Verse | Gita Sadhana">
+  <meta name="twitter:description" content="Read, listen to and reflect on the Bhagavad Gita in 12 languages with Gita Sadhana.">
+  <meta name="twitter:image" content="https://gitasadhana.com/assets/og/en/home.jpg">
+  <meta name="twitter:image:alt" content="Verse | Gita Sadhana">
+  <!-- /seo -->
+  <link rel="icon" type="image/png" href="assets/icons/favicon.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preload" href="assets/fonts/Marcellus_400Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/EBGaramond_400Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="vendor/phosphor/regular/style.css">
+  <link rel="stylesheet" href="vendor/phosphor/fill/style.css">
+  <link rel="stylesheet" href="vendor/phosphor/duotone/style.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    // Apply the saved theme before first paint to avoid a flash.
+    try {
+      var p = JSON.parse(localStorage.getItem("gita_theme") || '"system"');
+      var dark = p === "dark" || (p === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    } catch (e) {}
+  </script>
+  <script type="module" src="js/pages/verse.js"></script>
+</head>
+<body>
+  <main id="main" tabindex="-1">
+    <div class="page" id="page">
+      <!-- content -->
+      <noscript><p>Gita Sadhana needs JavaScript to show the Bhagavad Gita. Please enable it and reload.</p></noscript>
+      <!-- /content -->
+    </div>
+    <!-- after -->
+    <footer class="site-foot">
+      <span>Gita Sadhana</span>
+      <a href="chapters/">Chapters</a>
+      <a href="wisdom/">Wisdom</a>
+      <a href="ai/">Gita AI</a>
+      <a href="contact/">Contact Us</a>
+      <a href="correction.html">Verse / Language Correction</a>
+      <a href="privacy/">Privacy Policy</a>
+      <a href="terms/">Terms of Service</a>
+      <span class="credit">Made by <a href="https://saiakashneela.com" rel="author">Sai Akash Neela</a> · <a href="https://github.com/SaiAkashNeela" rel="noopener">GitHub</a></span>
+      
+    </footer>
+    <!-- /after -->
+  </main>
+</body>
+</html>

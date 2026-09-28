@@ -43,6 +43,7 @@ Docs: https://docs.expo.dev/eas/index.md
 ## This project
 
 - `capacitor-app/` is the retired Capacitor app plus its old backend. Metro, TypeScript and ESLint ignore it; read from it, don't edit it.
+- `website/` is the plain HTML/CSS/JS website (no framework, no bundler); Metro, TypeScript and ESLint ignore it. Its content pages are pre-rendered by `bun run build:website`; see `website/README.md`. Web-only strings go in `website/i18n-source/web-strings.json` in all 12 languages.
 - `api/` is the Cloudflare Worker (Hono + D1) the app talks to; it has its own package.json, tsconfig and tests (`bun --cwd api run test`).
 - Every visible string goes through `t()`/`tf()` from `@/i18n` and must exist in all 12 languages (`src/i18n/app-strings.ts`). Never ship English-only UI text.
 - Icons: `src/components/icon.tsx` maps names to Phosphor icons imported one file at a time (`phosphor-react-native/src/icons/<Name>`); never import from the package root (bundles every icon).

@@ -1,0 +1,68 @@
+# Gita Sadhana
+
+> Gita Sadhana (https://gitasadhana.com) is a free Bhagavad Gita study companion made by Sai Akash Neela (https://saiakashneela.com, https://github.com/SaiAkashNeela). It has all 18 chapters and 701 verses of the Bhagavad Gita in Sanskrit with transliteration, a translation, a reflection and the essence of every verse in 12 languages (English, Hindi, Sanskrit, Telugu, Tamil, Kannada, Malayalam, Bengali, Gujarati, Marathi, Punjabi, Nepali), a recitation of every verse, themes, daily wisdom and Gita AI.
+
+Notes for language models:
+
+- Each verse has its own page: https://gitasadhana.com/chapter/{chapter}/verse/{verse}/ (for example https://gitasadhana.com/chapter/2/verse/47/). Other languages add a prefix: https://gitasadhana.com/{language}/chapter/{chapter}/verse/{verse}/ with language one of hi, sa, te, ta, kn, ml, bn, gu, mr, pa, ne.
+- Verses are numbered chapter.verse (2.47 is Chapter 2, verse 47). This edition has 701 verses.
+- Every chapter is also available as Markdown (links below), and https://gitasadhana.com/llms-full.txt has the whole Gita in one file.
+- Gita Sadhana is made by Sai Akash Neela: https://saiakashneela.com · https://github.com/SaiAkashNeela
+
+## Chapters
+
+- [Chapter 1: Arjuna Visada Yoga](https://gitasadhana.com/chapter/1/): Arjuna's Dilemma. 47 verses. Markdown: https://gitasadhana.com/chapter/1.md
+- [Chapter 2: Sankhya Yoga](https://gitasadhana.com/chapter/2/): Transcendental Knowledge. 72 verses. Markdown: https://gitasadhana.com/chapter/2.md
+- [Chapter 3: Karma Yoga](https://gitasadhana.com/chapter/3/): Path of Action. 43 verses. Markdown: https://gitasadhana.com/chapter/3.md
+- [Chapter 4: Jnana Karma Sannyasa Yoga](https://gitasadhana.com/chapter/4/): Knowledge and Sacrifice of Action. 42 verses. Markdown: https://gitasadhana.com/chapter/4.md
+- [Chapter 5: Karma Sannyasa Yoga](https://gitasadhana.com/chapter/5/): Renunciation of Action. 29 verses. Markdown: https://gitasadhana.com/chapter/5.md
+- [Chapter 6: Atmasanyama Yoga](https://gitasadhana.com/chapter/6/): Path of Meditation. 47 verses. Markdown: https://gitasadhana.com/chapter/6.md
+- [Chapter 7: Jnana Vijnana Yoga](https://gitasadhana.com/chapter/7/): Bhagavad Jnana. 30 verses. Markdown: https://gitasadhana.com/chapter/7.md
+- [Chapter 8: Aksara Brahma Yoga](https://gitasadhana.com/chapter/8/): Eternal God Access. 28 verses. Markdown: https://gitasadhana.com/chapter/8.md
+- [Chapter 9: Raja Vidya Raja Guhya Yoga](https://gitasadhana.com/chapter/9/): Most Confidential Knowledge. 34 verses. Markdown: https://gitasadhana.com/chapter/9.md
+- [Chapter 10: Vibhuti Yoga](https://gitasadhana.com/chapter/10/): Divine Splendors. 42 verses. Markdown: https://gitasadhana.com/chapter/10.md
+- [Chapter 11: Visvarupa Sandarsana Yoga](https://gitasadhana.com/chapter/11/): Universal Cosmic Form. 55 verses. Markdown: https://gitasadhana.com/chapter/11.md
+- [Chapter 12: Bhakti Yoga](https://gitasadhana.com/chapter/12/): Path of Devotion. 20 verses. Markdown: https://gitasadhana.com/chapter/12.md
+- [Chapter 13: Ksetra Ksetrajna Vibhaga Yoga](https://gitasadhana.com/chapter/13/): Field and Knower. 35 verses. Markdown: https://gitasadhana.com/chapter/13.md
+- [Chapter 14: Gunatraya Vibhaga Yoga](https://gitasadhana.com/chapter/14/): Three Modes of Nature. 27 verses. Markdown: https://gitasadhana.com/chapter/14.md
+- [Chapter 15: Purusottama Yoga](https://gitasadhana.com/chapter/15/): Supreme Divine Person. 20 verses. Markdown: https://gitasadhana.com/chapter/15.md
+- [Chapter 16: Daivasura Sampad Vibhaga Yoga](https://gitasadhana.com/chapter/16/): Divine and Demoniac Natures. 24 verses. Markdown: https://gitasadhana.com/chapter/16.md
+- [Chapter 17: Sraddhatraya Vibhaga Yoga](https://gitasadhana.com/chapter/17/): Three Divisions of Faith. 28 verses. Markdown: https://gitasadhana.com/chapter/17.md
+- [Chapter 18: Moksa Sannyasa Yoga](https://gitasadhana.com/chapter/18/): Liberation and Renunciation. 78 verses. Markdown: https://gitasadhana.com/chapter/18.md
+
+## Themes
+
+- [On Duty](https://gitasadhana.com/theme/duty/): 10 verses
+- [On Detachment](https://gitasadhana.com/theme/detachment/): 4 verses
+- [On Devotion](https://gitasadhana.com/theme/devotion/): 55 verses
+- [On Meditation](https://gitasadhana.com/theme/meditation/): 5 verses
+- [On The Soul](https://gitasadhana.com/theme/soul/): 165 verses
+- [On Liberation](https://gitasadhana.com/theme/liberation/): 5 verses
+
+## Languages
+
+- [English (English)](https://gitasadhana.com/)
+- [Hindi (हिन्दी)](https://gitasadhana.com/hi/)
+- [Sanskrit (संस्कृतम्)](https://gitasadhana.com/sa/)
+- [Telugu (తెలుగు)](https://gitasadhana.com/te/)
+- [Tamil (தமிழ்)](https://gitasadhana.com/ta/)
+- [Kannada (ಕನ್ನಡ)](https://gitasadhana.com/kn/)
+- [Malayalam (മലയാളം)](https://gitasadhana.com/ml/)
+- [Bengali (বাংলা)](https://gitasadhana.com/bn/)
+- [Gujarati (ગુજરાતી)](https://gitasadhana.com/gu/)
+- [Marathi (मराठी)](https://gitasadhana.com/mr/)
+- [Punjabi (ਪੰਜਾਬੀ)](https://gitasadhana.com/pa/)
+- [Nepali (नेपाली)](https://gitasadhana.com/ne/)
+
+## App
+
+- [Home](https://gitasadhana.com/): verse of the day, reading streak and all chapters
+- [Wisdom](https://gitasadhana.com/wisdom/): 101 Gita quotes and six themes
+- [Gita AI](https://gitasadhana.com/ai/): A calm, devotional guide to the wisdom of the Bhagavad Gita.
+- [Contact](https://gitasadhana.com/contact/): hello@gitasadhana.com
+
+## Optional
+
+- [Full text](https://gitasadhana.com/llms-full.txt): every verse with translation and commentary in English
+- [Sitemap](https://gitasadhana.com/sitemap.xml)
+- [Privacy](https://gitasadhana.com/privacy/) · [Terms](https://gitasadhana.com/terms/)

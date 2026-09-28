@@ -1,0 +1,23 @@
+# Written by scripts/build-website-seo.mjs (bun run build:website). The root *.html templates,
+# robots.txt and llms.txt are committed; the thousands of pre-rendered pages are rebuilt on deploy.
+/chapter/
+/chapters/
+/theme/
+/wisdom/
+/ai/
+/contact/
+/privacy/
+/terms/
+/hi/
+/sa/
+/te/
+/ta/
+/kn/
+/ml/
+/bn/
+/gu/
+/mr/
+/pa/
+/ne/
+/sitemap*.xml
+/llms-full.txt

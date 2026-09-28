@@ -50,6 +50,7 @@
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.2",
+    "playwright-core": "^1.63.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -61,6 +62,9 @@
     "typecheck": "tsc --noEmit",
     "build:data": "node scripts/build-gita-data.mjs",
     "audit:scripts": "node scripts/audit-scripts.mjs",
+    "build:website": "bun scripts/build-website-data.mjs && bun scripts/build-website-seo.mjs",
+    "build:website:og": "bun scripts/build-website-og.mjs",
+    "website": "bun run build:website && bunx http-server website -p 5500 -c-1",
     "update:preview": "bunx eas-cli update --channel preview --environment preview --message",
     "update:production": "bunx eas-cli update --channel production --environment production --message",
     "build:ios": "bunx eas-cli build --platform ios --profile production",

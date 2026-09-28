@@ -9,6 +9,7 @@ reading streaks, notes, bookmarks, cloud sync and Gita AI.
 | | |
 | --- | --- |
 | App | Expo SDK 57 · React Native 0.86 · Expo Router · React Compiler |
+| Website | Plain HTML, CSS and JavaScript at gitasadhana.com, pre-rendered in 12 languages for search — [`website/`](website/README.md) |
 | API | Cloudflare Worker (Hono) + D1 (SQLite) — [`api/`](api/README.md) |
 | AI | Gemini on Vertex AI through Cloudflare AI Gateway |
 | Package manager | **Bun** (`bun.lock`) |
@@ -51,6 +52,8 @@ Always add dependencies with `bunx expo install <package>` so versions match the
 | `bun run typecheck` · `bun run lint` | Checks (run both before committing) |
 | `bun run build:data` | Regenerate Gita content from `capacitor-app/` sources |
 | `bun run audit:scripts` | Find text written in the wrong script (e.g. Devanagari inside Bengali) |
+| `bun run website` | Build and serve the website on http://localhost:5500 |
+| `bun run build:website` · `bun run build:website:og` | Build the website's data and pre-rendered pages · redraw its link-preview cards |
 | `bun run api:dev` · `bun run api:deploy` | Run / deploy the Worker |
 | `bun run build:ios` · `bun run build:android` | Store builds with EAS |
 | `bun run update:preview -- "msg"` · `bun run update:production -- "msg"` | Over-the-air update |
@@ -175,6 +178,7 @@ src/data/        generated content
 assets/          artwork, icons, per-language translation files
 scripts/         content pipeline, audits, translation
 api/             Cloudflare Worker + D1
+website/         the website (plain HTML/CSS/JS, see website/README.md)
 capacitor-app/   retired Capacitor app (read-only reference)
 ```
 
@@ -182,3 +186,7 @@ capacitor-app/   retired Capacitor app (read-only reference)
 marks; light and dark. Titles in Marcellus, scripture in EB Garamond, Sanskrit in Noto Serif
 Devanagari. Icons are [Phosphor](https://phosphoricons.com), imported one file at a time
 (`phosphor-react-native/src/icons/<Name>`) so only the icons used are bundled.
+
+---
+
+Made by [Sai Akash Neela](https://saiakashneela.com) · [GitHub](https://github.com/SaiAkashNeela)

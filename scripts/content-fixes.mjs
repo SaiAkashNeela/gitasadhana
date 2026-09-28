@@ -60,8 +60,17 @@ export const chapterOverrides = {
 // Verses that intentionally quote Sanskrit in Devanagari (e.g. "(ॐ तत् सत्)").
 const KEEP_AS_IS = new Set(["pa:7.8", "pa:17.23"]);
 
+// English words left untranslated inside Indian-language text: "lang:where" → [from, to].
+const WORD_FIXES = {
+  "bn:4.9": [["truly", "যথার্থভাবে"]],
+  "ne:chapter-14": [["three", "तीन"]],
+};
+const fixWords = (text, key) => (WORD_FIXES[key] ?? []).reduce((out, [from, to]) => out.replace(new RegExp(`\\b${from}\\b`, "g"), to), text);
+
 export function fixVerseText(text, lang, verseId) {
-  if (!text || KEEP_AS_IS.has(`${lang}:${verseId}`) || foreignChars(text, lang).length === 0) return text;
+  if (!text) return text;
+  text = fixWords(text, `${lang}:${verseId}`);
+  if (KEEP_AS_IS.has(`${lang}:${verseId}`) || foreignChars(text, lang).length === 0) return text;
   return toScript(text, lang);
 }
 
@@ -70,7 +79,8 @@ export function fixChapter(chapter) {
   for (const field of ["title", "summary", "fullSummary"]) {
     const map = { ...chapter[field] };
     for (const [lang, value] of Object.entries(map)) {
-      if (foreignChars(value, lang).length) map[lang] = toScript(value, lang);
+      const fixed = fixWords(value, `${lang}:chapter-${chapter.number}`);
+      map[lang] = foreignChars(fixed, lang).length ? toScript(fixed, lang) : fixed;
     }
     Object.assign(map, chapterOverrides[chapter.number]?.[field]);
     out[field] = map;

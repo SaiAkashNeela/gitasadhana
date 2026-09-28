@@ -1,0 +1,12 @@
+/* TEAM */
+Made by: Sai Akash Neela
+Site: https://saiakashneela.com
+GitHub: https://github.com/SaiAkashNeela
+Contact: hello@gitasadhana.com
+
+/* SITE */
+Last update: 2026-09-28
+Languages: English, Hindi, Sanskrit, Telugu, Tamil, Kannada, Malayalam, Bengali, Gujarati, Marathi, Punjabi, Nepali
+Standards: HTML, CSS, JavaScript (no framework)
+Fonts: Marcellus, EB Garamond, Noto Serif Devanagari
+Icons: Phosphor

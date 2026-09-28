@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "Gita Sadhana: Bhagavad Gita",
+  "short_name": "Gita Sadhana",
+  "description": "Read, listen to and reflect on the Bhagavad Gita: all 18 chapters and 701 verses in 12 languages, with recitation, daily verse and Gita AI.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f1ea",
+  "theme_color": "#2f4a8a",
+  "categories": ["books", "education", "lifestyle"],
+  "icons": [
+    { "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Chapters", "url": "/chapters/", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Wisdom", "url": "/wisdom/", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Gita AI", "url": "/ai/", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

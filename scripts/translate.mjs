@@ -23,7 +23,7 @@ Rules:
 - Use the language's own native script only. Never mix in letters from another script.
 - Keep every placeholder like {n}, {time}, {id}, {text}, {rate}, {title}, {summary} exactly as is.
 - Keep line breaks (\\n) and quotation marks where the source has them.
-- Keep the names "Gita Sadhana", "Gita AI", "iOS", "Android" in Latin letters. Write "Bhagavad Gita" the way that language normally writes it.
+- Keep the names "Gita Sadhana", "Gita AI", "iOS", "Android", "Chrome", "Edge", "Firefox", "Safari" in Latin letters. Write "Bhagavad Gita" the way that language normally writes it.
 - Devotional terms (dharma, karma, Krishna, Arjuna, Om) use the language's customary spelling.
 - For UI labels keep them short, like a button or a heading.
 - Respond with JSON only: an object with exactly the same keys as the input.`;
