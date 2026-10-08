@@ -26,8 +26,7 @@
         "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "822836118890-sufsueg8u9be6t9kc0cf60crl5eiaies.apps.googleusercontent.com"
       },
       "android": {
-        "buildType": "app-bundle",
-        "credentialsSource": "local"
+        "buildType": "app-bundle"
       }
     }
   },
