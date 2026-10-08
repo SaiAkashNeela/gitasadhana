@@ -10,7 +10,7 @@
     "backgroundColor": "#F4F1EA",
     "ios": {
       "bundleIdentifier": "com.gitasadhana.ios",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "supportsTablet": true,
       "usesAppleSignIn": true,
       "infoPlist": {
@@ -26,7 +26,7 @@
     },
     "android": {
       "package": "com.gitasadhana.mobile",
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
         "backgroundColor": "#FEF2E0",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -99,6 +99,12 @@
         "projectId": "b967a45a-490f-4b53-9ba2-be66ac438cb7"
       }
     },
-    "owner": "isan333"
+    "owner": "isan333",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/b967a45a-490f-4b53-9ba2-be66ac438cb7"
+    }
   }
 }
