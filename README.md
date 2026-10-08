@@ -138,8 +138,9 @@ and returns its own session token (kept in the Keychain / Keystore; localStorage
 
 Before release, in Google Cloud Console (project `822836118890`, OAuth clients):
 
-- **Web client** — add every web origin under *Authorized JavaScript origins*, e.g.
-  `http://localhost:8081` and the production web URL.
+- **Web client** — add every web origin under *Authorized JavaScript origins*:
+  `https://gitasadhana.com`, plus local ones such as `http://localhost:5500` (website) and
+  `http://localhost:8081` (app on web).
 - **Android client** (`com.gitasadhana.mobile`) — create one for this package and list the SHA-1 of
   the EAS upload key (`bunx eas-cli credentials -p android`) and the Play App Signing SHA-1 from
   Play Console.
@@ -152,11 +153,16 @@ Apple: the App ID `com.gitasadhana.ios` already has the Sign in with Apple capab
 
 ### Store builds
 
+From `app/`, signed in to EAS (`bunx eas-cli login`):
+
 ```bash
-bunx eas-cli login
-bun run build:ios
-bun run build:android
+bun run build:ios                                  # then: bunx eas-cli submit -p ios --latest  (→ TestFlight)
+bun run build:android                              # download the .aab from expo.dev and upload it in Play Console
 ```
+
+Bump `ios.buildNumber` and `android.versionCode` in `app.json` before every store build. The free
+EAS plan includes 15 iOS and 15 Android builds a month (cancelled builds count too); prefer
+over-the-air updates for anything that isn't native.
 
 Bundle identifiers: `com.gitasadhana.ios` (the existing App Store app) and `com.gitasadhana.mobile`
 (a new Google Play app in the business developer account; the old personal-account app
@@ -182,6 +188,15 @@ every store build with the same `version` in `app.json`. Bump `version` (and reb
 native code changes, so old builds never receive JavaScript they can't run. The `EXPO_PUBLIC_*`
 values live in `eas.json` for builds and as EAS environment variables for updates; keep both in
 sync.
+
+### Website and API
+
+- **Website** — Cloudflare Pages project `gita-sadhana` (gitasadhana.com) builds every push to
+  `main` with `bash website/scripts/build.sh` and publishes `website/`.
+- **API** — Worker `gita-sadhana-api`, deployed by hand: `cd api && bun run deploy`. Plain settings
+  are in `api/wrangler.jsonc`; secrets are set once with `bunx wrangler secret put <NAME>`:
+  `JWT_SECRET` (session tokens) and `EMAIL_API_KEY` (contact, correction and newsletter emails).
+  Gita AI's Vertex credentials live in the Cloudflare AI Gateway, not the Worker.
 
 ---
 
