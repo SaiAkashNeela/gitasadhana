@@ -176,13 +176,12 @@ Installed apps look for an update whenever they're opened, download it in the ba
 one-tap restart (`src/hooks/use-ota-updates.ts`). Changes to native code or native libraries still
 need a store build.
 
-One-time setup (Expo account):
-
-```bash
-bunx eas-cli login
-bunx eas-cli init              # links the project
-bunx eas-cli update:configure  # adds updates.url, runtimeVersion and build-profile channels
-```
+The project is linked to EAS (`@isan333/gita-sadhana`). Builds use the `production` /
+`preview` channel of their profile, and `runtimeVersion` follows the app version: an update reaches
+every store build with the same `version` in `app.json`. Bump `version` (and rebuild) whenever
+native code changes, so old builds never receive JavaScript they can't run. The `EXPO_PUBLIC_*`
+values live in `eas.json` for builds and as EAS environment variables for updates; keep both in
+sync.
 
 ---
 

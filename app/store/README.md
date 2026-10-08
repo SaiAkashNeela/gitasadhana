@@ -56,11 +56,9 @@ art shows warriors and chariots but no graphic violence. Review this before subm
 
 ## Before submitting
 
-- [ ] `api.gitasadhana.com` must point at the Worker: production builds call it (`eas.json`), and it
-      returns 404 today. Add a custom domain in Cloudflare → Workers → `gita-sadhana-api`, or change
-      `EXPO_PUBLIC_API_BASE_URL` in `eas.json` to the workers.dev address.
-- [ ] Link the project to EAS once (`bunx eas-cli init`, then `bunx eas-cli update:configure` for
-      over-the-air updates); `app.json` has no EAS project ID yet.
+- [ ] Optional: route `api.gitasadhana.com` to the Worker, then switch `EXPO_PUBLIC_API_BASE_URL`
+      (in `eas.json` and the EAS environment variables) from the workers.dev address.
 - [ ] Bump `ios.buildNumber` / `android.versionCode` in `app.json` for each store build.
-- [ ] Google sign-in on Android: add the Play App Signing SHA-1 to the Android OAuth client.
+- [ ] Google sign-in on Android: create an Android OAuth client for `com.gitasadhana.mobile` with the
+      EAS upload-key SHA-1 and the Play App Signing SHA-1.
 - [ ] Test a production build on a real iPhone, iPad and Android phone/tablet (`eas build --profile preview`).
