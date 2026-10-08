@@ -13,13 +13,22 @@ reading streaks, notes, bookmarks, cloud sync and Gita AI.
 | API | Cloudflare Worker (Hono) + D1 (SQLite) — [`api/`](api/README.md) |
 | AI | Gemini on Vertex AI through Cloudflare AI Gateway |
 | Package manager | **Bun** (`bun.lock`) |
-| Legacy | The old Capacitor app and its Node/Mongo backend are kept in `capacitor-app/` for reference |
+| Legacy | The old Capacitor app and its Node/Mongo backend are on the [`archive/capacitor-app`](../../tree/archive/capacitor-app) branch |
+
+```
+app/       Expo app (iOS, Android, web)
+website/   gitasadhana.com — see website/README.md
+api/       Cloudflare Worker + D1 — see api/README.md
+```
 
 ---
 
 ## Getting started
 
+App commands run inside `app/`:
+
 ```bash
+cd app
 bun install
 cp .env.example .env
 bun run web            # browser, http://localhost:8081
@@ -35,7 +44,7 @@ bunx expo start        # Expo Go — quick look only: Google/Apple sign-in and r
 
 Always add dependencies with `bunx expo install <package>` so versions match the SDK.
 
-### Environment (`.env`)
+### Environment (`app/.env`)
 
 | Variable | Purpose |
 | --- | --- |
@@ -46,17 +55,24 @@ Always add dependencies with `bunx expo install <package>` so versions match the
 
 ### Scripts
 
+In `app/`:
+
 | Command | |
 | --- | --- |
 | `bun run web` / `ios` / `android` | Run the app |
 | `bun run typecheck` · `bun run lint` | Checks (run both before committing) |
-| `bun run build:data` | Regenerate Gita content from `capacitor-app/` sources |
+| `bun run build:data` | Regenerate Gita content from `scripts/content/source/` |
 | `bun run audit:scripts` | Find text written in the wrong script (e.g. Devanagari inside Bengali) |
-| `bun run website` | Build and serve the website on http://localhost:5500 |
-| `bun run build:website` · `bun run build:website:og` | Build the website's data and pre-rendered pages · redraw its link-preview cards |
-| `bun run api:dev` · `bun run api:deploy` | Run / deploy the Worker |
 | `bun run build:ios` · `bun run build:android` | Store builds with EAS |
 | `bun run update:preview -- "msg"` · `bun run update:production -- "msg"` | Over-the-air update |
+
+At the repo root (run `bun install` there once):
+
+| Command | |
+| --- | --- |
+| `bun run website` | Build and serve the website on http://localhost:5500 |
+| `bun run build:website` · `bun run build:website:og` · `bun run build:website:images` | Build the website's data and pre-rendered pages · redraw its link-preview cards · resize its artwork |
+| `bun run api:dev` · `bun run api:deploy` | Run / deploy the Worker |
 
 ---
 
@@ -65,7 +81,9 @@ Always add dependencies with `bunx expo install <package>` so versions match the
 English, हिन्दी, संस्कृतम्, తెలుగు, தமிழ், ಕನ್ನಡ, മലയാളം, বাংলা, ગુજરાતી, मराठी, ਪੰਜਾਬੀ, नेपाली.
 Every screen, message, notification and legal page is available in each of them.
 
-**Scripture** comes from the original app (`capacitor-app/src/app/*.json`) and is generated into:
+All paths below are inside `app/`.
+
+**Scripture** comes from the original app (saved in `scripts/content/source/`) and is generated into:
 
 - `src/data/` — chapters, quotes and the Sanskrit / transliteration / word-meanings core (bundled)
 - `assets/gita/<lang>.gita` — one translation file per language, loaded only when that language is chosen
@@ -93,7 +111,7 @@ forwards `{ system, prompt }` to the model — any Worker with the `AI` binding 
 `bunx wrangler dev --remote --port 8799`.
 
 ```bash
-node scripts/translate.mjs strings new-strings.en.json new-strings.out.json
+cd app && node scripts/translate.mjs strings new-strings.en.json new-strings.out.json
 ```
 
 Have a native speaker read new translations before release.
@@ -166,6 +184,8 @@ bunx eas-cli update:configure  # adds updates.url, runtimeVersion and build-prof
 
 ## Project layout
 
+All inside `app/` except the last two.
+
 ```
 src/app/         routes only (Expo Router)
 src/screens/     screen bodies
@@ -176,10 +196,9 @@ src/i18n/        interface strings (see Languages)
 src/theme/       design tokens: colours, spacing, type, radius
 src/data/        generated content
 assets/          artwork, icons, per-language translation files
-scripts/         content pipeline, audits, translation
-api/             Cloudflare Worker + D1
-website/         the website (plain HTML/CSS/JS, see website/README.md)
-capacitor-app/   retired Capacitor app (read-only reference)
+scripts/         content pipeline and its source data, audits, translation
+../api/          Cloudflare Worker + D1
+../website/      the website (plain HTML/CSS/JS, see website/README.md)
 ```
 
 **Design.** Ink-and-stone palette with a single Krishna-blue accent and lamp-gold for devotional

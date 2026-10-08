@@ -14,6 +14,8 @@ Made by [Sai Akash Neela](https://saiakashneela.com) · [GitHub](https://github.
 
 ## Run it
 
+Run these from the repo root.
+
 ```bash
 bun run website          # builds data + pages, then serves website/ on http://localhost:5500
 ```
@@ -53,10 +55,10 @@ Before the first deploy:
 | Command | What it does |
 | --- | --- |
 | `bun run build:website` | Runs the two scripts below |
-| `scripts/build-website-data.mjs` | Copies Gita content from `src/data/` and `assets/gita/` into `data/`, and writes the interface strings for 12 languages (`data/i18n/`) from the app's dictionaries plus `i18n-source/web-strings.json` (web-only strings) |
+| `scripts/build-website-data.mjs` | Copies Gita content from `app/src/data/` and `app/assets/gita/` into `data/`, and writes the interface strings for 12 languages (`data/i18n/`) from the app's dictionaries plus `i18n-source/web-strings.json` (web-only strings) |
 | `scripts/build-website-seo.mjs` | Pre-renders every content page in every language and writes the sitemaps, `robots.txt`, `llms.txt`, `llms-full.txt`, chapter Markdown and `humans.txt` |
 | `bun run build:website:og` | Draws the 1200×630 link-preview cards in `assets/og/` with Chrome (committed; rerun only when chapter names or art change) |
-| `scripts/build-website-images.sh` | Makes web-sized artwork and icons from the app's assets (macOS `sips`) |
+| `bun run build:website:images` | Makes web-sized artwork and icons from the app's assets (macOS `sips`) |
 
 The root `*.html` files are the templates: the SEO script fills their `<!-- seo -->`,
 `<!-- content -->` and `<!-- after -->` blocks, so they can be rebuilt any number of times. The
@@ -122,4 +124,5 @@ js/pages/*.js        one module per page
 sw.js                service worker (offline pages, code and art)
 vendor/phosphor/     Phosphor icon font (regular, fill, duotone)
 assets/              fonts, art, icons, link-preview cards
+scripts/             build scripts (data, pre-rendered pages, link-preview cards, images)
 ```

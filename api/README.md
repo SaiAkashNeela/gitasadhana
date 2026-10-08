@@ -1,6 +1,6 @@
 # Gita Sadhana API (Cloudflare Worker + D1)
 
-Replaces the Node/Express + MongoDB backend in `capacitor-app/backend` with the same HTTP
+Replaces the Node/Express + MongoDB backend in `backend/` on the `archive/capacitor-app` branch with the same HTTP
 contract, so both the new Expo app and the old Capacitor builds work against it.
 
 - **Runtime:** Cloudflare Workers, [Hono](https://hono.dev)
