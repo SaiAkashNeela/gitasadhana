@@ -140,9 +140,9 @@ Before release, in Google Cloud Console (project `822836118890`, OAuth clients):
 
 - **Web client** — add every web origin under *Authorized JavaScript origins*, e.g.
   `http://localhost:8081` and the production web URL.
-- **Android client** (`com.gitasadhana.android`) — the SHA-1 of the signing key must be listed.
-  Upload the existing release keystore to EAS (`bunx eas-cli credentials`) so it stays the same, and
-  add the Play App Signing SHA-1 from Play Console.
+- **Android client** (`com.gitasadhana.app`) — create one for this package and list the SHA-1 of
+  the EAS upload key (`bunx eas-cli credentials -p android`) and the Play App Signing SHA-1 from
+  Play Console.
 
 Apple: the App ID `com.gitasadhana.ios` already has the Sign in with Apple capability.
 
@@ -158,7 +158,9 @@ bun run build:ios
 bun run build:android
 ```
 
-Bundle identifiers match the existing store listings: `com.gitasadhana.ios`, `com.gitasadhana.android`.
+Bundle identifiers: `com.gitasadhana.ios` (the existing App Store app) and `com.gitasadhana.app`
+(a new Google Play app in the business developer account; the old personal-account app
+`com.gitasadhana.android` is retired). EAS creates and keeps the signing keys.
 
 ### Over-the-air updates
 
