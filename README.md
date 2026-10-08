@@ -66,13 +66,15 @@ In `app/`:
 | `bun run build:ios` · `bun run build:android` | Store builds with EAS |
 | `bun run update:preview -- "msg"` · `bun run update:production -- "msg"` | Over-the-air update |
 
-At the repo root (run `bun install` there once):
+Website (from the repo root; no install needed):
 
 | Command | |
 | --- | --- |
-| `bun run website` | Build and serve the website on http://localhost:5500 |
-| `bun run build:website` · `bun run build:website:og` · `bun run build:website:images` | Build the website's data and pre-rendered pages · redraw its link-preview cards · resize its artwork |
-| `bun run api:dev` · `bun run api:deploy` | Run / deploy the Worker |
+| `bash website/scripts/build.sh` | Build the website's data and pre-rendered pages |
+| `bunx http-server website -p 5500 -c-1` | Serve it on http://localhost:5500 |
+| `bun website/scripts/build-website-og.mjs` · `bash website/scripts/build-website-images.sh` | Redraw its link-preview cards · resize its artwork |
+
+API (in `api/`): `bun run dev` · `bun run deploy` — see [`api/README.md`](api/README.md).
 
 ---
 

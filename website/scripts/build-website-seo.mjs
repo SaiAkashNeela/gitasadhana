@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Builds the crawlable side of the website. Run it after build-website-data.mjs
-// (`bun run build:website` runs both).
+// (`website/scripts/build.sh` runs both).
 //
 // Search engines and AI assistants mostly read the HTML a server sends and do not run the
 // page's JavaScript. So every content page is written out as real HTML, in every language,

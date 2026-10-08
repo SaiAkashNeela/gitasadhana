@@ -16,7 +16,7 @@ website/   plain HTML/CSS/JS site; its build scripts are in website/scripts/
 api/       Cloudflare Worker (Hono + D1), its own package.json
 ```
 
-The repo root only holds docs and a small `package.json` with the website and API scripts. App commands run inside `app/`. The retired Capacitor app lives on the `archive/capacitor-app` branch, not here.
+The repo root only holds docs: no package.json, no node_modules. App commands run inside `app/`, API commands inside `api/`, and the website's build scripts run with plain `bun` from the root. The retired Capacitor app lives on the `archive/capacitor-app` branch, not here.
 
 ## Commands
 
@@ -55,7 +55,7 @@ Docs: https://docs.expo.dev/eas/index.md
 ## This project
 
 - Paths below under `src/` and `scripts/` are relative to `app/`.
-- `website/` is the plain HTML/CSS/JS website (no framework, no bundler). Its content pages are pre-rendered by `bun run build:website` from the repo root, using the app's content and strings; see `website/README.md`. Web-only strings go in `website/i18n-source/web-strings.json` in all 12 languages.
+- `website/` is the plain HTML/CSS/JS website (no framework, no bundler). Its content pages are pre-rendered by `bash website/scripts/build.sh` (run from the repo root), using the app's content and strings; see `website/README.md`. Web-only strings go in `website/i18n-source/web-strings.json` in all 12 languages.
 - `api/` is the Cloudflare Worker (Hono + D1) the app talks to; it has its own package.json, tsconfig and tests (`bun --cwd api run test`).
 - Every visible string goes through `t()`/`tf()` from `@/i18n` and must exist in all 12 languages (`src/i18n/app-strings.ts`). Never ship English-only UI text.
 - Icons: `src/components/icon.tsx` maps names to Phosphor icons imported one file at a time (`phosphor-react-native/src/icons/<Name>`); never import from the package root (bundles every icon).

@@ -2,9 +2,10 @@
 // Draws the 1200×630 link-preview cards the website's Open Graph and Twitter tags point at:
 // website/assets/og/<language>/home.jpg and chapter-<n>.jpg for all 12 languages.
 // It renders each card as HTML in Chrome (so every Indian script is shaped properly) and
-// saves a screenshot. Needs Google Chrome installed; run `bun run build:website:og`, then
-// `bun run build:website` so the pages pick the cards up. The cards are committed, so this
-// only needs running again when chapter names or the art change.
+// saves a screenshot. Needs Google Chrome installed; run `bun website/scripts/build-website-og.mjs`
+// (Bun installs playwright-core on the fly), then `bash website/scripts/build.sh` so the pages
+// pick the cards up. The cards are committed, so this only needs running again when chapter
+// names or the art change.
 import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";

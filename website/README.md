@@ -14,13 +14,14 @@ Made by [Sai Akash Neela](https://saiakashneela.com) · [GitHub](https://github.
 
 ## Run it
 
-Run these from the repo root.
+From the repo root (nothing to install):
 
 ```bash
-bun run website          # builds data + pages, then serves website/ on http://localhost:5500
+bash website/scripts/build.sh              # build data + pre-rendered pages
+bunx http-server website -p 5500 -c-1      # serve on http://localhost:5500
 ```
 
-Or build once with `bun run build:website` and serve `website/` with any static server. Every page
+Any static server works. Every page
 sets `<base href="/">`, so the site must be served from the root of a host, not a subfolder.
 
 ## Deploy
@@ -29,7 +30,7 @@ Any static host works. On **Cloudflare Pages**:
 
 | Setting | Value |
 | --- | --- |
-| Build command | `bun install && bun run build:website` |
+| Build command | `bash website/scripts/build.sh` |
 | Output directory | `website` |
 
 `_headers` sets caching and security headers on Cloudflare Pages and Netlify. On other hosts, set
@@ -54,11 +55,11 @@ Before the first deploy:
 
 | Command | What it does |
 | --- | --- |
-| `bun run build:website` | Runs the two scripts below |
+| `bash scripts/build.sh` | Runs the two scripts below |
 | `scripts/build-website-data.mjs` | Copies Gita content from `app/src/data/` and `app/assets/gita/` into `data/`, and writes the interface strings for 12 languages (`data/i18n/`) from the app's dictionaries plus `i18n-source/web-strings.json` (web-only strings) |
 | `scripts/build-website-seo.mjs` | Pre-renders every content page in every language and writes the sitemaps, `robots.txt`, `llms.txt`, `llms-full.txt`, chapter Markdown and `humans.txt` |
-| `bun run build:website:og` | Draws the 1200×630 link-preview cards in `assets/og/` with Chrome (committed; rerun only when chapter names or art change) |
-| `bun run build:website:images` | Makes web-sized artwork and icons from the app's assets (macOS `sips`) |
+| `bun scripts/build-website-og.mjs` | Draws the 1200×630 link-preview cards in `assets/og/` with Chrome (committed; rerun only when chapter names or art change) |
+| `bash scripts/build-website-images.sh` | Makes web-sized artwork and icons from the app's assets (macOS `sips`) |
 
 The root `*.html` files are the templates: the SEO script fills their `<!-- seo -->`,
 `<!-- content -->` and `<!-- after -->` blocks, so they can be rebuilt any number of times. The
