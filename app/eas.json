@@ -10,10 +10,25 @@
     },
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://gita-sadhana-api.mrsan.workers.dev",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "822836118890-c0phehllvd4s2409adtgo13f1ipg997k.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "822836118890-sufsueg8u9be6t9kc0cf60crl5eiaies.apps.googleusercontent.com"
+      }
     },
     "production": {
-      "env": { "EXPO_PUBLIC_API_BASE_URL": "https://api.gitasadhana.com" }
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://gita-sadhana-api.mrsan.workers.dev",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "822836118890-c0phehllvd4s2409adtgo13f1ipg997k.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "822836118890-sufsueg8u9be6t9kc0cf60crl5eiaies.apps.googleusercontent.com"
+      },
+      "android": {
+        "buildType": "app-bundle",
+        "credentialsSource": "local"
+      }
     }
   },
   "submit": {

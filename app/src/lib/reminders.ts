@@ -1,5 +1,6 @@
 import * as Notifications from "expo-notifications";
 
+import { t } from "@/i18n";
 import { localizedReminders } from "@/i18n/reminders";
 
 import { getReminderConfig, hasCompletedOnboarding, lastReadVerse, saveReminderConfig } from "./reminders-config";
@@ -26,11 +27,11 @@ export async function hasNotificationPermission() {
   return status.granted;
 }
 
-async function ensurePermission() {
+async function ensurePermission(prompt: boolean) {
   if (!hasCompletedOnboarding()) return false;
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) return true;
-  if (!current.canAskAgain) return false;
+  if (!prompt || !current.canAskAgain) return false;
   const req = await Notifications.requestPermissionsAsync();
   storage.set("gita_notifications_permission_closed", req.granted ? "false" : "true");
   return req.granted;
@@ -44,22 +45,23 @@ export async function cancelDailyReminder() {
  * Daily reminder at the chosen time, "continue reading" 2h later and a streak nudge
  * 6h later — the same three reminders the Capacitor app scheduled.
  */
-export async function scheduleDailyReminder(time: string): Promise<boolean> {
+export async function scheduleDailyReminder(time: string, { prompt = true } = {}): Promise<boolean> {
   if (!hasCompletedOnboarding()) return false;
+  if (!(await ensurePermission(prompt))) return false;
   await cancelDailyReminder();
-  if (!(await ensurePermission())) return false;
 
   const [hour, minute] = time.split(":").map(Number);
   if (Number.isNaN(hour) || Number.isNaN(minute)) return false;
 
+  const lang = storage.getString("gita_language") || "en";
   if (process.env.EXPO_OS === "android") {
+    // The channel name shows in Android's notification settings, so it follows the app language.
     await Notifications.setNotificationChannelAsync(CHANNEL, {
-      name: "Daily reminders",
+      name: t("dailyReminder", lang),
       importance: Notifications.AndroidImportance.DEFAULT,
     });
   }
 
-  const lang = storage.getString("gita_language") || "en";
   const dict = localizedReminders[lang] ?? localizedReminders.en;
   const last = lastReadVerse();
 
@@ -94,8 +96,11 @@ export async function updateReminderSettings(enabled: boolean, time: string) {
   return { scheduled: ok, permissionDenied: !ok };
 }
 
-/** Re-apply after language changes so reminders speak the new language. */
+/**
+ * Re-apply without asking for permission: after a language change (new wording) and when the
+ * app goes to the background (so "continue reading" names the latest verse).
+ */
 export async function rescheduleIfEnabled() {
   const config = getReminderConfig();
-  if (config.enabled && hasCompletedOnboarding()) await scheduleDailyReminder(config.time).catch(() => {});
+  if (config.enabled && hasCompletedOnboarding()) await scheduleDailyReminder(config.time, { prompt: false }).catch(() => {});
 }

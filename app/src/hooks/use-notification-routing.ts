@@ -1,8 +1,14 @@
 import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
 import { useEffect } from "react";
+import { AppState } from "react-native";
 
-/** Tapping a reminder opens the screen it points at (daily → notifications, etc.). */
+import { rescheduleIfEnabled } from "@/lib/reminders";
+
+/**
+ * Tapping a reminder opens the screen it points at (daily → notifications, etc.), and leaving
+ * the app refreshes the reminders so "continue reading" points at the latest verse.
+ */
 export function useNotificationRouting() {
   useEffect(() => {
     const open = (n: Notifications.Notification) => {
@@ -12,6 +18,13 @@ export function useNotificationRouting() {
     const last = Notifications.getLastNotificationResponse();
     if (last) open(last.notification);
     const sub = Notifications.addNotificationResponseReceivedListener((r) => open(r.notification));
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "background") void rescheduleIfEnabled();
+    });
     return () => sub.remove();
   }, []);
 }

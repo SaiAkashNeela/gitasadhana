@@ -47,3 +47,6 @@ example
 
 # local tooling output
 .playwright-mcp/
+
+# EAS local signing credentials (passwords)
+credentials.json
