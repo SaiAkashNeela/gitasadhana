@@ -3,13 +3,13 @@
 // are fetched fresh whenever there is a connection; images and fonts come from the cache.
 // Saved recitations live in their own cache ("gita-audio-v1", see js/offline.js) and are never
 // evicted here.
-const VERSION = "gita-site-v2";
+const VERSION = "gita-site-v3";
 const SHELL = [
   "./", "index.html", "chapters.html", "chapter.html", "verse.html", "search.html", "wisdom.html", "theme.html",
   "saved.html", "notes.html", "history.html", "journey.html", "offline.html", "ai.html", "settings.html",
   "contact.html", "correction.html", "privacy.html", "terms.html", "404.html",
   "css/styles.css", "manifest.webmanifest",
-  "js/config.js", "js/store.js", "js/i18n.js", "js/route.js", "js/titles.js", "js/gita.js", "js/api.js", "js/auth.js", "js/progress.js", "js/ui.js", "js/player.js", "js/offline.js",
+  "js/config.js", "js/store.js", "js/i18n.js", "js/route.js", "js/titles.js", "js/gita.js", "js/api.js", "js/auth.js", "js/progress.js", "js/ui.js", "js/player.js", "js/offline.js", "js/rich-text.js",
   "js/pages/_cards.js", "js/pages/_legal.js", "js/pages/home.js", "js/pages/chapters.js", "js/pages/chapter.js", "js/pages/verse.js",
   "js/pages/search.js", "js/pages/wisdom.js", "js/pages/theme.js", "js/pages/saved.js", "js/pages/notes.js", "js/pages/history.js",
   "js/pages/journey.js", "js/pages/offline.js", "js/pages/ai.js", "js/pages/settings.js", "js/pages/contact.js",

@@ -2,6 +2,7 @@ import { api } from "../api.js";
 import { currentUser } from "../auth.js";
 import { LANGUAGES, lang, languageName, t } from "../i18n.js";
 import { store } from "../store.js";
+import { richText } from "../rich-text.js";
 import { boot, esc, icon, setTitle } from "../ui.js";
 
 await boot("ai");
@@ -100,7 +101,7 @@ function paintLog() {
     }));
     return;
   }
-  log.innerHTML = messages.map((m) => `<div class="bubble ${m.role}">${esc(m.text)}</div>`).join("") +
+  log.innerHTML = messages.map((m) => `<div class="bubble ${m.role}">${m.role === "model" ? richText(m.text) : esc(m.text)}</div>`).join("") +
     (sending ? `<div class="bubble model" aria-label="${esc(t("sending"))}"><span class="typing"><span></span><span></span><span></span></span></div>` : "") +
     (limitReached ? `<div class="panel stack-sm" style="text-align:center;background:var(--flame-soft)"><b class="heading">${esc(t("gitaAiLimitTitle"))}</b><p class="soft">${esc(t("gitaAiLimitBody"))}</p></div>` : "") +
     (error ? `<div class="panel stack-sm" style="text-align:center"><b>${esc(error === "offline" ? t("gitaAiOfflineTitle") : t(error))}</b>${error === "offline" ? `<p class="soft">${esc(t("gitaAiOfflineBody"))}</p>` : ""}</div>` : "");

@@ -60,5 +60,7 @@ Docs: https://docs.expo.dev/eas/index.md
 - Every visible string goes through `t()`/`tf()` from `@/i18n` and must exist in all 12 languages (`src/i18n/app-strings.ts`). Never ship English-only UI text.
 - Icons: `src/components/icon.tsx` maps names to Phosphor icons imported one file at a time (`phosphor-react-native/src/icons/<Name>`); never import from the package root (bundles every icon).
 - Gita content is generated from `scripts/content/source/` (never edit those files): edit `scripts/build-gita-data.mjs` / `scripts/content-fixes.mjs`, then `bun run build:data` and `bun run audit:scripts`.
+- Tablets are supported (iPad rotates; phones are portrait). Wrap content in `Column` (capped at `layout.maxWidth`), use `useColumnInset()` for horizontal scrollers, and don't size art with `aspectRatio` + `maxHeight` (it shrinks the width on wide screens; compute a height instead).
+- Store listing, screenshots and privacy answers live in `store/` (see `store/README.md`).
 - All colors, spacing and type come from `src/theme`; screens use `Text`, `Group`/`Row`, `Button` from `src/components`.
 - React Compiler is on: don't read mutable module state during render — expose it through `useSyncExternalStore` snapshots (see `src/lib/gita.ts`, `src/lib/storage.ts`).

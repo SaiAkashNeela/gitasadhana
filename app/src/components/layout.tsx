@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ScrollView, View, type ScrollViewProps, type StyleProp, type ViewStyle } from "react-native";
+import { ScrollView, useWindowDimensions, View, type ScrollViewProps, type StyleProp, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "@/providers/theme";
@@ -63,6 +63,12 @@ export function Column({ children, style, gap = spacing.lg }: { children: ReactN
       {children}
     </View>
   );
+}
+
+/** Side padding that lines full-width rows (horizontal scrollers) up with `Column` on any screen width. */
+export function useColumnInset() {
+  const { width } = useWindowDimensions();
+  return Math.max(gutter, (width - layout.maxWidth) / 2);
 }
 
 export function SectionHeader({ title, action }: { title: string; action?: ReactNode }) {

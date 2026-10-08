@@ -8,7 +8,7 @@ reading streaks, notes, bookmarks, cloud sync and Gita AI.
 
 | | |
 | --- | --- |
-| App | Expo SDK 57 · React Native 0.86 · Expo Router · React Compiler |
+| App | Expo SDK 57 · React Native 0.86 · Expo Router · React Compiler · iPhone, iPad, Android phones and tablets |
 | Website | Plain HTML, CSS and JavaScript at gitasadhana.com, pre-rendered in 12 languages for search — [`website/`](website/README.md) |
 | API | Cloudflare Worker (Hono) + D1 (SQLite) — [`api/`](api/README.md) |
 | AI | Gemini on Vertex AI through Cloudflare AI Gateway |
@@ -197,6 +197,7 @@ src/lib/         content, API, auth, storage, downloads, reminders, sharing
 src/i18n/        interface strings (see Languages)
 src/theme/       design tokens: colours, spacing, type, radius
 src/data/        generated content
+store/           App Store / Google Play listing, screenshots and privacy answers (see store/README.md)
 assets/          artwork, icons, per-language translation files
 scripts/         content pipeline and its source data, audits, translation
 ../api/          Cloudflare Worker + D1

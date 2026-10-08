@@ -1,11 +1,11 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useMemo } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView, useWindowDimensions, View } from "react-native";
 
 import { IconButton } from "@/components/button";
 import { Icon } from "@/components/icon";
-import { Column, PageTitle, Screen, SectionHeader } from "@/components/layout";
+import { Column, PageTitle, Screen, SectionHeader, useColumnInset } from "@/components/layout";
 import { ProgressRing } from "@/components/progress";
 import { SceneBanner } from "@/components/scene-banner";
 import { Text } from "@/components/text";
@@ -14,10 +14,14 @@ import { pickDaily } from "@/lib/daily";
 import { allVerses, chapterArt, chapters, getChapter, quotesFor, useTranslations } from "@/lib/gita";
 import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
-import { fonts, gutter, radius, spacing } from "@/theme";
+import { fonts, gutter, layout, radius, spacing } from "@/theme";
 
 export function HomeScreen() {
   const { colors } = useTheme();
+  const inset = useColumnInset();
+  // 4:5 at column width, but never taller than 60% of the screen (landscape tablets).
+  const { width, height } = useWindowDimensions();
+  const bannerHeight = Math.min((Math.min(width - gutter * 2, layout.maxWidth) * 5) / 4, Math.max(360, height * 0.6));
   const { profile, language, notifications, completedVerses, history } = useProgress();
   const tr = useTranslations(language);
 
@@ -59,7 +63,7 @@ export function HomeScreen() {
           onPress={() => router.push(`/verse/${verseId}`)}
           style={({ pressed }) => ({ opacity: pressed ? 0.94 : 1 })}
         >
-          <SceneBanner style={{ aspectRatio: 4 / 5 }}>
+          <SceneBanner style={{ height: bannerHeight }}>
             <Text variant="overline" tone="light" style={{ opacity: 0.85 }}>
               {t("verseOfTheDay", language)}
             </Text>
@@ -116,7 +120,7 @@ export function HomeScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: gutter, gap: spacing.lg }}
+          contentContainerStyle={{ paddingHorizontal: inset, gap: spacing.lg }}
         >
           {chapters.map((c) => (
             <Pressable

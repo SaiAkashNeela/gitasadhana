@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { ScrollView, View } from "react-native";
 
 import { IconButton } from "@/components/button";
-import { Column, PageTitle, Screen, SectionHeader } from "@/components/layout";
+import { Column, PageTitle, Screen, SectionHeader, useColumnInset } from "@/components/layout";
 import { Chip } from "@/components/misc";
 import { SceneBanner } from "@/components/scene-banner";
 import { Text } from "@/components/text";
@@ -15,12 +15,13 @@ import { shareText } from "@/lib/share";
 import { wisdomThemes } from "@/lib/themes";
 import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
-import { fonts, gutter, radius, spacing } from "@/theme";
+import { fonts, radius, spacing } from "@/theme";
 
 import { TextLink } from "./home";
 
 export function WisdomScreen() {
   const { colors } = useTheme();
+  const inset = useColumnInset();
   const { language, isFavorite, toggleFavorite } = useProgress();
   const quotes = quotesFor(language);
   const daily = useMemo(() => pickDaily("wisdom", quotes), [quotes]);
@@ -50,7 +51,7 @@ export function WisdomScreen() {
             action={<TextLink label={t("viewBtn", language)} onPress={() => router.push("/wisdom/themes")} />}
           />
         </Column>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: gutter, gap: spacing.sm }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: inset, gap: spacing.sm }}>
           {wisdomThemes.map((th) => (
             <Chip key={th.id} label={t(th.id, language)} onPress={() => router.push(`/wisdom/theme/${th.id}`)} />
           ))}

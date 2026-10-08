@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { ActivityIndicator, Pressable, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { IconButton } from "@/components/button";
@@ -21,6 +21,8 @@ import { fonts, gutter, radius, spacing } from "@/theme";
 export function PlayerScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  // Artwork grows on tall screens (tablets) instead of staying phone-sized.
+  const { height } = useWindowDimensions();
   const audio = useAudio();
   const { language, isFavorite, toggleFavorite } = useProgress();
   const tr = useTranslations(audio.requestedLanguage || language);
@@ -57,7 +59,7 @@ export function PlayerScreen() {
         <View style={{ flex: 1, paddingHorizontal: gutter, paddingBottom: insets.bottom + spacing.xl, justifyContent: "space-evenly", width: "100%", maxWidth: 520, alignSelf: "center" }}>
           <Image
             source={chapterArt[verse.chapter]}
-            style={{ width: "100%", aspectRatio: 1, maxHeight: 360, alignSelf: "center", borderRadius: radius.xl }}
+            style={{ width: "100%", aspectRatio: 1, maxHeight: Math.min(480, Math.max(360, height * 0.38)), alignSelf: "center", borderRadius: radius.xl }}
             contentFit="cover"
             accessibilityLabel={pick(getChapter(verse.chapter)?.title, language)}
           />

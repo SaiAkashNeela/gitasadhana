@@ -36,42 +36,43 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
         </View>
       )}
       <View
-        accessibilityRole="tablist"
         style={{
-          flexDirection: "row",
           backgroundColor: colors.surface,
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: colors.hairline,
           paddingBottom: insets.bottom,
         }}
       >
-        {state.routes.map((route, index) => {
-          const meta = TABS[route.name];
-          if (!meta) return null;
-          const focused = state.index === index;
-          const label = t(meta.label, language);
-          return (
-            <Pressable
-              key={route.key}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: focused }}
-              accessibilityLabel={label}
-              onPress={() => {
-                const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-                if (!focused && !event.defaultPrevented) {
-                  tap();
-                  navigation.navigate(route.name, route.params);
-                }
-              }}
-              style={{ flex: 1, height: layout.tabBarHeight, alignItems: "center", justifyContent: "center", gap: 3 }}
-            >
-              <Icon name={meta.icon} weight={focused ? "fill" : "regular"} size={24} color={focused ? colors.accent : colors.inkFaint} />
-              <Text variant="caption" numberOfLines={1} style={{ fontSize: 11.5, color: focused ? colors.accent : colors.inkFaint, fontWeight: focused ? "600" : "400" }}>
-                {label}
-              </Text>
-            </Pressable>
-          );
-        })}
+        {/* Tabs stay grouped at reading width on tablets instead of spreading edge to edge. */}
+        <View accessibilityRole="tablist" style={{ flexDirection: "row", width: "100%", maxWidth: layout.maxWidth, alignSelf: "center" }}>
+          {state.routes.map((route, index) => {
+            const meta = TABS[route.name];
+            if (!meta) return null;
+            const focused = state.index === index;
+            const label = t(meta.label, language);
+            return (
+              <Pressable
+                key={route.key}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: focused }}
+                accessibilityLabel={label}
+                onPress={() => {
+                  const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
+                  if (!focused && !event.defaultPrevented) {
+                    tap();
+                    navigation.navigate(route.name, route.params);
+                  }
+                }}
+                style={{ flex: 1, height: layout.tabBarHeight, alignItems: "center", justifyContent: "center", gap: 3 }}
+              >
+                <Icon name={meta.icon} weight={focused ? "fill" : "regular"} size={24} color={focused ? colors.accent : colors.inkFaint} />
+                <Text variant="caption" numberOfLines={1} style={{ fontSize: 11.5, color: focused ? colors.accent : colors.inkFaint, fontWeight: focused ? "600" : "400" }}>
+                  {label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
     </View>
   );

@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 
 import { Button, IconButton } from "@/components/button";
 import { Column, Screen } from "@/components/layout";
@@ -25,6 +25,8 @@ export function ChapterScreen() {
   const n = Number(id);
   const chapter = getChapter(n);
   const { colors } = useTheme();
+  // Square on phones; full-width and at most 520pt tall on tablets.
+  const { width } = useWindowDimensions();
   const { language, completedVerses, downloading, downloadChapter, deleteChapterDownload, isChapterDownloaded } = useProgress();
 
   if (!chapter) return null;
@@ -58,7 +60,7 @@ export function ChapterScreen() {
         }}
       />
       <Screen contentInsetAdjustmentBehavior="never" bottom="player" contentStyle={{ paddingTop: 0 }}>
-        <View style={{ aspectRatio: 1, maxHeight: 520, width: "100%" }}>
+        <View style={{ height: Math.min(width, 520), width: "100%" }}>
           <Image source={chapterArt[n]} style={{ flex: 1 }} contentFit="cover" accessibilityLabel={title} />
           <LinearGradient
             colors={["rgba(10,12,20,0.55)", "transparent"]}

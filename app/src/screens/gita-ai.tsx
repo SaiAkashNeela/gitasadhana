@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { Stack } from "expo-router";
 import { useRef, useState } from "react";
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, KeyboardAvoidingView, Pressable, StyleSheet, Text as RNText, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHeaderHeight } from "expo-router/react-navigation";
 
@@ -13,6 +13,7 @@ import { Text } from "@/components/text";
 import { useGitaAI, type ChatMessage } from "@/hooks/use-gita-ai";
 import { LANGUAGES, languageName, t } from "@/i18n";
 import { art } from "@/lib/gita";
+import { parseRichText } from "@/lib/rich-text";
 import { useProgress } from "@/providers/progress";
 import { useTheme } from "@/providers/theme";
 import { fonts, gutter, layout, radius, spacing, type } from "@/theme";
@@ -244,9 +245,29 @@ function ModelBubble({ text }: { text: string }) {
     <View style={{ flexDirection: "row", alignItems: "flex-end", gap: spacing.sm, maxWidth: "90%" }}>
       <Avatar />
       <View style={{ flexShrink: 1, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: radius.lg, borderBottomLeftRadius: 6, backgroundColor: colors.surface }}>
-        <Text selectable style={{ fontFamily: fonts.serif, fontSize: 16, lineHeight: 25, color: colors.ink }}>
-          {text}
-        </Text>
+        <View style={{ gap: spacing.sm }}>
+          {parseRichText(text).map((block, i) => (
+            <View key={i} style={{ flexDirection: "row", gap: spacing.sm }}>
+              {block.kind === "bullet" ? <RNText style={{ fontFamily: fonts.serif, fontSize: 16, lineHeight: 25, color: colors.flame }}>•</RNText> : null}
+              <RNText
+                selectable
+                style={{
+                  flexShrink: 1,
+                  fontFamily: block.kind === "heading" ? fonts.serifMedium : block.kind === "quote" ? fonts.serifItalic : fonts.serif,
+                  fontSize: block.kind === "heading" ? 17.5 : 16,
+                  lineHeight: 25,
+                  color: block.kind === "quote" ? colors.inkSoft : colors.ink,
+                }}
+              >
+                {block.spans.map((span, j) => (
+                  <RNText key={j} style={span.bold ? { fontFamily: fonts.serifMedium } : undefined}>
+                    {span.text}
+                  </RNText>
+                ))}
+              </RNText>
+            </View>
+          ))}
+        </View>
       </View>
     </View>
   );
