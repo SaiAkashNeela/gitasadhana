@@ -2,7 +2,7 @@
   "expo": {
     "name": "Gita Sadhana",
     "slug": "gita-sadhana",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "gitasadhana",
@@ -10,7 +10,7 @@
     "backgroundColor": "#F4F1EA",
     "ios": {
       "bundleIdentifier": "com.gitasadhana.ios",
-      "buildNumber": "5",
+      "buildNumber": "6",
       "supportsTablet": true,
       "usesAppleSignIn": true,
       "infoPlist": {
@@ -26,7 +26,7 @@
     },
     "android": {
       "package": "com.gitasadhana.mobile",
-      "versionCode": 5,
+      "versionCode": 6,
       "adaptiveIcon": {
         "backgroundColor": "#FEF2E0",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
