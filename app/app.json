@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#F4F1EA",
     "ios": {
-      "bundleIdentifier": "in.gitasadhana.app",
+      "bundleIdentifier": "app.gitasadhana.com",
       "buildNumber": "6",
       "supportsTablet": true,
       "usesAppleSignIn": true,
@@ -25,7 +25,7 @@
       "icon": "./assets/images/icon.png"
     },
     "android": {
-      "package": "in.gitasadhana.app",
+      "package": "app.gitasadhana.com",
       "versionCode": 6,
       "adaptiveIcon": {
         "backgroundColor": "#FEF2E0",

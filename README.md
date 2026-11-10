@@ -141,13 +141,13 @@ Before release, in Google Cloud Console (project `822836118890`, OAuth clients):
 - **Web client** — add every web origin under *Authorized JavaScript origins*:
   `https://gitasadhana.com`, plus local ones such as `http://localhost:5500` (website) and
   `http://localhost:8081` (app on web).
-- **Android client** (`in.gitasadhana.app`) — create one for this package and list the SHA-1 of
+- **Android client** (`app.gitasadhana.com`) — create one for this package and list the SHA-1 of
   the EAS upload key (`bunx eas-cli credentials -p android`) and the Play App Signing SHA-1 from
   Play Console.
 
-- **iOS client** (`822836118890-sufsueg8…`) — its bundle ID must be `in.gitasadhana.app`.
+- **iOS client** (`822836118890-sufsueg8…`) — its bundle ID must be `app.gitasadhana.com`.
 
-Apple: the App ID `in.gitasadhana.app` needs the Sign in with Apple capability (EAS enables it from
+Apple: the App ID `app.gitasadhana.com` needs the Sign in with Apple capability (EAS enables it from
 `usesAppleSignIn` when it creates the App ID). The API accepts Apple tokens for every bundle ID in
 `APPLE_BUNDLE_ID` (`api/wrangler.jsonc`), which also keeps the earlier `com.gitasadhana.ios`.
 
@@ -168,7 +168,7 @@ Bump `ios.buildNumber` and `android.versionCode` in `app.json` before every stor
 EAS plan includes 15 iOS and 15 Android builds a month (cancelled builds count too); prefer
 over-the-air updates for anything that isn't native.
 
-Bundle identifier: `in.gitasadhana.app` on both iOS and Android. EAS project `@isan333/gita-sadhana`
+Bundle identifier: `app.gitasadhana.com` on both iOS and Android. EAS project `@isan333/gita-sadhana`
 (personal Expo account `isan333`); iOS ships from Sai Akash Neela's personal Apple Developer account.
 EAS creates and keeps the signing keys. Earlier identifiers (`com.gitasadhana.ios`,
 `com.gitasadhana.mobile`, `com.gitasadhana.android`) are retired; `com.gitasadhana.app` belongs to

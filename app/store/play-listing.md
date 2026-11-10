@@ -6,7 +6,7 @@ Paste these into Play Console → Grow → Store presence → Main store listing
 
 (Another, unrelated Play app is also called "Gita Sadhana", so the Play title adds "Bhagavad Gita".)
 
-**Package:** `in.gitasadhana.app`
+**Package:** `app.gitasadhana.com`
 
 **Short description** (80):
 
