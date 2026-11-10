@@ -169,7 +169,8 @@ EAS plan includes 15 iOS and 15 Android builds a month (cancelled builds count t
 over-the-air updates for anything that isn't native.
 
 Bundle identifier: `app.gitasadhana.com` on both iOS and Android. EAS project `@isan333/gita-sadhana`
-(personal Expo account `isan333`); iOS ships from Sai Akash Neela's personal Apple Developer account.
+(personal Expo account `isan333`). iOS ships from Sai Akash Neela's personal Apple Developer account;
+Android ships from the company Google Play developer account.
 EAS creates and keeps the signing keys. Earlier identifiers (`com.gitasadhana.ios`,
 `com.gitasadhana.mobile`, `com.gitasadhana.android`) are retired; `com.gitasadhana.app` belongs to
 an unrelated publisher.
@@ -235,3 +236,7 @@ Devanagari. Icons are [Phosphor](https://phosphoricons.com), imported one file a
 
 Made by [Sai Akash Neela](https://saiakashneela.com) with [GeeksDesigns](https://geeksdesigns.com) ·
 Open source on [GitHub](https://github.com/SaiAkashNeela/gitasadhana)
+
+## License
+
+[MIT](LICENSE) © Sai Akash Neela
