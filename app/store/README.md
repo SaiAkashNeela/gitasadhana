@@ -17,8 +17,10 @@ Everything the App Store and Google Play ask for, ready to upload.
 
 ## Upload
 
-**App Store.** From `app/`: `bunx eas-cli metadata:push` uploads `store.config.json` (run
-`bunx eas-cli metadata:pull` first if the listing was edited in App Store Connect, and merge).
+**App Store.** From `app/`: `bunx eas-cli metadata:push` uploads `store.config.json` (found through
+`metadataPath` in `eas.json`; it authenticates with the App Store Connect API key stored on EAS). Run
+`bunx eas-cli metadata:pull` first if the listing was edited in App Store Connect, and merge. EAS
+Metadata can't set Apple's newer age-rating questions; answer those in App Store Connect.
 Drag the two screenshot folders into App Store Connect → the version → Previews and Screenshots
 (iPhone 6.9" Display and iPad 13" Display).
 

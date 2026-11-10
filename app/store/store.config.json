@@ -1,6 +1,7 @@
 {
   "configVersion": 0,
   "apple": {
+    "version": "1.1.1",
     "copyright": "2026 Sai Akash Neela",
     "categories": [
       "BOOKS",
@@ -9,22 +10,23 @@
     "info": {
       "en-US": {
         "title": "Gita Sadhana: Bhagavad Gita",
-        "subtitle": "Bhagavad Gita in 12 languages",
+        "subtitle": "Verses, audio & daily wisdom",
         "promoText": "Read, hear and reflect on all 701 verses of the Bhagavad Gita in 12 languages, with verse-by-verse audio, daily reminders and Gita AI.",
         "description": "Gita Sadhana is a calm, devotional companion for reading, hearing and living the Bhagavad Gita.\n\nAll 18 chapters and 701 verses, each with the Sanskrit verse, transliteration, word-by-word meanings, a translation, a reflection and its essence. Read in English, Hindi, Sanskrit, Telugu, Tamil, Kannada, Malayalam, Bengali, Gujarati, Marathi, Punjabi or Nepali, and switch any time.\n\nLISTEN\n• Verse-by-verse recitation that moves on to the next verse by itself\n• Slow down or speed up, repeat a verse, and control playback from the lock screen\n• Save a verse, a chapter or the whole Gita to listen without internet\n\nREAD AND REFLECT\n• Clean, distraction-free reading with Sanskrit set in a beautiful Devanagari typeface\n• Bookmark and favourite verses, and keep your own notes on any verse\n• Wisdom themes gather the verses on devotion, duty, peace of mind and more\n• Search across every chapter and verse\n\nBUILD A DAILY PRACTICE\n• A verse of the day and gentle daily reminders at the time you choose\n• Reading streaks, a calendar of your practice and a history of what you read\n• Pick up where you left off\n\nGITA AI\nAsk a question about life, duty, peace or any teaching of the Gita and get a thoughtful answer drawn from the verses, in your language.\n\nYOURS, EVERYWHERE\nEverything works without an account. Sign in with Apple or Google to back up your bookmarks, notes and streak and use them on another device or at gitasadhana.com.\n\nLight and dark themes, large and comfortable text, and a layout made for both iPhone and iPad.\n\nFree, with no ads.\n\nMade by Sai Akash Neela (saiakashneela.com) with GeeksDesigns (geeksdesigns.com). Gita Sadhana is open source: github.com/SaiAkashNeela/gitasadhana",
         "keywords": [
-          "bhagavad",
-          "gita",
           "geeta",
           "krishna",
           "sanskrit",
           "shloka",
           "hindu",
           "scripture",
+          "mahabharata",
+          "arjuna",
           "spiritual",
-          "daily verse",
+          "verse",
           "audio",
-          "yoga"
+          "yoga",
+          "hindi"
         ],
         "releaseNotes": "Gita Sadhana, rebuilt: faster, calmer and now on iPad. Verse-by-verse recitation, offline downloads, 12 languages, notes, streaks and Gita AI.",
         "marketingUrl": "https://gitasadhana.com/",
