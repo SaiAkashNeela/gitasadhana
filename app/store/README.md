@@ -59,7 +59,9 @@ there are no ads or analytics.
 | Name, email address (from Sign in with Apple / Google) | App functionality (account, cloud backup) | Yes |
 | User content: notes, bookmarks, reading progress | App functionality (cloud backup) | Yes |
 | User content: Gita AI questions | App functionality | Yes when signed in |
-| Customer support: contact and correction forms | App functionality | No |
+| Customer support: contact and correction forms | App functionality | Yes |
+| Identifiers: user ID (the account ID after sign-in) | App functionality | Yes |
+| Identifiers: device ID (random guest ID that limits Gita AI per device) | App functionality | No |
 
 Age rating: no objectionable content (all answers "None"). The Gita is set on a battlefield; the
 art shows warriors and chariots but no graphic violence. Review this before submitting.
