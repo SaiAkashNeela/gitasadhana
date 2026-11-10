@@ -32,7 +32,8 @@ function env() {
       DB: fakeDb(),
       AI: { gateway: () => ({ run: async () => (aiCalls++, Response.json(reply)) }) },
       AI_DAILY_LIMIT: "1",
-      EMAIL_API_KEY: "dummy",
+      CLOUDFLARE_EMAIL_TOKEN: "dummy",
+      CLOUDFLARE_ACCOUNT_ID: "acct",
       ADMIN_EMAIL: "admin@example.test",
       EMAIL_FROM: "from@example.test",
       APP_URL: "https://example.test",
@@ -77,6 +78,10 @@ describe("mail routes", () => {
     const statuses = [];
     for (let i = 0; i < 4; i++) statuses.push((await post("/mail/welcome", { email: "v@example.test" }, e.bindings)).status);
     expect(statuses).toEqual([200, 200, 200, 429]);
+    // Sent through Cloudflare Email Service's REST API from the onboarded subdomain.
+    const [url, init] = vi.mocked(fetch).mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("https://api.cloudflare.com/client/v4/accounts/acct/email/sending/send");
+    expect(JSON.parse(init.body as string)).toMatchObject({ to: "v@example.test", from: { address: "from@example.test" } });
   });
 
   it("don't limit a signed-in user mailing their own address", async () => {

@@ -2,8 +2,6 @@ import type { Env } from "../types";
 
 import { HttpError } from "./errors";
 
-// Email goes through the same SES relay the Node backend used in production.
-const RELAY_URL = "https://ses-api.geeksdesigns.com/v1/send";
 
 const escape = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -27,14 +25,25 @@ const cta = (text: string, url: string) =>
   `<div style="text-align:center;padding:12px 0 4px 0;"><a href="${url}" style="display:inline-block;padding:14px 35px;font-family:Georgia,serif;font-size:16px;color:#ffffff;text-decoration:none;border-radius:999px;background:#2F4A8A;">${text} →</a></div>`;
 const shloka = `<div style="font-family:Georgia,serif;font-size:18px;line-height:1.6;color:#1B1F2E;">कर्मण्येवाधिकारस्ते मा फलेषु कदाचन ।<br/>मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ।।</div>`;
 
+// Cloudflare Email Service over its REST API, with a token that can only send email
+// (the Worker deliberately has no send_email binding).
 async function send(env: Env, to: string, subject: string, html: string, replyTo?: string) {
-  if (!env.EMAIL_API_KEY) throw new HttpError(503, "Email is not configured.");
-  const res = await fetch(RELAY_URL, {
+  if (!env.CLOUDFLARE_EMAIL_TOKEN) throw new HttpError(503, "Email is not configured.");
+  const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/email/sending/send`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${env.EMAIL_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ to, subject, body: html, from: env.EMAIL_FROM, replyTo: replyTo ?? env.EMAIL_REPLY_TO }),
+    headers: { Authorization: `Bearer ${env.CLOUDFLARE_EMAIL_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      to,
+      from: { address: env.EMAIL_FROM, name: "Gita Sadhana" },
+      reply_to: replyTo ?? env.EMAIL_REPLY_TO,
+      subject,
+      html,
+    }),
   });
-  if (!res.ok) throw new HttpError(502, `Failed to send email (${res.status}).`);
+  if (!res.ok) {
+    await res.body?.cancel();
+    throw new HttpError(502, "Failed to send email.");
+  }
 }
 
 export async function sendContactEmail(env: Env, email: string, message: string) {

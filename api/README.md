@@ -11,7 +11,8 @@ contract, so both the new Expo app and the old Capacitor builds work against it.
   the account's **AI Gateway "default"** via the Worker's `AI` binding. The gateway injects the
   Vertex credentials stored in it (BYOK), so no model key lives in the Worker, and every call is
   logged in the gateway dashboard. 30 requests per user (or guest device) per day
-- **Mail:** the same SES relay the old backend used
+- **Mail:** Cloudflare Email Service (REST API) from `hello@mails.gitasadhana.com`; the
+  `mails.gitasadhana.com` subdomain is onboarded to Email Sending with SPF, DKIM and DMARC
 
 Live: `https://gita-sadhana-api.mrsan.workers.dev`
 
@@ -30,7 +31,7 @@ Live: `https://gita-sadhana-api.mrsan.workers.dev`
 ```bash
 cd api
 bun install
-cp .dev.vars.example .dev.vars          # JWT_SECRET, EMAIL_API_KEY
+cp .dev.vars.example .dev.vars          # JWT_SECRET, CLOUDFLARE_EMAIL_TOKEN
 bun run db:migrate:local
 bun run dev                             # http://localhost:8787 (Gita AI needs `bunx wrangler dev --remote`)
 bun run test
@@ -47,7 +48,7 @@ Point the app at it with `EXPO_PUBLIC_API_BASE_URL=http://localhost:8787` in the
 
 ```bash
 bun run db:migrate:remote               # after adding a file to migrations/
-bunx wrangler secret put EMAIL_API_KEY   # enables contact / correction / welcome mail
+bunx wrangler secret put CLOUDFLARE_EMAIL_TOKEN   # account API token with only "Email Sending Write"
 bun run deploy
 ```
 

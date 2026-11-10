@@ -202,7 +202,8 @@ sync.
   `main` with `bash website/scripts/build.sh` and publishes `website/`.
 - **API** — Worker `gita-sadhana-api`, deployed by hand: `cd api && bun run deploy`. Plain settings
   are in `api/wrangler.jsonc`; secrets are set once with `bunx wrangler secret put <NAME>`:
-  `JWT_SECRET` (session tokens) and `EMAIL_API_KEY` (contact, correction and newsletter emails).
+  `JWT_SECRET` (session tokens) and `CLOUDFLARE_EMAIL_TOKEN` (an Email Sending-only token for
+  Cloudflare Email Service, which sends from `mails.gitasadhana.com`).
   Gita AI's Vertex credentials live in the Cloudflare AI Gateway, not the Worker.
 
 ---

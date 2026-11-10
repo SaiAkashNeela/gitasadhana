@@ -2,7 +2,8 @@ export type Env = {
   DB: D1Database;
   AI: Ai;
   JWT_SECRET: string;
-  EMAIL_API_KEY?: string;
+  CLOUDFLARE_EMAIL_TOKEN?: string;
+  CLOUDFLARE_ACCOUNT_ID: string;
   GOOGLE_CLIENT_IDS: string;
   APPLE_BUNDLE_ID: string;
   EMAIL_FROM: string;

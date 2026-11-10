@@ -21,12 +21,15 @@
       "migrations_dir": "migrations"
     }
   ],
-  // Public configuration. Secrets (JWT_SECRET, EMAIL_API_KEY) are set with
-  // `wrangler secret put` in production and in .dev.vars locally.
+  // Public configuration. Secrets (JWT_SECRET, CLOUDFLARE_EMAIL_TOKEN) are set with
+  // `wrangler secret put` in production and in .dev.vars locally. CLOUDFLARE_EMAIL_TOKEN is an
+  // account API token with only "Email Sending Write", used by Cloudflare Email Service's REST API.
   "vars": {
     "GOOGLE_CLIENT_IDS": "822836118890-c0phehllvd4s2409adtgo13f1ipg997k.apps.googleusercontent.com,822836118890-5rh7f1cq4149afb8ghjfogkijcfithpr.apps.googleusercontent.com,822836118890-4sq4ob2r4cjuab36fgoh9n1pgduit6pj.apps.googleusercontent.com,822836118890-sufsueg8u9be6t9kc0cf60crl5eiaies.apps.googleusercontent.com",
     // Comma-separated: app.gitasadhana.com is the current app; com.gitasadhana.ios is the earlier App Store app.
     "APPLE_BUNDLE_ID": "app.gitasadhana.com,com.gitasadhana.ios",
+    "CLOUDFLARE_ACCOUNT_ID": "21bcf6a2def0a1f1b96480afa6bf33ec",
+    // mails.gitasadhana.com is onboarded to Cloudflare Email Sending (SPF, DKIM, DMARC, cf-bounce MX).
     "EMAIL_FROM": "hello@mails.gitasadhana.com",
     "EMAIL_REPLY_TO": "hello@gitasadhana.com",
     "ADMIN_EMAIL": "hello@gitasadhana.com",
