@@ -57,7 +57,6 @@
       "firstName": "Sai Akash",
       "lastName": "Neela",
       "email": "hello@gitasadhana.com",
-      "phone": "",
       "demoRequired": false,
       "notes": "No account is needed: every feature except cloud backup works signed out. Sign in with Apple or Google is optional and only backs up bookmarks, notes and reading progress. Gita AI answers questions about the Bhagavad Gita; it is limited per day and moderated by the model provider. Audio recitations stream from our own server."
     }
