@@ -41,6 +41,14 @@ Drag the two screenshot folders into App Store Connect → the version → Previ
 Play screenshots are made from the iOS captures with the status bar cropped off. Retake them on an
 Android emulator if you'd rather show Android system UI.
 
+## App Review information
+
+Set once in App Store Connect (App Review Information), not in `store.config.json`, so the contact
+phone stays out of this public repo. Contact: Sai Akash Neela, hello@gitasadhana.com. Sign-in
+required: no. Notes:
+
+> No account is needed: every feature except cloud backup works signed out. Sign in with Apple or Google is optional and only backs up bookmarks, notes and reading progress. Gita AI answers questions about the Bhagavad Gita; it is limited per day and moderated by the model provider. Audio recitations stream from our own server.
+
 ## App Store privacy answers ("App Privacy")
 
 Data is collected only when someone signs in or uses Gita AI. Nothing is used for tracking, and
