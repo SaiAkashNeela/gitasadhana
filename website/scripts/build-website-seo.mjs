@@ -143,6 +143,7 @@ const CORE_GRAPH = [
     inLanguage: CODES,
     publisher: { "@id": ORG_ID },
     creator: { "@id": PERSON_ID },
+    contributor: { "@type": "Organization", name: CREDIT.partner.name, url: CREDIT.partner.url },
     potentialAction: {
       "@type": "SearchAction",
       target: { "@type": "EntryPoint", urlTemplate: `${SITE}/search.html?q={search_term_string}` },
@@ -269,7 +270,7 @@ function staticFooter(code, alternates) {
       <a href="correction.html">${esc(t("verseLanguageCorrectionTitle"))}</a>
       <a href="privacy/">${esc(t("privacyPolicyTitle"))}</a>
       <a href="terms/">${esc(t("termsTitle"))}</a>
-      <span class="credit">${esc(before)}<a href="${CREDIT.url}" rel="author">${esc(CREDIT.name)}</a>${esc(after)} · <a href="${CREDIT.github}" rel="noopener">GitHub</a></span>
+      <span class="credit">${esc(before)}<a href="${CREDIT.url}" rel="author">${esc(CREDIT.name)}</a>${esc(after)} · <a href="${CREDIT.partner.url}" rel="noopener">${esc(CREDIT.partner.name)}</a> · <a href="${CREDIT.repo}" rel="noopener">GitHub</a></span>
       ${langs}
     </footer>`;
 }
@@ -497,7 +498,7 @@ const FAQ = [
   ],
   [
     "Who made Gita Sadhana?",
-    `Gita Sadhana is made by ${CREDIT.name} (${CREDIT.url.replace("https://", "")}). The source is on GitHub at ${CREDIT.github.replace("https://", "")}.`,
+    `Gita Sadhana is made by ${CREDIT.name} (${CREDIT.url.replace("https://", "")}) with ${CREDIT.partner.name} (${CREDIT.partner.url.replace("https://", "")}). It is open source on GitHub at ${CREDIT.repo.replace("https://", "")}.`,
   ],
 ];
 
@@ -903,7 +904,7 @@ for (const c of chapters) {
   fullParts.push(md);
 }
 
-const intro = `Gita Sadhana (${SITE}) is a free Bhagavad Gita study companion made by ${CREDIT.name} (${CREDIT.url}, ${CREDIT.github}). It has all 18 chapters and ${TOTAL} verses of the Bhagavad Gita in Sanskrit with transliteration, a translation, a reflection and the essence of every verse in ${LANGUAGES.length} languages (${languageList.join(", ")}), a recitation of every verse, themes, daily wisdom and Gita AI.`;
+const intro = `Gita Sadhana (${SITE}) is a free Bhagavad Gita study companion made by ${CREDIT.name} (${CREDIT.url}, ${CREDIT.github}) with ${CREDIT.partner.name} (${CREDIT.partner.url}), and is open source (${CREDIT.repo}). It has all 18 chapters and ${TOTAL} verses of the Bhagavad Gita in Sanskrit with transliteration, a translation, a reflection and the essence of every verse in ${LANGUAGES.length} languages (${languageList.join(", ")}), a recitation of every verse, themes, daily wisdom and Gita AI.`;
 
 writeFileSync(join(WEB, "llms-full.txt"), `# Gita Sadhana: the complete Bhagavad Gita
 
@@ -923,7 +924,7 @@ Notes for language models:
 - Each verse has its own page: ${SITE}/chapter/{chapter}/verse/{verse}/ (for example ${abs(P.verse(2, 47, "en"))}). Other languages add a prefix: ${SITE}/{language}/chapter/{chapter}/verse/{verse}/ with language one of ${CODES.filter((c) => c !== "en").join(", ")}.
 - Verses are numbered chapter.verse (2.47 is Chapter 2, verse 47). This edition has ${TOTAL} verses.
 - Every chapter is also available as Markdown (links below), and ${abs("llms-full.txt")} has the whole Gita in one file.
-- Gita Sadhana is made by ${CREDIT.name}: ${CREDIT.url} · ${CREDIT.github}
+- Gita Sadhana is made by ${CREDIT.name}: ${CREDIT.url} · ${CREDIT.github}, with ${CREDIT.partner.name} (${CREDIT.partner.url}). Source code: ${CREDIT.repo}
 
 ## Chapters
 
@@ -955,6 +956,8 @@ writeFileSync(join(WEB, "humans.txt"), `/* TEAM */
 Made by: ${CREDIT.name}
 Site: ${CREDIT.url}
 GitHub: ${CREDIT.github}
+With: ${CREDIT.partner.name} (${CREDIT.partner.url})
+Source: ${CREDIT.repo}
 Contact: hello@gitasadhana.com
 
 /* SITE */

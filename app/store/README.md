@@ -59,6 +59,6 @@ art shows warriors and chariots but no graphic violence. Review this before subm
 - [ ] Optional: route `api.gitasadhana.com` to the Worker, then switch `EXPO_PUBLIC_API_BASE_URL`
       (in `eas.json` and the EAS environment variables) from the workers.dev address.
 - [ ] Bump `ios.buildNumber` / `android.versionCode` in `app.json` for each store build.
-- [ ] Google sign-in on Android: create an Android OAuth client for `com.gitasadhana.mobile` with the
+- [ ] Google sign-in on Android: create an Android OAuth client for `in.gitasadhana.app` with the
       EAS upload-key SHA-1 and the Play App Signing SHA-1.
 - [ ] Test a production build on a real iPhone, iPad and Android phone/tablet (`eas build --profile preview`).

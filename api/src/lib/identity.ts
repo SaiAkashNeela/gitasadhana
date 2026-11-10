@@ -35,10 +35,10 @@ export async function verifyGoogleIdToken(idToken: string, audience: string[]): 
   };
 }
 
-export async function verifyAppleIdentityToken(identityToken: string, bundleId: string): Promise<ProviderIdentity> {
+export async function verifyAppleIdentityToken(identityToken: string, bundleIds: string[]): Promise<ProviderIdentity> {
   let payload;
   try {
-    ({ payload } = await jwtVerify(identityToken, appleJwks, { issuer: "https://appleid.apple.com", audience: bundleId }));
+    ({ payload } = await jwtVerify(identityToken, appleJwks, { issuer: "https://appleid.apple.com", audience: bundleIds }));
   } catch {
     throw new HttpError(401, "Unauthorized: invalid Apple token");
   }

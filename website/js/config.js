@@ -13,9 +13,11 @@ export const APPROX_MB_PER_VERSE = 4.5;
 // Public address of the website (canonical links, sharing, structured data).
 export const SITE_URL = "https://gitasadhana.com";
 
-// Gita Sadhana is made by Sai Akash Neela.
+// Gita Sadhana is made by Sai Akash Neela, with GeeksDesigns, and is open source.
 export const CREDIT = {
   name: "Sai Akash Neela",
   url: "https://saiakashneela.com",
   github: "https://github.com/SaiAkashNeela",
+  repo: "https://github.com/SaiAkashNeela/gitasadhana",
+  partner: { name: "GeeksDesigns", url: "https://geeksdesigns.com" },
 };

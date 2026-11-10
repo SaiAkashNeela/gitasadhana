@@ -1331,5 +1331,19 @@ export const appStrings: Record<string, Record<string, string>> = {
     "mr": "काल",
     "pa": "ਕੱਲ੍ਹ",
     "ne": "हिजो"
+  },
+  "madeBy": {
+    "en": "Made by {name}",
+    "hi": "निर्माता: {name}",
+    "sa": "निर्माता: {name}",
+    "te": "రూపకర్త: {name}",
+    "ta": "உருவாக்கியவர்: {name}",
+    "kn": "ರಚನೆ: {name}",
+    "ml": "നിർമ്മിച്ചത്: {name}",
+    "bn": "নির্মাতা: {name}",
+    "gu": "નિર્માતા: {name}",
+    "mr": "निर्माते: {name}",
+    "pa": "ਨਿਰਮਾਤਾ: {name}",
+    "ne": "निर्माता: {name}"
   }
 };

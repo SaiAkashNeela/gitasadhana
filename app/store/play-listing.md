@@ -6,7 +6,7 @@ Paste these into Play Console → Grow → Store presence → Main store listing
 
 (Another, unrelated Play app is also called "Gita Sadhana", so the Play title adds "Bhagavad Gita".)
 
-**Package:** `com.gitasadhana.mobile`
+**Package:** `in.gitasadhana.app`
 
 **Short description** (80):
 
@@ -43,6 +43,8 @@ Everything works without an account. Sign in with Google to back up your bookmar
 Light and dark themes, large and comfortable text, and a layout made for both phones and tablets.
 
 Free, with no ads.
+
+Made by Sai Akash Neela (saiakashneela.com) with GeeksDesigns (geeksdesigns.com). Gita Sadhana is open source: github.com/SaiAkashNeela/gitasadhana
 
 **Category:** Books & Reference · **Tags:** Religion, Books, Education
 **Contact email:** hello@gitasadhana.com · **Website:** https://gitasadhana.com/ · **Privacy policy:** https://gitasadhana.com/privacy/

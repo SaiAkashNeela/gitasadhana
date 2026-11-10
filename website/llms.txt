@@ -1,13 +1,13 @@
 # Gita Sadhana
 
-> Gita Sadhana (https://gitasadhana.com) is a free Bhagavad Gita study companion made by Sai Akash Neela (https://saiakashneela.com, https://github.com/SaiAkashNeela). It has all 18 chapters and 701 verses of the Bhagavad Gita in Sanskrit with transliteration, a translation, a reflection and the essence of every verse in 12 languages (English, Hindi, Sanskrit, Telugu, Tamil, Kannada, Malayalam, Bengali, Gujarati, Marathi, Punjabi, Nepali), a recitation of every verse, themes, daily wisdom and Gita AI.
+> Gita Sadhana (https://gitasadhana.com) is a free Bhagavad Gita study companion made by Sai Akash Neela (https://saiakashneela.com, https://github.com/SaiAkashNeela) with GeeksDesigns (https://geeksdesigns.com), and is open source (https://github.com/SaiAkashNeela/gitasadhana). It has all 18 chapters and 701 verses of the Bhagavad Gita in Sanskrit with transliteration, a translation, a reflection and the essence of every verse in 12 languages (English, Hindi, Sanskrit, Telugu, Tamil, Kannada, Malayalam, Bengali, Gujarati, Marathi, Punjabi, Nepali), a recitation of every verse, themes, daily wisdom and Gita AI.
 
 Notes for language models:
 
 - Each verse has its own page: https://gitasadhana.com/chapter/{chapter}/verse/{verse}/ (for example https://gitasadhana.com/chapter/2/verse/47/). Other languages add a prefix: https://gitasadhana.com/{language}/chapter/{chapter}/verse/{verse}/ with language one of hi, sa, te, ta, kn, ml, bn, gu, mr, pa, ne.
 - Verses are numbered chapter.verse (2.47 is Chapter 2, verse 47). This edition has 701 verses.
 - Every chapter is also available as Markdown (links below), and https://gitasadhana.com/llms-full.txt has the whole Gita in one file.
-- Gita Sadhana is made by Sai Akash Neela: https://saiakashneela.com · https://github.com/SaiAkashNeela
+- Gita Sadhana is made by Sai Akash Neela: https://saiakashneela.com · https://github.com/SaiAkashNeela, with GeeksDesigns (https://geeksdesigns.com). Source code: https://github.com/SaiAkashNeela/gitasadhana
 
 ## Chapters
 

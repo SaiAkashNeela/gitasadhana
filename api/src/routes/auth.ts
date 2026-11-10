@@ -44,7 +44,7 @@ auth.post("/google", async (c) => {
 
 auth.post("/apple", async (c) => {
   const body = z.object({ identityToken: z.string().min(1), ...providerBody }).parse(await c.req.json());
-  const identity = await verifyAppleIdentityToken(body.identityToken, c.env.APPLE_BUNDLE_ID);
+  const identity = await verifyAppleIdentityToken(body.identityToken, c.env.APPLE_BUNDLE_ID.split(","));
   return c.json(await signIn(c.env, "apple", identity, { ...body, photoURL: body.photoURL || undefined }));
 });
 

@@ -1,7 +1,7 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Linking, Pressable, View } from "react-native";
 
 import { IconButton } from "@/components/button";
 import { Column, PageTitle, Screen, SectionHeader } from "@/components/layout";
@@ -19,6 +19,13 @@ import { shareText } from "@/lib/share";
 import { useProgress } from "@/providers/progress";
 import { useTheme, type ThemePreference } from "@/providers/theme";
 import { fonts, radius, spacing } from "@/theme";
+
+// Gita Sadhana is open source, made by Sai Akash Neela.
+const CREDIT_LINKS = [
+  { label: "saiakashneela.com", url: "https://saiakashneela.com" },
+  { label: "GeeksDesigns", url: "https://geeksdesigns.com" },
+  { label: "GitHub", url: "https://github.com/SaiAkashNeela/gitasadhana" },
+];
 
 export function ProfileScreen() {
   const { colors, preference, setPreference } = useTheme();
@@ -193,6 +200,22 @@ export function ProfileScreen() {
           <Row icon="doc" title={t("termsTitle", language)} onPress={() => router.push("/help/terms")} />
           <Row icon="megaphone" title={t("verseLanguageCorrectionTitle", language)} onPress={() => router.push("/help/correction")} />
         </Group>
+      </Column>
+
+      <Column gap={spacing.xs} style={{ alignItems: "center", paddingVertical: spacing.md }}>
+        <Text variant="footnote" tone="soft" center>
+          {tf("madeBy", language, { name: "Sai Akash Neela" })}
+        </Text>
+        <Text variant="footnote" tone="faint" center>
+          {CREDIT_LINKS.map((l, i) => (
+            <Text key={l.url} variant="footnote" tone="faint">
+              {i > 0 ? " · " : ""}
+              <Text variant="footnote" tone="accent" accessibilityRole="link" onPress={() => Linking.openURL(l.url)}>
+                {l.label}
+              </Text>
+            </Text>
+          ))}
+        </Text>
       </Column>
     </Screen>
   );

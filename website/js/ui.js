@@ -127,7 +127,7 @@ export function setTitle(title) {
 export function creditLine() {
   const name = `<a href="${CREDIT.url}" rel="author">${esc(CREDIT.name)}</a>`;
   const [before, after = ""] = t("madeBy").split("{name}");
-  return `${esc(before)}${name}${esc(after)} · <a href="${CREDIT.github}" rel="noopener">GitHub</a>`;
+  return `${esc(before)}${name}${esc(after)} · <a href="${CREDIT.partner.url}" rel="noopener">${esc(CREDIT.partner.name)}</a> · <a href="${CREDIT.repo}" rel="noopener">GitHub</a>`;
 }
 
 /**
