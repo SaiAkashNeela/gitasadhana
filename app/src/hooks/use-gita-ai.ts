@@ -23,7 +23,8 @@ export function useGitaAI(uid: string | null) {
 
   const setMessages = (updater: (prev: ChatMessage[]) => ChatMessage[]) => {
     setMessagesState((prev) => {
-      const next = updater(prev);
+      // The API keeps at most 1000 messages; a longer list would fail every sync.
+      const next = updater(prev).slice(-1000);
       latest.current = next;
       storage.set(STORAGE_KEY, next);
       if (uid) dirty.current = true;

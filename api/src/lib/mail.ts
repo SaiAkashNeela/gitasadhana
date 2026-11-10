@@ -52,7 +52,6 @@ export async function sendContactEmail(env: Env, email: string, message: string)
     shell(
       heading("Thank you for reaching out") +
         para("We have received your message and will get back to you within 1-2 business days.") +
-        card(para(`<i>"${multiline(message)}"</i>`)) +
         cta("Continue Reading", env.APP_URL),
     ),
   );
@@ -88,7 +87,6 @@ export async function sendCorrectionEmail(
       shell(
         heading("Thank you for your contribution") +
           para(`We have received your correction report for Chapter ${escape(p.chapter)}, Verse ${escape(p.verse)} (${escape(p.language)}).`) +
-          card(para(`<i>"${multiline(p.message)}"</i>`)) +
           cta("Continue Reading", env.APP_URL),
       ),
     );

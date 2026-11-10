@@ -186,8 +186,11 @@ function wire() {
   );
   document.getElementById("signout")?.addEventListener("click", async () => {
     if (!(await confirmDialog({ title: t("signOutTitle"), message: t("signOutConfirmMessage"), confirm: t("signOutTitle") }))) return;
-    await pushNow();
+    const synced = await pushNow();
     await signOut();
+    // The account's data is on the server now; don't leave it for the next person on this browser,
+    // whose sign-in would merge it into their account. Unsynced changes are kept rather than lost.
+    if (synced) clearLocalProgress();
     toast(t("signedOutSuccessToast"));
     render();
   });

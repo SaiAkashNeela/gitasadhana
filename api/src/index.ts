@@ -25,20 +25,30 @@ app.route("/mail", mail);
 app.route("/audio", audio);
 
 const guestKey = (raw: string) =>
-  raw.trim().toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "anonymous";
+  raw.trim().toLowerCase().slice(0, 64).replace(/[^a-z0-9._-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "anonymous";
 
 app.post("/ai/chat", async (c) => {
   const body = z
     .object({
       message: z.string().default(""),
-      history: z.array(z.object({ role: z.enum(["user", "model"]), text: z.string() })).default([]),
+      // Clients send the last 20 turns; the cap stops oversized bodies before the model sees 20 anyway.
+      history: z.array(z.object({ role: z.enum(["user", "model"]), text: z.string().max(20000) })).max(100).default([]),
       language: z.string().optional(),
     })
     .parse(await c.req.json());
   const userId = await optionalUserId(c);
-  // Guests are limited per device id, falling back to their IP address.
-  const identity = userId ?? `guest:${guestKey(c.req.header("x-guest-id") ?? c.req.header("CF-Connecting-IP") ?? "anonymous")}`;
-  return c.json(await handleGitaChat(c.env, { userId: identity, message: body.message, history: body.history, language: body.language ?? "en" }));
+  // Guests are limited per device id (falling back to their IP address) and per IP address.
+  const ip = c.req.header("CF-Connecting-IP") ?? "anonymous";
+  const identity = userId ?? `guest:${guestKey(c.req.header("x-guest-id") ?? ip)}`;
+  return c.json(
+    await handleGitaChat(c.env, {
+      userId: identity,
+      ipKey: userId ? undefined : `ip:${ip}`,
+      message: body.message,
+      history: body.history,
+      language: body.language ?? "en",
+    }),
+  );
 });
 
 app.notFound((c) => c.json({ message: "Not found" }, 404));

@@ -60,20 +60,18 @@ export async function putChat(db: D1Database, userId: string, messages: ChatMess
     .run();
 }
 
-/** Atomically count one Gita AI request; returns the count after incrementing. */
-export async function incrementAiUsage(db: D1Database, userId: string, day: string) {
+/**
+ * Atomically count one use of `key` today; returns the count after incrementing.
+ * Gita AI quotas use user ids, guest ids and IPs as keys; mail throttling uses `mail-*` keys.
+ */
+export async function incrementDailyCount(db: D1Database, key: string, day: string) {
   const row = await db
     .prepare(
       `INSERT INTO ai_usage (user_id, day, count) VALUES (?, ?, 1)
        ON CONFLICT(user_id, day) DO UPDATE SET count = count + 1
        RETURNING count`,
     )
-    .bind(userId, day)
+    .bind(key, day)
     .first<{ count: number }>();
   return row?.count ?? 1;
-}
-
-export async function getAiUsage(db: D1Database, userId: string, day: string) {
-  const row = await db.prepare("SELECT count FROM ai_usage WHERE user_id = ? AND day = ?").bind(userId, day).first<{ count: number }>();
-  return row?.count ?? 0;
 }

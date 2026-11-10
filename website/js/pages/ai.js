@@ -10,6 +10,8 @@ setTitle(`Gita AI · ${t("bhagavadGita")}`);
 
 const CHAT = "gita_ai_chat";
 const LANG = "gita_ai_language";
+// The API keeps at most 1000 messages; a longer list would fail every sync.
+const MAX_MESSAGES = 1000;
 let messages = store.get(CHAT, []);
 let aiLang = store.get(LANG, null);
 let sending = false;
@@ -141,6 +143,7 @@ async function send() {
     document.getElementById("msg").value = text;
   } finally {
     sending = false;
+    messages = messages.slice(-MAX_MESSAGES);
     store.set(CHAT, messages);
     if (currentUser()) api("/chat/me", { method: "PUT", body: { messages, language: aiLang ?? lang } }).catch(() => {});
     paintLog();
@@ -151,7 +154,7 @@ async function send() {
 if (currentUser()) {
   api("/chat/me").then((res) => {
     const seen = new Set();
-    messages = [...messages, ...(res.messages ?? [])].filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true))).sort((a, b) => a.ts - b.ts);
+    messages = [...messages, ...(res.messages ?? [])].filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true))).sort((a, b) => a.ts - b.ts).slice(-MAX_MESSAGES);
     store.set(CHAT, messages);
     if (document.getElementById("log")) paintLog();
   }).catch(() => {});

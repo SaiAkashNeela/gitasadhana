@@ -13,7 +13,7 @@ export async function signAppToken(secret: string, payload: { userId: string; pr
 }
 
 export async function verifyAppToken(secret: string, token: string) {
-  const { payload } = await jwtVerify(token, encoder.encode(secret));
+  const { payload } = await jwtVerify(token, encoder.encode(secret), { algorithms: ["HS256"] });
   return { userId: typeof payload.sub === "string" ? payload.sub : null };
 }
 

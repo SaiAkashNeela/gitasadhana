@@ -44,6 +44,9 @@ function loadGsi() {
   });
 }
 
+// A closed Google popup never calls back, so a new attempt settles the abandoned one.
+let cancelPending: (() => void) | undefined;
+
 /** Google Identity Services, same flow as the Capacitor web build. */
 export async function getProviderCredential(provider: Provider): Promise<ProviderCredential> {
   if (provider === "apple") throw new Error("Apple sign-in is available on iOS only.");
@@ -52,12 +55,18 @@ export async function getProviderCredential(provider: Provider): Promise<Provide
   if (!gsi) throw new Error("Google sign-in is unavailable.");
 
   return new Promise((resolve, reject) => {
+    cancelPending?.();
     const host = document.createElement("div");
     Object.assign(host.style, { position: "fixed", left: "-9999px", top: "-9999px", width: "320px", height: "60px" });
     document.body.appendChild(host);
+    cancelPending = () => {
+      host.remove();
+      reject(new Error("Google sign-in was cancelled."));
+    };
     gsi.initialize({
       client_id: webClientId,
       callback: (r) => {
+        cancelPending = undefined;
         host.remove();
         if (!r.credential) return reject(new Error("Google sign-in did not return an ID token."));
         resolve({ token: r.credential, displayName: "", email: "", photoURL: "" });

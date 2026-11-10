@@ -1,9 +1,11 @@
 import type { Env } from "../types";
 
-import { getAiUsage, incrementAiUsage } from "./db";
+import { incrementDailyCount } from "./db";
 import { HttpError } from "./errors";
 
 const MAX_MESSAGE_LENGTH = 2000;
+// Guests pick their own id, so each IP is also capped, at enough for several devices behind one NAT.
+const GUEST_DEVICES_PER_IP = 10;
 
 const LANGUAGE_NAMES: Record<string, string> = {
   en: "English", hi: "Hindi", sa: "Sanskrit", te: "Telugu", ta: "Tamil", kn: "Kannada",
@@ -32,7 +34,7 @@ LANGUAGE RULE:
 
 export async function handleGitaChat(
   env: Env,
-  p: { userId: string; message: string; history: { role: "user" | "model"; text: string }[]; language: string },
+  p: { userId: string; ipKey?: string; message: string; history: { role: "user" | "model"; text: string }[]; language: string },
 ) {
   const message = sanitise(p.message);
   if (!message) throw new HttpError(400, "Message is required.");
@@ -40,8 +42,11 @@ export async function handleGitaChat(
 
   const day = new Date().toISOString().slice(0, 10);
   const limit = Number(env.AI_DAILY_LIMIT) || 30;
-  if ((await getAiUsage(env.DB, p.userId, day)) >= limit) return { reply: null, limitReached: true };
-  await incrementAiUsage(env.DB, p.userId, day);
+  // Decide on the post-increment count so concurrent requests can't all pass one stale read.
+  if ((await incrementDailyCount(env.DB, p.userId, day)) > limit) return { reply: null, limitReached: true };
+  if (p.ipKey && (await incrementDailyCount(env.DB, p.ipKey, day)) > limit * GUEST_DEVICES_PER_IP) {
+    return { reply: null, limitReached: true };
+  }
 
   const contents = [
     ...p.history.slice(-20).map((h) => ({ role: h.role, parts: [{ text: sanitise(h.text).slice(0, MAX_MESSAGE_LENGTH) }] })),

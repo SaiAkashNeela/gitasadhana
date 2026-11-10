@@ -199,13 +199,16 @@ export async function mergeOnSignIn(user) {
   return null;
 }
 
+/** Returns true when nothing is left unsynced. */
 export async function pushNow({ keepalive = false } = {}) {
-  if (!session()?.token || store.getString(K.dirty) !== "true") return;
+  if (!session()?.token || store.getString(K.dirty) !== "true") return true;
   try {
     await api("/users/me/sync", { method: "POST", body: payload("replace"), keepalive });
     store.remove(K.dirty);
+    return true;
   } catch {
     // Stays dirty; retried on the next tick.
+    return false;
   }
 }
 
