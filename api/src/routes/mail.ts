@@ -1,7 +1,8 @@
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 
-import { incrementDailyCount } from "../lib/db";
+import { optionalUserId } from "../lib/auth-middleware";
+import { findUserById, incrementDailyCount } from "../lib/db";
 import { HttpError } from "../lib/errors";
 import { sendContactEmail, sendCorrectionEmail, sendNewsletterEmail, sendWelcomeEmail } from "../lib/mail";
 import type { AppVariables, Env } from "../types";
@@ -13,12 +14,20 @@ const MAILS_PER_IP_PER_DAY = 10;
 const MAILS_PER_RECIPIENT_PER_DAY = 3;
 
 async function throttle(c: Context<{ Bindings: Env; Variables: AppVariables }>, to?: string) {
+  // A signed-in user mailing their own account address (welcome, preference changes) isn't limited.
+  if (to !== undefined && (await isOwnAddress(c, to))) return;
   const day = new Date().toISOString().slice(0, 10);
   const ip = c.req.header("CF-Connecting-IP") ?? "anonymous";
   const tooMany =
     (await incrementDailyCount(c.env.DB, `mail-ip:${ip}`, day)) > MAILS_PER_IP_PER_DAY ||
     (to !== undefined && (await incrementDailyCount(c.env.DB, `mail-to:${to.toLowerCase()}`, day)) > MAILS_PER_RECIPIENT_PER_DAY);
   if (tooMany) throw new HttpError(429, "Too many emails today. Please try again tomorrow.");
+}
+
+async function isOwnAddress(c: Context<{ Bindings: Env; Variables: AppVariables }>, to: string) {
+  const userId = await optionalUserId(c);
+  const user = userId ? await findUserById(c.env.DB, userId) : null;
+  return !!user?.authUser.email && user.authUser.email.toLowerCase() === to.toLowerCase();
 }
 
 mail.post("/contact", async (c) => {

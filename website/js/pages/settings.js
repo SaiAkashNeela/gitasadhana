@@ -133,7 +133,7 @@ function wire() {
         try {
           serverLang = await mergeOnSignIn(res.user);
         } catch {}
-        if (res.isNewUser && res.user.email) api("/mail/welcome", { method: "POST", body: { email: res.user.email, name: res.user.displayName || "Seeker" }, token: null }).catch(() => {});
+        if (res.isNewUser && res.user.email) api("/mail/welcome", { method: "POST", body: { email: res.user.email, name: res.user.displayName || "Seeker" } }).catch(() => {});
         toast(t("googleSignInSuccessToast"));
         if (serverLang) setLanguage(serverLang);
         else render();
@@ -175,7 +175,7 @@ function wire() {
       render();
       if (b.dataset.freq === "none") return;
       try {
-        await api("/mail/newsletter", { method: "POST", body: { email: currentUser().email, frequency: b.dataset.freq }, token: null });
+        await api("/mail/newsletter", { method: "POST", body: { email: currentUser().email, frequency: b.dataset.freq } });
         toast(t("changesSavedNote"));
       } catch {
         settings.newsletter = prev;

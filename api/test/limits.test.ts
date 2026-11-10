@@ -1,14 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import app from "../src/index";
+import { signAppToken } from "../src/lib/jwt";
 
-// Just enough D1 for the daily counter upsert.
+// Just enough D1 for the daily counter upsert and one signed-in user.
 function fakeDb() {
   const counts = new Map<string, number>();
+  const user = { id: "u1", provider: "google", auth_user: JSON.stringify({ email: "Me@Example.test" }), profile: "{}" };
   return {
-    prepare: () => ({
+    prepare: (sql: string) => ({
       bind: (key: string, day: string) => ({
         first: async () => {
+          if (sql.includes("FROM users")) return key === user.id ? user : null;
           const n = (counts.get(`${key}|${day}`) ?? 0) + 1;
           counts.set(`${key}|${day}`, n);
           return { count: n };
@@ -74,5 +77,23 @@ describe("mail routes", () => {
     const statuses = [];
     for (let i = 0; i < 4; i++) statuses.push((await post("/mail/welcome", { email: "v@example.test" }, e.bindings)).status);
     expect(statuses).toEqual([200, 200, 200, 429]);
+  });
+
+  it("don't limit a signed-in user mailing their own address", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}")));
+    const e = env();
+    const token = await signAppToken("test-secret", { userId: "u1", provider: "google" });
+    const bindings = { ...e.bindings, JWT_SECRET: "test-secret" };
+    const statuses = [];
+    for (let i = 0; i < 5; i++) {
+      statuses.push((await post("/mail/newsletter", { email: "me@example.test", frequency: "weekly" }, bindings, { Authorization: `Bearer ${token}` })).status);
+    }
+    expect(statuses).toEqual([200, 200, 200, 200, 200]);
+    // Someone else's address is still limited for the same signed-in user.
+    const other = [];
+    for (let i = 0; i < 4; i++) {
+      other.push((await post("/mail/newsletter", { email: "victim@example.test", frequency: "weekly" }, bindings, { Authorization: `Bearer ${token}` })).status);
+    }
+    expect(other).toEqual([200, 200, 200, 429]);
   });
 });
