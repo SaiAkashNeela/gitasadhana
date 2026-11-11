@@ -54,6 +54,8 @@ Docs: https://docs.expo.dev/eas/index.md
 
 ## This project
 
+- **This repository is public (MIT).** Never commit secrets, API tokens, keys (`.p8`, `.jks`, service-account JSON), `.env` / `.dev.vars` files, personal phone numbers or user data. Secrets live in Worker secrets, EAS credentials and environment variables, and App Store Connect; `.env.example` and `.dev.vars.example` hold names only.
+
 - Paths below under `src/` and `scripts/` are relative to `app/`.
 - `website/` is the plain HTML/CSS/JS website (no framework, no bundler). Its content pages are pre-rendered by `bash website/scripts/build.sh` (run from the repo root), using the app's content and strings; see `website/README.md`. Web-only strings go in `website/i18n-source/web-strings.json` in all 12 languages.
 - `api/` is the Cloudflare Worker (Hono + D1) the app talks to; it has its own package.json, tsconfig and tests (`bun --cwd api run test`).
@@ -61,9 +63,10 @@ Docs: https://docs.expo.dev/eas/index.md
 - Icons: `src/components/icon.tsx` maps names to Phosphor icons imported one file at a time (`phosphor-react-native/src/icons/<Name>`); never import from the package root (bundles every icon).
 - Gita content is generated from `scripts/content/source/` (never edit those files): edit `scripts/build-gita-data.mjs` / `scripts/content-fixes.mjs`, then `bun run build:data` and `bun run audit:scripts`.
 - Tablets are supported (iPad rotates; phones are portrait). Wrap content in `Column` (capped at `layout.maxWidth`), use `useColumnInset()` for horizontal scrollers, and don't size art with `aspectRatio` + `maxHeight` (it shrinks the width on wide screens; compute a height instead).
-- Store listing, screenshots and privacy answers live in `store/` (see `store/README.md`).
-- Releases: JS/content changes ship as EAS updates (`bun run update:production -- "msg"`). `runtimeVersion` follows `version` in `app.json`, so any native change (new native library, permission, plugin, icon) needs a `version` bump and new store builds. Bump `ios.buildNumber` / `android.versionCode` for every store build. Bundle ID: `app.gitasadhana.com` on iOS and Android (Expo account `isan333`; iOS on Sai Akash Neela's personal Apple Developer account, Android on the company Google Play account).
+- Store listing, screenshots and privacy answers live in `app/store/` (see `app/store/README.md`). The App Store listing is pushed with `bunx eas-cli metadata:push` (App Store Connect app `6833198350`; the App Store Connect API key is stored on EAS). Google Play listing text is in `app/store/play-listing.md`.
+- Releases: JS/content changes ship as EAS updates (`bun run update:production -- "msg"`) to both iOS and Android. `runtimeVersion` follows `version` in `app.json`, so any native change (new native library, permission, plugin, icon) needs a `version` bump and new store builds. Bump `ios.buildNumber` / `android.versionCode` for every store build. Bundle ID: `app.gitasadhana.com` on iOS and Android (Expo account `isan333`; iOS on Sai Akash Neela's personal Apple Developer account, Android on the company Google Play account).
 - `EXPO_PUBLIC_*` values are set in `eas.json` (builds) and as EAS environment variables (updates); change both together.
-- Pushing to `main` deploys the website (Cloudflare Pages `gita-sadhana`). The API deploys only with `cd api && bun run deploy`.
+- Pushing to `main` deploys the website (Cloudflare Pages `gita-sadhana`). The API deploys only with `cd api && bun run deploy`; run `bun run typecheck` and `bun run test` in `api/` first.
+- API mail goes through Cloudflare Email Service's REST API (not a `send_email` binding) from `hello@mails.gitasadhana.com`, with the Email Sending-only secret `CLOUDFLARE_EMAIL_TOKEN`. The unauthenticated `/mail/*` routes are limited per IP and per recipient (a signed-in user mailing their own address is exempt), and guest Gita AI is limited per guest id and per IP; keep those limits when changing these routes.
 - All colors, spacing and type come from `src/theme`; screens use `Text`, `Group`/`Row`, `Button` from `src/components`.
 - React Compiler is on: don't read mutable module state during render — expose it through `useSyncExternalStore` snapshots (see `src/lib/gita.ts`, `src/lib/storage.ts`).

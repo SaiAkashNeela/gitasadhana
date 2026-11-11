@@ -10,7 +10,8 @@ bookmarks, favourites, notes, reading history, streaks and calendar, themes, dai
 search, Gita AI, Google sign-in with cloud sync, contact and correction forms, and light/dark themes.
 It works on phones, tablets and desktops, and installs as an app (PWA) with offline support.
 
-Made by [Sai Akash Neela](https://saiakashneela.com) · [GitHub](https://github.com/SaiAkashNeela)
+Made by [Sai Akash Neela](https://saiakashneela.com) with [GeeksDesigns](https://geeksdesigns.com) ·
+Open source on [GitHub](https://github.com/SaiAkashNeela/gitasadhana)
 
 ## Run it
 

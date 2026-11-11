@@ -4,7 +4,7 @@ Everything the App Store and Google Play ask for, ready to upload.
 
 | Path | What |
 | --- | --- |
-| `store.config.json` | App Store listing (name, subtitle, description, keywords, URLs, age rating, review notes) for EAS Metadata |
+| `store.config.json` | App Store listing (name, subtitle, description, keywords, URLs, categories, age rating) for EAS Metadata |
 | `play-listing.md` | Google Play listing text to paste into Play Console |
 | `screenshots/ios-iphone-6.9/` | 6 × 1320×2868 — App Store, iPhone 6.9" (Apple scales these down for smaller iPhones) |
 | `screenshots/ios-ipad-13/` | 6 × 2064×2752 — App Store, iPad 13" (required now that the app supports iPad) |
@@ -21,8 +21,9 @@ Everything the App Store and Google Play ask for, ready to upload.
 `metadataPath` in `eas.json`; it authenticates with the App Store Connect API key stored on EAS). Run
 `bunx eas-cli metadata:pull` first if the listing was edited in App Store Connect, and merge. EAS
 Metadata can't set Apple's newer age-rating questions; answer those in App Store Connect.
-Drag the two screenshot folders into App Store Connect → the version → Previews and Screenshots
-(iPhone 6.9" Display and iPad 13" Display).
+Screenshots go to App Store Connect → the version → Previews and Screenshots (iPhone 6.9" Display
+and iPad 13" Display); 1.1.1's were uploaded through the App Store Connect API. App Store Connect
+app id: `6833198350`.
 
 **Google Play.** Play Console → Grow → Store presence → Main store listing: paste the text from
 `play-listing.md`, upload the icon, the feature graphic, `play-phone/` as phone screenshots and
@@ -63,14 +64,28 @@ there are no ads or analytics.
 | Identifiers: user ID (the account ID after sign-in) | App functionality | Yes |
 | Identifiers: device ID (random guest ID that limits Gita AI per device) | App functionality | No |
 
-Age rating: no objectionable content (all answers "None"). The Gita is set on a battlefield; the
-art shows warriors and chariots but no graphic violence. Review this before submitting.
+Age rating: every answer "None" or "No" (no ads, gambling, user-to-user chat, social features,
+user-generated content shared with others, web browsing or weapons). The Gita is set on a
+battlefield; the art shows warriors and chariots but no graphic violence. Content rights: does not
+use third-party content.
 
-## Before submitting
+## Google Play answers
 
+- **Category:** Books & Reference. Contact: hello@gitasadhana.com, https://gitasadhana.com.
+- **App access:** all functionality without special access. **Ads:** none.
+- **Content rating:** Reference, News, or Educational; every question "No".
+- **Target audience:** 13 and over (avoids the Families policy, which is strict for AI chat).
+- **Data safety:** collects data, shares none; encrypted in transit; deletion via
+  https://gitasadhana.com/settings.html (sign in → Delete account) or in the app. Types, all optional
+  and for app functionality: name, email, user IDs, other user-generated content (notes, bookmarks,
+  progress, Gita AI questions), and device or other IDs (guest ID, also for fraud prevention).
+
+## Every store release
+
+- [ ] Native change? Bump `version` in `app.json` (new OTA runtime). Always bump
+      `ios.buildNumber` / `android.versionCode`.
+- [ ] Test a production build on a real iPhone, iPad and Android phone or tablet (TestFlight and
+      Play internal testing).
+- [ ] Update `store.config.json` / `play-listing.md` and release notes, then `bunx eas-cli metadata:push`.
 - [ ] Optional: route `api.gitasadhana.com` to the Worker, then switch `EXPO_PUBLIC_API_BASE_URL`
       (in `eas.json` and the EAS environment variables) from the workers.dev address.
-- [ ] Bump `ios.buildNumber` / `android.versionCode` in `app.json` for each store build.
-- [ ] Google sign-in on Android: create an Android OAuth client for `app.gitasadhana.com` with the
-      EAS upload-key SHA-1 and the Play App Signing SHA-1.
-- [ ] Test a production build on a real iPhone, iPad and Android phone/tablet (`eas build --profile preview`).

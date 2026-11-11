@@ -13,7 +13,7 @@ reading streaks, notes, bookmarks, cloud sync and Gita AI.
 | API | Cloudflare Worker (Hono) + D1 (SQLite) — [`api/`](api/README.md) |
 | AI | Gemini on Vertex AI through Cloudflare AI Gateway |
 | Package manager | **Bun** (`bun.lock`) |
-| Legacy | The old Capacitor app and its Node/Mongo backend are on the [`archive/capacitor-app`](../../tree/archive/capacitor-app) branch |
+| Legacy | The old Capacitor app and its Node/Mongo backend are on the [`archive/capacitor-app`](https://github.com/SaiAkashNeela/gitasadhana/tree/archive/capacitor-app) branch |
 
 ```
 app/       Expo app (iOS, Android, web)
@@ -136,16 +136,16 @@ notice. Downloads are saved per language with `expo-file-system` (native only).
 The app sends the provider's token to the API (`/auth/google`, `/auth/apple`), which verifies it
 and returns its own session token (kept in the Keychain / Keystore; localStorage on web).
 
-Before release, in Google Cloud Console (project `822836118890`, OAuth clients):
+OAuth setup for gitasadhana.com (Google Cloud project `822836118890`). It is already done for the
+official app; a fork needs its own clients:
 
 - **Web client** — add every web origin under *Authorized JavaScript origins*:
   `https://gitasadhana.com`, plus local ones such as `http://localhost:5500` (website) and
   `http://localhost:8081` (app on web).
-- **Android client** (`app.gitasadhana.com`) — create one for this package and list the SHA-1 of
-  the EAS upload key (`bunx eas-cli credentials -p android`) and the Play App Signing SHA-1 from
-  Play Console.
-
-- **iOS client** (`822836118890-sufsueg8…`) — its bundle ID must be `app.gitasadhana.com`.
+- **Android client** (`app.gitasadhana.com`) — lists two SHA-1 fingerprints: the EAS upload key
+  (`bunx eas-cli credentials -p android`) and the Play App Signing key (Play Console → App integrity).
+  Without the second one, Google sign-in fails on installs from Google Play.
+- **iOS client** (`822836118890-sufsueg8…`) — bundle ID `app.gitasadhana.com`.
 
 Apple: the App ID `app.gitasadhana.com` needs the Sign in with Apple capability (EAS enables it from
 `usesAppleSignIn` when it creates the App ID). The API accepts Apple tokens for every bundle ID in
@@ -161,7 +161,7 @@ From `app/`, signed in to EAS (`bunx eas-cli login`):
 
 ```bash
 bun run build:ios                                  # then: bunx eas-cli submit -p ios --latest  (→ TestFlight)
-bun run build:android                              # download the .aab from expo.dev and upload it in Play Console
+bun run build:android                              # then: upload the .aab in Play Console, or eas submit -p android with a Play service-account key on EAS
 ```
 
 Bump `ios.buildNumber` and `android.versionCode` in `app.json` before every store build. The free
@@ -232,6 +232,28 @@ scripts/         content pipeline and its source data, audits, translation
 marks; light and dark. Titles in Marcellus, scripture in EB Garamond, Sanskrit in Noto Serif
 Devanagari. Icons are [Phosphor](https://phosphoricons.com), imported one file at a time
 (`phosphor-react-native/src/icons/<Name>`) so only the icons used are bundled.
+
+---
+
+## Contributing
+
+Issues and pull requests are welcome.
+
+- Run `bun run typecheck` and `bun run lint` in `app/`, and `bun run typecheck` and `bun run test`
+  in `api/`, before opening a pull request. If you change the website, run
+  `bash website/scripts/build.sh`.
+- Every visible string needs all 12 languages (see [Languages and content](#languages-and-content)).
+- Keep secrets, keys and personal data out of commits. `app/.env.example` and
+  `api/.dev.vars.example` list the variable names.
+- The app runs against the production API by default (`app/.env.example`). To run the API locally,
+  see [`api/README.md`](api/README.md); Gita AI needs a Cloudflare account with AI Gateway.
+
+**Forking.** The bundle ID, EAS project (`app.json` → `owner`, `extra.eas.projectId`, `updates.url`),
+App Store Connect app id (`eas.json`), OAuth client IDs, and the Worker's account id, D1 database id
+and mail domain (`api/wrangler.jsonc`) all belong to gitasadhana.com. Replace them with your own.
+
+**Security.** Please report vulnerabilities privately to hello@gitasadhana.com rather than in a
+public issue.
 
 ---
 

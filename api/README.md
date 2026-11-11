@@ -10,9 +10,12 @@ contract, so both the new Expo app and the old Capacitor builds work against it.
 - **Gita AI:** Gemini on Vertex AI (project `arivulabs-platform`, location `global`), called through
   the account's **AI Gateway "default"** via the Worker's `AI` binding. The gateway injects the
   Vertex credentials stored in it (BYOK), so no model key lives in the Worker, and every call is
-  logged in the gateway dashboard. 30 requests per user (or guest device) per day
+  logged in the gateway dashboard. 30 requests per user per day (`AI_DAILY_LIMIT`); guests are
+  limited per guest id and per IP (10 × the daily limit)
 - **Mail:** Cloudflare Email Service (REST API) from `hello@mails.gitasadhana.com`; the
-  `mails.gitasadhana.com` subdomain is onboarded to Email Sending with SPF, DKIM and DMARC
+  `mails.gitasadhana.com` subdomain is onboarded to Email Sending with SPF, DKIM and DMARC. The
+  `/mail/*` routes need no sign-in, so they allow 10 mails per IP and 3 per recipient each day; a
+  signed-in user mailing their own address isn't limited
 
 Live: `https://gita-sadhana-api.mrsan.workers.dev`
 
@@ -42,7 +45,7 @@ The model and location are Worker variables — change them any time in the Clou
 and `VERTEX_LOCATION` (always `global`). `keep_vars` in `wrangler.jsonc` stops deploys from
 overwriting them.
 
-Point the app at it with `EXPO_PUBLIC_API_BASE_URL=http://localhost:8787` in the root `.env`.
+Point the app at it with `EXPO_PUBLIC_API_BASE_URL=http://localhost:8787` in `app/.env`.
 
 ## Deploy
 
